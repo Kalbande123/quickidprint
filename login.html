@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - QuickIDPrint</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="config.js"></script>
+
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Mukta',sans-serif}
+        :root{
+            --navy:#123a8f;--blue:#2563eb;--orange:#f97316;
+            --text:#172554;--muted:#64748b;--line:#dce5f2
+        }
+        body{
+            min-height:100vh;display:flex;align-items:center;justify-content:center;
+            padding:24px;
+            background:
+              radial-gradient(circle at 8% 8%,rgba(255,211,70,.20),transparent 25%),
+              radial-gradient(circle at 92% 85%,rgba(37,99,235,.11),transparent 27%),
+              linear-gradient(135deg,#fffdf6 0%,#f4f8fd 52%,#edf3fb 100%);
+            color:var(--text);overflow-x:hidden
+        }
+        .login-container{
+            width:100%;max-width:920px;min-height:550px;display:grid;
+            grid-template-columns:46% 54%;overflow:hidden;
+            background:rgba(255,255,255,.96);border:1px solid #e3eaf4;
+            border-radius:28px;box-shadow:0 24px 60px rgba(18,58,143,.13)
+        }
+        .login-container:before{
+            content:"";position:absolute;pointer-events:none
+        }
+        .brand-panel{
+            position:relative;padding:48px 38px;display:flex;flex-direction:column;
+            justify-content:center;overflow:hidden;
+            background:linear-gradient(145deg,#102d73 0%,#1d4fa8 68%,#2866c9 100%);
+            color:#fff
+        }
+        .brand-panel:after{
+            content:"";position:absolute;width:330px;height:330px;right:-150px;top:-120px;
+            border-radius:50%;background:rgba(255,215,70,.13)
+        }
+        .brand-panel:before{
+            content:"";position:absolute;width:210px;height:210px;left:-110px;bottom:-100px;
+            border-radius:50%;background:rgba(255,255,255,.06)
+        }
+        .panel-logo{
+            width:100px;height:100px;border-radius:24px;object-fit:contain;
+            background:#fff;padding:7px;box-shadow:0 12px 28px rgba(0,0,0,.18);
+            margin-bottom:22px;position:relative;z-index:2
+        }
+        .panel-brand{font-size:37px;font-weight:800;line-height:1;position:relative;z-index:2}
+        .panel-brand .q-blue{color:#fff}.panel-brand .q-orange{color:#ff9b42}
+        .panel-tag{font-size:15px;color:#dce8ff;margin-top:8px;position:relative;z-index:2}
+        .panel-title{font-size:25px;font-weight:800;margin-top:35px;position:relative;z-index:2}
+        .panel-sub{font-size:14px;color:#cbdcff;line-height:1.6;margin-top:6px;position:relative;z-index:2}
+        .feature-list{display:flex;flex-direction:column;gap:11px;margin-top:25px;position:relative;z-index:2}
+        .feature-list div{
+            display:flex;align-items:center;gap:10px;color:#eaf1ff;font-size:13px
+        }
+        .feature-list i{
+            width:28px;height:28px;border-radius:9px;display:grid;place-items:center;
+            background:rgba(255,255,255,.12);color:#ffe27a
+        }
+        .form-panel{padding:48px 48px;display:flex;flex-direction:column;justify-content:center}
+        .form-top{text-align:left;margin-bottom:28px}
+        .form-top .eyebrow{
+            display:inline-flex;align-items:center;gap:6px;
+            color:#f97316;font-size:12px;font-weight:800;letter-spacing:.5px;
+            background:#fff3e9;padding:5px 10px;border-radius:999px
+        }
+        .form-top h1{font-size:31px;color:var(--navy);margin-top:11px;font-weight:800}
+        .form-top p{font-size:13px;color:var(--muted);margin-top:3px}
+        .input-group{position:relative;margin-bottom:19px;text-align:left}
+        .input-group label{display:block;margin-bottom:7px;font-weight:700;color:#334155;font-size:14px}
+        .input-group i{
+            position:absolute;top:40px;left:14px;color:#7b8ca6;font-size:14px
+        }
+        .input-group input{
+            width:100%;height:48px;padding:11px 13px 11px 40px;
+            border:1px solid var(--line);border-radius:12px;font-size:15px;
+            color:#1e293b;background:#f8fbff;outline:none;transition:.22s
+        }
+        .input-group input:focus{
+            border-color:#80a8ff;background:#fff;
+            box-shadow:0 0 0 4px rgba(37,99,235,.09)
+        }
+        .login-btn{
+            width:100%;height:49px;margin-top:5px;border:0;border-radius:12px;
+            background:linear-gradient(135deg,#123a8f,#2e60c8);color:#fff;
+            font-size:17px;font-weight:800;cursor:pointer;transition:.22s;
+            box-shadow:0 9px 20px rgba(18,58,143,.18)
+        }
+        .login-btn:hover{transform:translateY(-2px);box-shadow:0 13px 25px rgba(18,58,143,.24)}
+        .login-btn:disabled{background:#94a3b8;box-shadow:none;cursor:not-allowed;transform:none}
+        .secure-note{
+            display:flex;align-items:center;justify-content:center;gap:7px;
+            color:#718096;font-size:11px;margin-top:18px
+        }
+        .secure-note i{color:#22c55e}
+        @media(max-width:760px){
+            body{padding:13px}
+            .login-container{grid-template-columns:1fr;max-width:480px;min-height:auto;border-radius:22px}
+            .brand-panel{padding:25px 25px 27px;min-height:235px}
+            .panel-logo{width:72px;height:72px;border-radius:18px;margin-bottom:13px}
+            .panel-brand{font-size:29px}.panel-title{font-size:19px;margin-top:16px}
+            .panel-sub,.feature-list{display:none}
+            .form-panel{padding:30px 25px 32px}
+            .form-top h1{font-size:27px}
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <section class="brand-panel">
+            <img src="logo.png" alt="QuickIDPrint Logo" class="panel-logo">
+            <div class="panel-brand"><span class="q-blue">Quick</span><span class="q-orange">ID</span><span class="q-blue">Print</span></div>
+            <div class="panel-tag">जलद • सोपे • विश्वासनीय</div>
+            <div class="panel-title">आपल्या डिजिटल सेवांचे स्वागत आहे</div>
+            <div class="panel-sub">घोषणापत्र, आयडी कार्ड आणि इतर ऑनलाइन सेवा एका सुरक्षित पोर्टलवर.</div>
+            <div class="feature-list">
+                <div><i class="fas fa-shield-halved"></i> सुरक्षित लॉगिन</div>
+                <div><i class="fas fa-bolt"></i> जलद आणि सोपी प्रक्रिया</div>
+                <div><i class="fas fa-print"></i> प्रिंटसाठी तयार सेवा</div>
+            </div>
+        </section>
+
+        <section class="form-panel">
+            <div class="form-top">
+                <span class="eyebrow"><i class="fas fa-lock"></i> SECURE LOGIN</span>
+                <h1>लॉगिन करा</h1>
+                <p>आपल्या QuickIDPrint खात्यात प्रवेश करा</p>
+            </div>
+
+        <form id="loginForm">
+            <div class="input-group">
+                <label>मोबाईल नंबर (युजरनेम)</label>
+                <i class="fas fa-phone-alt"></i>
+                <input type="text" id="username" placeholder="तुमचा नोंदणीकृत मोबाईल नंबर" required>
+            </div>
+            <div class="input-group">
+                <label>पासवर्ड</label>
+                <i class="fas fa-lock"></i>
+                <input type="password" id="password" placeholder="तुमचा पासवर्ड टाका" required>
+            </div>
+            <button type="submit" class="login-btn" id="loginBtn">लॉगिन करा</button>
+        </form>
+            <div class="secure-note"><i class="fas fa-circle-check"></i> तुमची माहिती सुरक्षित ठेवली जाते</div>
+        </section>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const loginBtn = document.getElementById('loginBtn');
+            loginBtn.innerText = "तपासत आहे...";
+            loginBtn.disabled = true;
+
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+
+            const formData = new FormData();
+            formData.append('action', 'login');
+            formData.append('username', user);
+            formData.append('password', pass);
+
+            fetch(CONFIG.SCRIPT_URL, {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    // 🔒 येथे sessionStorage मध्ये नवीन एक्सपायरी डेटा सेव्ह केला आहे 
+                    sessionStorage.setItem('username', user);
+                    sessionStorage.setItem('userFullName', data.name || "युजर");
+                    sessionStorage.setItem('expireDate', data.expireDate || "");
+                    sessionStorage.setItem('remainingDays', data.remainingDays || 0);
+                    
+                    if(user === '9999999999') {
+                        window.location.href = "admin.html"; 
+                    } else {
+                        window.location.href = "home.html"; 
+                    }
+                } else {
+                    alert("लॉगिन अयशस्वी! \n" + (data.message || "कृपया मोबाईल नंबर आणि पासवर्ड तपासा.")); 
+                    loginBtn.innerText = "लॉगिन करा";
+                    loginBtn.disabled = false;
+                }
+            })
+            .catch(err => {
+                alert("इंटरनेट एरर! कृपया आपले इंटरनेट कनेक्शन तपासा आणि पुन्हा प्रयत्न करा.");
+                loginBtn.innerText = "लॉगिन करा";
+                loginBtn.disabled = false;
+            });
+        });
+    </script>
+</body>
+</html>
