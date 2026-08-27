@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickIDPrint - ऑनलाईन घोषणापत्र व स्मार्ट आयडी सेवा</title>
+    
+    <!-- सुंदर मराठी फॉन्ट -->
+    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- आयकॉन्ससाठी FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-blue: #123a8f;
+            --secondary-blue: #1d4ed8;
+            --light-bg: #f1f5f9;
+            --text-dark: #1e293b;
+            --text-gray: #64748b;
+            --white: #ffffff;
+            --green: #22c55e;
+            --orange: #f97316;
+            --red: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Mukta', sans-serif;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* ----- Header (वरचा मेनू) ----- */
+        header {
+            background-color: var(--white);
+            padding: 12px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-section { display: flex; align-items: center; gap: 12px; }
+        .logo-box { width: 50px; height: 50px; border-radius: 12px; background: #fff5bf; display: flex; align-items: center; justify-content: center; color: var(--primary-blue); font-size: 24px; }
+        .logo-text h1 { font-size: 26px; font-weight: 800; line-height: 1; margin: 0; }
+        .logo-text h1 .brand-quick { color: var(--primary-blue); }
+        .logo-text h1 .brand-id { color: var(--orange); }
+        .logo-text h1 .brand-print { color: var(--primary-blue); }
+        .logo-text p { color: var(--text-gray); font-size: 12px; font-weight: 600; margin-top: 2px; }
+
+        .header-buttons { display: flex; gap: 15px; }
+        .btn { padding: 10px 22px; border-radius: 8px; font-weight: 700; font-size: 15px; text-decoration: none; display: flex; align-items: center; gap: 8px; transition: all 0.3s; }
+        .btn-primary { background-color: var(--primary-blue); color: var(--white); border: 2px solid var(--primary-blue); }
+        .btn-primary:hover { background-color: var(--white); color: var(--primary-blue); }
+        .btn-outline { background-color: transparent; color: var(--primary-blue); border: 2px solid var(--primary-blue); }
+        .btn-outline:hover { background-color: var(--primary-blue); color: var(--white); }
+
+        /* ----- Hero Section (मुख्य बॅनर) ----- */
+        .hero { display: flex; align-items: center; justify-content: space-between; padding: 60px 5%; background: linear-gradient(135deg, #fffdf4 0%, #eef4ff 100%); border-bottom: 1px solid #e2e8f0; }
+        .hero-content { max-width: 55%; }
+        .hero-greeting { display: inline-block; background: #fff0e5; color: var(--orange); padding: 5px 15px; border-radius: 20px; font-weight: 800; font-size: 13px; margin-bottom: 15px; }
+        .hero-content h1 { font-size: 42px; color: var(--primary-blue); font-weight: 800; line-height: 1.2; margin-bottom: 15px; }
+        .hero-content p { font-size: 17px; color: var(--text-gray); margin-bottom: 30px; line-height: 1.6; }
+        .hero-badges { display: flex; flex-wrap: wrap; gap: 15px; }
+        .badge { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.8); padding: 8px 16px; border-radius: 30px; border: 1px solid #dbeafe; font-weight: 700; font-size: 14px; color: #334155; }
+        .badge i { color: var(--secondary-blue); font-size: 18px; }
+        .hero-image { max-width: 40%; text-align: center; }
+        .hero-image i { font-size: 180px; color: var(--primary-blue); opacity: 0.9; text-shadow: 0 15px 30px rgba(18,58,143,0.15); }
+
+        /* ----- WhatsApp Alert ----- */
+        .token-alert-container { padding: 40px 5% 10px; }
+        .whatsapp-alert-box { max-width: 800px; margin: 0 auto; background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%); border: 2px dashed #3b82f6; border-radius: 15px; padding: 25px; text-align: center; box-shadow: 0 8px 20px rgba(59, 130, 246, 0.1); animation: pulse-border-blue 2s infinite; }
+        .whatsapp-alert-box h3 { color: #1e3a8a; font-size: 22px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px; }
+        .whatsapp-alert-box p { color: #1d4ed8; font-size: 16px; font-weight: 600; margin-bottom: 20px; }
+        .whatsapp-btn { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; padding: 12px 30px; border-radius: 30px; font-weight: 800; font-size: 18px; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3); transition: 0.3s; }
+        .whatsapp-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4); color: white; }
+
+        @keyframes pulse-border-blue {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.3); }
+            70% { box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+
+        /* ----- Section Titles ----- */
+        .section-title { text-align: center; margin: 50px 0 30px; }
+        .section-title h2 { font-size: 28px; color: var(--primary-blue); font-weight: 800; display: inline-flex; align-items: center; gap: 12px; }
+        .section-title h2::before, .section-title h2::after { content: ""; height: 3px; width: 40px; background-color: var(--orange); border-radius: 5px; }
+
+        /* ----- Services Grid ----- */
+        .services-container { padding: 0 5%; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .service-card { background: var(--white); padding: 30px 20px; border-radius: 16px; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.04); transition: 0.3s; border: 1px solid #e2e8f0; }
+        .service-card:hover { transform: translateY(-5px); border-color: #bfd3ff; box-shadow: 0 15px 30px rgba(37,99,235,0.1); }
+        .service-icon { width: 75px; height: 75px; margin: 0 auto 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--white); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .service-card h3 { font-size: 19px; color: var(--text-dark); font-weight: 700; }
+
+        /* ----- Features ----- */
+        .features-container { padding: 0 5%; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+        .feature-box { background: var(--white); padding: 25px 20px; border-radius: 16px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; transition: 0.3s; }
+        .feature-box:hover { background: #eff6ff; border-color: #dbeafe; }
+        .feature-box i { font-size: 45px; color: var(--primary-blue); margin-bottom: 15px; }
+        .feature-box p { font-weight: 700; color: var(--text-dark); font-size: 16px; }
+
+        /* ----- Public FAQ Section ----- */
+        .faq-section { max-width: 900px; margin: 60px auto 40px; padding: 0 5%; }
+        .faq-item { background: var(--white); border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.02); transition: 0.3s; }
+        .faq-q { padding: 20px 25px; font-size: 16px; font-weight: 700; color: var(--text-dark); cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; transition: 0.2s; }
+        .faq-q:hover { color: var(--secondary-blue); background: #f1f5f9; }
+        .faq-q i { color: #94a3b8; transition: transform 0.3s; }
+        .faq-a { padding: 0 25px; max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, padding 0.4s ease-out; color: #475569; font-size: 15px; line-height: 1.6; }
+        
+        .faq-item.active { border-color: #bfd3ff; }
+        .faq-item.active .faq-q { color: var(--secondary-blue); background: #eff6ff; }
+        .faq-item.active .faq-q i { transform: rotate(180deg); color: var(--secondary-blue); }
+        .faq-item.active .faq-a { padding: 15px 25px 20px; max-height: 500px; border-top: 1px solid #e2e8f0; }
+
+        /* ----- Footer ----- */
+        footer { background-color: var(--primary-blue); color: var(--white); padding: 50px 5% 20px; margin-top: 60px; }
+        .footer-content { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 40px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 30px; margin-bottom: 20px; }
+        .footer-col h3 { font-size: 20px; margin-bottom: 20px; color: #93c5fd; font-weight: 800; }
+        .footer-col p { margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-size: 15px; color: #cbd5e1; }
+        .footer-social { display: flex; gap: 15px; margin-top: 15px; }
+        .social-icon { width: 45px; height: 45px; background: rgba(255,255,255,0.1); color: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; text-decoration: none; transition: 0.3s; }
+        .social-icon:hover { background: #25D366; transform: translateY(-3px); }
+        .footer-bottom { text-align: center; font-size: 14px; color: #94a3b8; }
+
+        /* ----- Responsive ----- */
+        @media (max-width: 900px) {
+            .hero { flex-direction: column; text-align: center; padding: 40px 5%; }
+            .hero-content, .hero-image { max-width: 100%; }
+            .hero-badges { justify-content: center; }
+            .hero-image { margin-top: 30px; display: none; }
+        }
+        @media (max-width: 600px) {
+            .header-buttons .btn span { display: none; }
+            .btn { padding: 8px 15px; }
+            .logo-text h1 { font-size: 20px; }
+            .hero-content h1 { font-size: 32px; }
+            .whatsapp-alert-box h3 { font-size: 18px; }
+            .whatsapp-btn { font-size: 16px; padding: 10px 20px; }
+            .faq-q { font-size: 15px; padding: 15px; }
+            .faq-a { font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ----- Header ----- -->
+    <header>
+        <div class="logo-section">
+            <div class="logo-box"><i class="fas fa-id-card"></i></div>
+            <div class="logo-text">
+                <h1><span class="brand-quick">Quick</span><span class="brand-id">ID</span><span class="brand-print">Print</span></h1>
+                <p>जलद • सोपे • विश्वासनीय</p>
+            </div>
+        </div>
+        <div class="header-buttons">
+            <a href="login.html" class="btn btn-primary"><i class="fas fa-user-circle"></i> <span>Login</span></a>
+            <a href="https://wa.me/919403901395" target="_blank" class="btn btn-outline"><i class="fas fa-headset"></i> <span>Support</span></a>
+        </div>
+    </header>
+
+    <!-- ----- Hero Section ----- -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-greeting">Welcome to QuickIDPrint</div>
+            <h1>ऑनलाईन स्मार्ट आयडी आणि घोषणापत्र सेवा</h1>
+            <p>काही मिनिटांत अचूक माहिती भरून तयार करा आणि HD क्वालिटीमध्ये प्रिंटसाठी तयार स्मार्ट आयडी कार्ड व घोषणापत्रे मिळवा.</p>
+            <div class="hero-badges">
+                <div class="badge"><i class="fas fa-shield-alt"></i> 100% सुरक्षित</div>
+                <div class="badge"><i class="fas fa-bolt"></i> अत्यंत जलद</div>
+                <div class="badge"><i class="fas fa-print"></i> थेट प्रिंट</div>
+            </div>
+        </div>
+        <div class="hero-image">
+            <i class="fas fa-id-card-clip"></i>
+        </div>
+    </section>
+
+    <!-- ----- WhatsApp Alert Box ----- -->
+    <div class="token-alert-container">
+        <div class="whatsapp-alert-box">
+            <h3><i class="fas fa-bullhorn"></i> नवीन अकाउंट उघडायचे आहे?</h3>
+            <p>आमच्या अमर्यादित सेवांचा लाभ घेण्यासाठी आणि नवीन रजिस्ट्रेशनसाठी आजच आमच्याशी संपर्क साधा!</p>
+            <a href="https://wa.me/919403901395?text=नमस्कार! मी तुमच्या 'QuickIDPrint' वेबसाईटला भेट दिली. मला नवीन अकाउंट उघडायचे आहे." target="_blank" class="whatsapp-btn">
+                <i class="fab fa-whatsapp"></i> 9403901395
+            </a>
+        </div>
+    </div>
+
+    <!-- ----- Smart ID Cards ----- -->
+    <div class="section-title">
+        <h2>स्मार्ट आयडी कार्ड प्रिंटिंग</h2>
+    </div>
+    <section class="services-container">
+        <div class="service-card">
+            <div class="service-icon" style="background: linear-gradient(135deg, #f97316, #ea580c);"><i class="fas fa-fingerprint"></i></div>
+            <h3>आधार कार्ड प्रिंट</h3>
+        </div>
+        <div class="service-card">
+            <div class="service-icon" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);"><i class="fas fa-address-card"></i></div>
+            <h3>मतदान कार्ड प्रिंट</h3>
+        </div>
+        <div class="service-card">
+            <div class="service-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);"><i class="fas fa-id-badge"></i></div>
+            <h3>पॅन कार्ड प्रिंट</h3>
+        </div>
+        <div class="service-card">
+            <div class="service-icon" style="background: linear-gradient(135deg, #22c55e, #16a34a);"><i class="fas fa-tractor"></i></div>
+            <h3>शेतकरी ओळखपत्र</h3>
+        </div>
+        <div class="service-card">
+            <div class="service-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);"><i class="fas fa-heartbeat"></i></div>
+            <h3>आयुष्मान कार्ड</h3>
+        </div>
+        <div class="service-card">
+            <div class="service-icon" style="background: linear-gradient(135deg, #14b8a6, #0d9488);"><i class="fas fa-address-book"></i></div>
+            <h3>महा आयडी प्रिंट</h3>
+        </div>
+    </section>
+
+    <!-- ----- Declarations (घोषणापत्रे) ----- -->
+    <div class="section-title">
+        <h2>उपलब्ध घोषणापत्र सेवा</h2>
+    </div>
+    <section class="services-container">
+        <div class="service-card">
+            <div class="service-icon" style="background-color: #3b82f6;"><i class="fas fa-file-invoice-dollar"></i></div>
+            <h3>उत्पन्न घोषणापत्र</h3>
+        </div>
+        <div class="service-card">
+            <div class="service-icon" style="background-color: #22c55e;"><i class="fas fa-file-contract"></i></div>
+            <h3>३ वर्षांचे उत्पन्न घोषणापत्र</h3>
+        </div>
+        <div class="service-card">
+            <div class="service-icon" style="background-color: #f97316;"><i class="fas fa-home"></i></div>
+            <h3>रहिवासी घोषणापत्र</h3>
+        </div>
+        <div class="service-card">
+            <div class="service-icon" style="background-color: #8b5cf6;"><i class="fas fa-flag"></i></div>
+            <h3>राष्ट्रीयत्व घोषणापत्र</h3>
+        </div>
+        <div class="service-card">
+            <div class="service-icon" style="background-color: #ef4444;"><i class="fas fa-users"></i></div>
+            <h3>जातीचे घोषणापत्र</h3>
+        </div>
+        <div class="service-card">
+            <div class="service-icon" style="background-color: #14b8a6;"><i class="fas fa-file-signature"></i></div>
+            <h3>नॉन-क्रीमीलेअर घोषणापत्र</h3>
+        </div>
+    </section>
+
+    <!-- ----- Features ----- -->
+    <div class="section-title">
+        <h2>हे पोर्टल का वापरावे?</h2>
+    </div>
+    <section class="features-container">
+        <div class="feature-box"><i class="fas fa-bullseye"></i><p>अचूक आणि योग्य फॉरमॅटमध्ये सेवा</p></div>
+        <div class="feature-box"><i class="fas fa-image"></i><p>स्मार्ट फोटो एडिट आणि HD क्वालिटी</p></div>
+        <div class="feature-box"><i class="fas fa-lock"></i><p>१00% सुरक्षित आणि Session Privacy</p></div>
+        <!-- 🟢 येथे बदल केला आहे -->
+        <div class="feature-box"><i class="fas fa-infinity"></i><p>परवडणारे अमर्यादित (Unlimited) प्लॅन</p></div>
+    </section>
+
+    <!-- ----- Public FAQ Section ----- -->
+    <div class="section-title" style="margin-top: 70px;">
+        <h2>नेहमी विचारले जाणारे प्रश्न (FAQ)</h2>
+    </div>
+    <div class="faq-section">
+        
+        <div class="faq-item">
+            <div class="faq-q" onclick="toggleFAQ(this)">१. QuickIDPrint पोर्टल काय आहे? <i class="fas fa-chevron-down"></i></div>
+            <div class="faq-a">QuickIDPrint हे एक प्रगत आणि सुरक्षित स्मार्ट ऑनलाईन पोर्टल आहे. या पोर्टलच्या माध्यमातून तुम्ही विविध स्मार्ट आयडी कार्ड्स (उदा. आधार, पॅन, मतदान) आणि सर्व प्रकारची प्रशासकीय मराठी घोषणापत्रे (उदा. उत्पन्न, रहिवासी, जात) अत्यंत जलद, अचूक आणि HD क्वालिटीमध्ये बनवून डाऊनलोड करू शकता.</div>
+        </div>
+
+        <!-- 🟢 येथे बदल केला आहे -->
+        <div class="faq-item">
+            <div class="faq-q" onclick="toggleFAQ(this)">२. पोर्टल वापरण्यासाठी पैसे लागतात का? (सबस्क्रिप्शन प्लॅन) <i class="fas fa-chevron-down"></i></div>
+            <div class="faq-a">होय, आम्ही अत्यंत परवडणाऱ्या दरात 'सबस्क्रिप्शन प्लॅन (महिनेवारी)' देतो. एकदा प्लॅन ॲक्टिव्हेट केल्यावर तुम्ही मुदत संपेपर्यंत कोणतीही आयडी कार्ड किंवा घोषणापत्र सेवा अमर्यादित (Unlimited) वापरू शकता. प्रत्येक अर्जासाठी वेगळे पैसे कट होणार नाहीत.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-q" onclick="toggleFAQ(this)">३. नवीन अकाउंट कसे उघडावे? <i class="fas fa-chevron-down"></i></div>
+            <div class="faq-a">नवीन अकाउंट उघडण्यासाठी तुम्ही आमच्या अधिकृत WhatsApp नंबरवर (9403901395) संपर्क साधू शकता. आमची टीम तुम्हाला युजरनेम आणि पासवर्ड तयार करून देईल.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-q" onclick="toggleFAQ(this)">४. मी अपलोड केलेले डॉक्युमेंट्स सुरक्षित आहेत का? <i class="fas fa-chevron-down"></i></div>
+            <div class="faq-a">होय, १००% सुरक्षित आहेत! QuickIDPrint पोर्टल प्रगत 'Session Security' वर चालते. तुम्ही अपलोड केलेली कोणतीही PDF किंवा माहिती आमच्या सर्व्हरवर सेव्ह केली जात नाही. लॉगआऊट केल्यावर तुमचा सर्व डेटा सिस्टीममधून आपोआप नष्ट होतो.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-q" onclick="toggleFAQ(this)">५. हे पोर्टल मोबाईलवर वापरता येईल का? <i class="fas fa-chevron-down"></i></div>
+            <div class="faq-a">होय, नक्कीच! हे पोर्टल मोबाईल, कम्प्युटर आणि टॅब्लेटवर अगदी सहज आणि फास्ट चालते. तुम्ही मोबाईलवरूनही घोषणापत्रे भरून थेट PDF डाऊनलोड करू शकता किंवा WhatsApp वर ग्राहकांना पाठवू शकता.</div>
+        </div>
+
+    </div>
+
+    <!-- ----- Footer ----- -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-col">
+                <h3>QuickIDPrint</h3>
+                <p>ऑनलाईन स्मार्ट आयडी आणि घोषणापत्र सेवा.<br>तुमच्या वेळेची बचत, आमची जबाबदारी.</p>
+            </div>
+            
+            <div class="footer-col">
+                <h3>सम्पर्क माहिती</h3>
+                <p><i class="fas fa-phone-alt"></i> +91 9403901395</p>
+               
+            </div>
+
+            <div class="footer-col">
+                <h3>आमच्याशी जोडून राहा</h3>
+                <p style="font-size: 14px;">त्वरित प्रतिसादासाठी खालील आयकॉनवर क्लिक करा.</p>
+                <div class="footer-social">
+                    <a href="https://wa.me/919403901395?text=नमस्कार! मला 'QuickIDPrint' च्या सेवांबद्दल जाणून घ्यायचे आहे." target="_blank" class="social-icon whatsapp" title="WhatsApp वर मेसेज करा"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 QuickIDPrint. सर्व हक्क राखीव. | व्हर्जन 2.0.0
+        </div>
+    </footer>
+
+    <script>
+        // 🟢 FAQ Accordion Script
+        function toggleFAQ(element) {
+            const parent = element.parentElement;
+            
+            const allItems = document.querySelectorAll('.faq-item');
+            allItems.forEach(item => {
+                if(item !== parent && item.classList.contains('active')) {
+                    item.classList.remove('active');
+                }
+            });
+
+            parent.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>
