@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickIDPrint | Smart Service Dashboard</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="config.js"></script>
+    <script src="auth-guard.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Mukta', sans-serif; }
+        body { background-color: #f1f5f9; color: #1e293b; padding-bottom: 50px; }
+        
+        .navbar { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
+        .logo-area { display: flex; align-items: center; gap: 18px; }
+        
+        .site-logo { width: 140px; height: 130px; object-fit: contain; background: transparent; border: none; box-shadow: none; }
+        
+        .logo-text h2 { font-size: 32px !important; font-weight: 800 !important; line-height: 1 !important; letter-spacing: -0.5px; }
+        .brand-quick { color: #17428f; }
+        .brand-id { color: #f97316; }
+        .brand-print { color: #17428f; }
+        
+        .logo-text p { font-size: 13px; color: #64748b; font-weight: 600; margin-top: 4px; }
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        
+        .btn-top-faq { background: #eff6ff; color: #1e3a8a; padding: 7px 15px; border-radius: 20px; font-weight: 800; font-size: 14px; text-decoration: none; display: flex; align-items: center; gap: 5px; border: 1px solid #dbeafe; transition: 0.2s; }
+        .btn-top-faq:hover { background: #dbeafe; transform: translateY(-2px); }
+
+        .btn-top-recharge { background: linear-gradient(135deg, #16a34a, #22c55e); color: white; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 15px; text-decoration: none; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(22,163,74,.2); transition: 0.2s; border: 1px solid #15803d; }
+        .btn-top-recharge:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(22,163,74,.3); background: linear-gradient(135deg, #15803d, #16a34a); }
+
+        .token-badge { background: #fef08a; color: #ca8a04; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 15px; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #fde047; }
+        .token-badge small { font-weight: normal; color: #a16207; font-size: 12px; }
+
+        .user-profile { display: flex; align-items: center; gap: 10px; cursor: pointer; position: relative; margin-left: 5px; }
+        .user-profile .avatar { font-size: 35px; color: #2563eb; }
+        .user-info { display: flex; flex-direction: column; line-height: 1.2; }
+        .user-info small { font-size: 12px; color: #64748b; }
+        .user-info span { font-weight: bold; font-size: 15px; color: #1e3a8a; }
+        
+        .dropdown-menu { display: none; position: absolute; top: 100%; right: 0; background: white; min-width: 180px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-radius: 8px; margin-top: 15px; overflow: hidden; border: 1px solid #e2e8f0; }
+        .dropdown-menu.active { display: block; }
+        .dropdown-menu a { display: block; padding: 12px 15px; text-decoration: none; color: #334155; font-size: 15px; border-bottom: 1px solid #f1f5f9; transition: 0.2s; }
+        .dropdown-menu a:hover { background: #f8fafc; color: #ea580c; }
+
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+
+        .qid-hero{ position:relative;overflow:hidden;display:flex;align-items:center; min-height:285px;padding:26px 34px;margin-bottom:20px; border-radius:25px;border:1px solid #efdc96; background:linear-gradient(110deg,#fff8d8 0%,#fffef7 48%,#eaf3ff 100%); box-shadow:0 15px 38px rgba(18,58,143,.08) }
+        .qid-hero-copy{position:relative;z-index:5;width:44%;padding-right:18px}
+        .hero-greeting{font-size:17px;color:#f97316;font-weight:800;margin-bottom:2px}
+        .qid-hero-copy h1{color:#123a8f;font-size:32px;line-height:1.08;margin:0 0 2px;font-weight:800}
+        .hero-brand{font-size:35px;font-weight:800;letter-spacing:-1.2px;line-height:1}
+        .hero-brand span{color:#173f91}.hero-brand b{color:#f97316}
+        .qid-hero-copy p{color:#64748b;font-size:15px;margin-top:9px}
+        .hero-pills{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}
+        .hero-pills span{background:rgba(255,255,255,.76);border:1px solid #e6eaf1;border-radius:999px;padding:5px 9px;color:#52627d;font-size:11px;font-weight:700}
+        .hero-pills i{color:#2563eb;margin-right:4px}
+
+        .qid-hero-visual{position:relative;z-index:4;width:56%;height:270px;display:flex;align-items:center;justify-content:center}
+        .service-scene{position:relative;width:540px;max-width:100%;height:215px}
+        .scene-glow{position:absolute;left:50%;top:55%;transform:translate(-50%,-50%);width:390px;height:150px;border-radius:50%;background:rgba(255,211,67,.15);filter:blur(3px)}
+        .computer-device{position:absolute;left:25px;bottom:20px;width:245px;height:174px}
+        .monitor-frame{position:absolute;left:0;top:0;width:215px;height:133px;border:7px solid #173c86;border-radius:13px;background:#f8fbff;box-shadow:0 12px 20px rgba(18,58,143,.16);overflow:hidden}
+        .monitor-bar{height:18px;background:#e8effa;display:flex;align-items:center;padding-left:7px;gap:4px}
+        .monitor-bar span{width:5px;height:5px;border-radius:50%;background:#f97316}
+        .monitor-screen{padding:9px}
+        .screen-heading{width:70px;height:7px;border-radius:5px;background:#d0dcf1;margin-bottom:7px}
+        .screen-row{height:24px;background:#eef4ff;border-radius:5px;margin-bottom:5px;display:flex;align-items:center;padding:4px;gap:5px}
+        .screen-row i{width:15px;height:15px;border-radius:4px;background:#3b82f6}
+        .screen-row b{width:55px;height:5px;border-radius:4px;background:#c6d4eb}
+        .monitor-stand{position:absolute;left:76px;top:129px;width:53px;height:23px;background:#173c86;clip-path:polygon(20% 0,80% 0,100% 100%,0 100%)}
+        .monitor-base{position:absolute;left:42px;top:148px;width:122px;height:10px;border-radius:8px;background:#173c86}
+        .printer-device{position:absolute;right:13px;bottom:22px;width:155px;height:106px}
+        .printer-top{position:absolute;left:22px;top:0;width:111px;height:42px;background:#fff;border:3px solid #173c86;border-radius:7px 7px 2px 2px;transform:skew(-3deg);box-shadow:0 4px 8px rgba(18,58,143,.08)}
+        .printer-paper{position:absolute;left:39px;top:-31px;width:75px;height:49px;background:#fff;border:2px solid #d5deef;border-radius:3px;z-index:3;padding:5px 7px}
+        .printer-paper div{height:3px;background:#2563eb;margin-bottom:5px;border-radius:2px}
+        .printer-paper span{font-size:8px;color:#123a8f;font-weight:800}
+        .printer-body{position:absolute;bottom:0;left:0;width:155px;height:76px;background:linear-gradient(145deg,#1a428e,#0d2b67);border-radius:12px 12px 17px 17px;box-shadow:0 13px 22px rgba(18,58,143,.2)}
+        .printer-slot{position:absolute;left:29px;top:25px;width:91px;height:10px;border-radius:6px;background:#091f50}
+        .printer-light{position:absolute;right:14px;top:24px;width:9px;height:9px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px rgba(34,197,94,.6)}
+        .printed-sheet{position:absolute;left:45px;bottom:-18px;width:72px;height:30px;background:#fff;border:2px solid #d5deef;transform:rotate(-2deg);box-shadow:0 4px 9px rgba(0,0,0,.08)}
+        .floating-id{position:absolute;width:76px;height:96px;background:#fff;border:3px solid #173c86;border-radius:7px;box-shadow:0 9px 18px rgba(18,58,143,.15);z-index:10;padding:7px}
+        .id-one{right:105px;top:40px;transform:rotate(7deg)}
+        .id-two{right:38px;top:52px;transform:rotate(13deg)}
+        .id-photo{width:23px;height:28px;border-radius:4px;background:#ffb62b;margin-bottom:6px}
+        .id-lines i{display:block;height:4px;background:#9bb0d2;border-radius:4px;margin:4px 0}
+        .floating-id small{font-size:7px;color:#173c86;font-weight:800;display:block;margin-top:4px}
+        .doc-emblem{font-size:17px;color:#f97316;text-align:center;margin-bottom:3px}
+        .floating-doc{position:absolute;right:4px;top:13px;width:62px;height:73px;background:#fff;border:2px solid #d6dfef;border-radius:6px;transform:rotate(-9deg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;box-shadow:0 7px 14px rgba(18,58,143,.12);z-index:7}
+        .floating-doc i{font-size:23px;color:#8b5cf6}.floating-doc span{font-size:8px;font-weight:800;color:#64748b}
+
+        .whatsapp-banner { background: #dcfce7; border-left: 5px solid #22c55e; padding: 15px 20px; border-radius: 8px; margin-bottom: 30px; color: #166534; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); text-align: center; }
+        .whatsapp-banner i { font-size: 24px; color: #22c55e; }
+        .whatsapp-banner a { color: #15803d; font-weight: bold; text-decoration: none; border-bottom: 1px dashed #15803d; }
+
+        .section-title { text-align: center; margin: 25px 0 14px; position: relative; }
+        .section-title span { display:inline-flex; align-items:center; gap:7px; background: linear-gradient(135deg,#123a8f,#365fca); color: white; padding: 7px 18px; border-radius: 999px; font-size: 13px; font-weight: 600; box-shadow:0 7px 17px rgba(18,58,143,.14); }
+        
+        .pricing-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px; background: transparent; margin-bottom: 40px; }
+        .price-item { background: rgba(255,255,255,.96); padding: 15px 17px; border-radius: 17px; border: 1px solid #e4ebf5; border-left: 4px solid #2563eb; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 7px 20px rgba(20,40,91,.05); }
+        .price-item:nth-child(2) { border-left-color: #22c55e; }
+        .price-item:nth-child(3) { border-left-color: #ea580c; }
+        .service-name { font-weight: 600; color: #334155; display: flex; align-items: center; gap: 10px; font-size: 14px; }
+        .service-name i { color: #64748b; font-size: 18px; }
+        .service-price { background: #fff2a8; color: #b45309; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; border: 1px solid #f5df6a; }
+
+        .quick-access-box { background: white; padding: 25px; border-radius: 12px; display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; margin-bottom: 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .qa-item { display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; transition: 0.3s; }
+        .qa-item:hover { transform: translateY(-3px); }
+        .qa-icon { width: 60px; height: 60px; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .qa-item span { font-size: 15px; font-weight: 600; color: #334155; }
+        
+        .icon-orange { background: #fff7ed; color: #ea580c; border: 1px solid #ffedd5; }
+        .icon-blue { background: #eff6ff; color: #2563eb; border: 1px solid #dbeafe; }
+        .icon-purple { background: #faf5ff; color: #9333ea; border: 1px solid #f3e8ff; }
+
+        .services-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 40px; }
+        .service-card { background: white; padding: 30px 20px; border-radius: 19px; text-align: center; border: 1px solid #e2e9f4; position: relative; transition: 0.3s; box-shadow: 0 8px 23px rgba(20,40,91,.055); }
+        .service-card:hover { border-color: #bfd3ff; box-shadow: 0 16px 32px rgba(37,99,235,0.13); transform: translateY(-6px); }
+        
+        .service-cost-badge { position: absolute; top: 15px; right: 15px; background: #e0f2fe; color: #0369a1; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px; border: 1px solid #bae6fd; }
+
+        .service-icon { width: 70px; height: 70px; margin: 0 auto 20px; background: #f8fafc; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 28px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .service-card h3 { font-size: 18px; color: #1e293b; margin-bottom: 20px; }
+        .start-btn { display: inline-block; padding: 8px 25px; border: 1px solid #1e3a8a; border-radius: 11px; color: #1e3a8a; text-decoration: none; font-size: 14px; font-weight: 600; transition: 0.3s; }
+        .start-btn:hover { background: #1e3a8a; color: white; box-shadow: 0 7px 16px rgba(18,58,143,.18); }
+
+        .c-blue .service-icon { color: #3b82f6; }
+        .c-green .service-icon { color: #22c55e; }
+        .c-orange .service-icon { color: #f97316; }
+        .c-red .service-icon { color: #ef4444; }
+        .c-purple .service-icon { color: #8b5cf6; }
+        .c-teal .service-icon { color: #14b8a6; }
+        .c-indigo .service-icon { color: #6366f1; }
+
+        @media(max-width:1050px){ .services-grid{grid-template-columns:repeat(3,1fr)} .qid-hero-copy{width:43%}.qid-hero-visual{width:57%} }
+        @media(max-width:760px){
+            .navbar{padding:8px 13px}.site-logo{width:90px;height:80px}
+            .logo-text h2{font-size:26px!important}
+            .user-info{display:none}.nav-right{gap:8px}.token-badge{padding:7px 10px;font-size:12px}
+            .btn-top-recharge span { display: none; }
+            .btn-top-recharge { padding: 8px 10px; }
+            .btn-top-faq { padding: 7px 10px; }
+            .container{padding:0 12px;margin-top:14px}
+            .qid-hero{display:block;min-height:515px;padding:24px 19px}
+            .qid-hero-copy{width:100%;padding-right:0}.qid-hero-copy h1{font-size:27px}
+            .services-grid{grid-template-columns:repeat(2,1fr);gap:11px}.pricing-list{grid-template-columns:1fr!important}
+        }
+        @media(max-width:470px){ .services-grid{grid-template-columns:1fr} }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo-area">
+            <img src="logo.png" alt="QuickIDPrint Logo" class="site-logo" onerror="this.style.display='none'">
+            <div class="logo-text">
+                <h2><span class="brand-quick">Quick</span><span class="brand-id">ID</span><span class="brand-print">Print</span></h2>
+                <p>जलद • सोपे • विश्वासनीय</p>
+            </div>
+        </div>
+        
+        <div class="nav-right">
+            <a href="faq.html" class="btn-top-faq" title="FAQ">
+                <i class="fas fa-info-circle"></i> FAQ
+            </a>
+
+            <a href="recharge.html" class="btn-top-recharge" title="प्लॅन रिन्यू करा">
+                <i class="fas fa-sync-alt"></i> <span>Renew Plan</span>
+            </a>
+
+            <!-- 🟢 येथे टोकन ऐवजी एक्सपायरी डेट दिसेल -->
+            <div class="token-badge" title="प्लॅनची मुदत">
+                <i class="far fa-calendar-check"></i> <span id="displayExpiry">तपासत आहे...</span>
+            </div>
+
+            <div class="user-profile" onclick="toggleDropdown()">
+                <i class="fas fa-user-circle avatar"></i>
+                <div class="user-info">
+                    <small>Welcome,</small>
+                    <span id="displayUserName">Loading...</span>
+                </div>
+                <i class="fas fa-chevron-down" style="font-size: 12px; color: #64748b; margin-left: 5px;"></i>
+                <div class="dropdown-menu" id="userMenu">
+                    <a href="#" onclick="alert('प्रोफाईल पेजवर लवकरच काम सुरू होईल!')"><i class="far fa-id-card"></i> My Profile</a>
+                    <a href="faq.html"><i class="fas fa-info-circle"></i> FAQ</a>
+                    <a href="#" style="color: #ef4444;" onclick="logoutUser()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+        <section class="qid-hero">
+            <div class="qid-hero-copy">
+                <div class="hero-greeting"><span>👋</span> नमस्कार!</div>
+                <h1>आपले स्वागत आहे</h1>
+                <div class="hero-brand"><span>Quick</span><b>ID</b><span>Print</span></div>
+                <p>आपल्या सर्व डिजिटल सेवा एका क्लिकवर उपलब्ध.</p>
+                <div class="hero-pills">
+                    <span><i class="fas fa-bolt"></i> जलद सेवा</span>
+                    <span><i class="fas fa-shield-halved"></i> सुरक्षित</span>
+                    <span><i class="fas fa-print"></i> थेट प्रिंट</span>
+                </div>
+            </div>
+
+            <div class="qid-hero-visual">
+                <div class="service-scene">
+                    <div class="scene-glow"></div>
+
+                    <div class="computer-device">
+                        <div class="monitor-frame">
+                            <div class="monitor-bar"><span></span><span></span><span></span></div>
+                            <div class="monitor-screen">
+                                <div class="screen-heading"></div>
+                                <div class="screen-row"><i></i><b></b></div>
+                                <div class="screen-row"><i></i><b></b></div>
+                                <div class="screen-row"><i></i><b></b></div>
+                            </div>
+                        </div>
+                        <div class="monitor-stand"></div>
+                        <div class="monitor-base"></div>
+                    </div>
+
+                    <div class="printer-device">
+                        <div class="printer-paper">
+                            <div></div><div></div><div></div>
+                            <span>QuickID</span>
+                        </div>
+                        <div class="printer-top"></div>
+                        <div class="printer-body">
+                            <div class="printer-slot"></div>
+                            <span class="printer-light"></span>
+                        </div>
+                        <div class="printed-sheet"></div>
+                    </div>
+
+                    <div class="floating-id id-one">
+                        <div class="id-photo"></div>
+                        <div class="id-lines"><i></i><i></i><i></i></div>
+                        <small>ID CARD</small>
+                    </div>
+
+                    <div class="floating-id id-two">
+                        <div class="doc-emblem">✦</div>
+                        <div class="id-lines"><i></i><i></i><i></i></div>
+                        <small>DOCUMENT</small>
+                    </div>
+
+                    <div class="floating-doc">
+                        <i class="fas fa-file-lines"></i>
+                        <span>PRINT</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 🟢 बॅनर मेसेज अपडेट केला -->
+        <div class="whatsapp-banner">
+            <i class="fab fa-whatsapp"></i> 
+            <div><strong>प्लॅन रिन्यूअल:</strong> तुमच्या प्लॅनची मुदत संपल्यास रिन्यू करण्यासाठी <a href="recharge.html">येथे क्लिक करा</a> किंवा <a href="https://wa.me/919403901395?text=नमस्कार! मला QuickIDPrint पोर्टलवर माझा प्लॅन रिन्यू करायचा आहे." target="_blank">9403901395</a> या नंबरवर WhatsApp करा.</div>
+        </div>
+
+        <div class="section-title"><span><i class="fas fa-list-alt"></i> सबस्क्रिप्शन प्लॅन (Unlimited Access)</span></div>
+        <div class="pricing-list">
+            <div class="price-item">
+                <span class="service-name"><i class="fas fa-id-card"></i> सर्व स्मार्ट आयडी कार्ड्स</span>
+                <span class="service-price">अमर्यादित (Unlimited)</span>
+            </div>
+            <div class="price-item">
+                <span class="service-name"><i class="fas fa-tractor"></i> शेतकरी ओळखपत्र प्रिंटिंग</span>
+                <span class="service-price">अमर्यादित (Unlimited)</span>
+            </div>
+            <div class="price-item">
+                <span class="service-name"><i class="fas fa-file-signature"></i> सर्व प्रकारची मराठी घोषणापत्रे</span>
+                <span class="service-price">अमर्यादित (Unlimited)</span>
+            </div>
+        </div>
+
+        <div class="section-title"><span><i class="fas fa-bolt"></i> त्वरित सुविधा (Quick Access)</span></div>
+        <div class="quick-access-box">
+            <div class="qa-item" onclick="alert('अर्जांची यादी लवकरच येत आहे!')">
+                <div class="qa-icon icon-blue"><i class="far fa-folder-open"></i></div><span>माझे अर्ज</span>
+            </div>
+            <div class="qa-item" onclick="alert('प्रोफाईल पेज लवकरच येत आहे!')">
+                <div class="qa-icon icon-orange"><i class="far fa-user"></i></div><span>माझी प्रोफाईल</span>
+            </div>
+            <div class="qa-item" onclick="window.location.href='faq.html'">
+                <div class="qa-icon icon-purple"><i class="fas fa-info-circle"></i></div><span>FAQ</span>
+            </div>
+        </div>
+
+        <div class="section-title"><span><i class="fas fa-id-card"></i> स्मार्ट आयडी कार्ड प्रिंटिंग</span></div>
+        <div class="services-grid">
+            <div class="service-card c-orange">
+                <div class="service-cost-badge"><i class="fas fa-unlock-alt"></i> अमर्यादित</div>
+                <div class="service-icon"><i class="fas fa-fingerprint"></i></div>
+                <h3>१. आधार कार्ड प्रिंट</h3>
+                <a href="aadhaar_print.html" class="start-btn">सेवा सुरु करा <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="service-card c-blue">
+                <div class="service-cost-badge"><i class="fas fa-unlock-alt"></i> अमर्यादित</div>
+                <div class="service-icon"><i class="fas fa-address-card"></i></div>
+                <h3>२. मतदान कार्ड प्रिंट</h3>
+                <a href="voter_print.html" class="start-btn">सेवा सुरु करा <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="service-card c-green">
+                <div class="service-cost-badge"><i class="fas fa-unlock-alt"></i> अमर्यादित</div>
+                <div class="service-icon"><i class="fas fa-tractor"></i></div>
+                <h3>३. शेतकरी ओळखपत्र</h3>
+                <a href="farmer_print.html" class="start-btn">सेवा सुरु करा <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="service-card c-red">
+                <div class="service-cost-badge"><i class="fas fa-unlock-alt"></i> अमर्यादित</div>
+                <div class="service-icon"><i class="fas fa-id-badge"></i></div>
+                <h3>४. पॅन कार्ड प्रिंट</h3>
+                <a href="pan_print.html" class="start-btn">सेवा सुरु करा <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="service-card c-purple">
+                <div class="service-cost-badge"><i class="fas fa-unlock-alt"></i> अमर्यादित</div>
+                <div class="service-icon"><i class="fas fa-heartbeat"></i></div>
+                <h3>५. आयुष्मान कार्ड</h3>
+                <a href="ayushman_print.html" class="start-btn">सेवा सुरु करा <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="service-card c-teal">
+                <div class="service-cost-badge"><i class="fas fa-unlock-alt"></i> अमर्यादित</div>
+                <div class="service-icon"><i class="fas fa-address-book"></i></div>
+                <h3>६. महा आयडी प्रिंट</h3>
+                <a href="maha_id.html" class="start-btn">सेवा सुरु करा <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+
+        <div class="section-title"><span><i class="fas fa-file-signature"></i> घोषणापत्र सेवा (Ghoshnapatra)</span></div>
+        <div class="services-grid">
+            <div class="service-card c-blue">
+                <div class="service-cost-badge"><i class="fas fa-unlock-alt"></i> अमर्यादित</div>
+                <div class="service-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+                <h3>उत्पन्न घोषणा पत्र</h3>
+                <a href="utpanna.html" class="start-btn">सेवा सुरु करा <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="service-card c-green">
+                <div class="service-cost-badge"><i class="fas fa-unlock-alt"></i> अमर्यादित</div>
+                <div class="service-icon"><i class="fas fa-file-contract"></i></div>
+                <h3>३ वर्षाचे उत्पन्न घोषणा पत्र</h3>
+                <a href="utpanna3.html" class="start-btn">सेवा सुरु करा <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="service-card c-orange">
+                <div class="service-cost-badge"><i class="fas fa-unlock-alt"></i> अमर्यादित</div>
+                <div class="service-icon"><i class="fas fa-home"></i></div>
+                <h3>रहिवासी घोषणा पत्र</h3>
+                <a href="rahivasi_ghoshana.html" class="start-btn">सेवा सुरु करा <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="service-card c-red">
+                <div class="service-cost-badge"><i class="fas fa-unlock-alt"></i> अमर्यादित</div>
+                <div class="service-icon"><i class="fas fa-users"></i></div>
+                <h3>जातीचे घोषणा पत्र</h3>
+                <a href="jati_ghoshana.html" class="start-btn">सेवा सुरु करा <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="service-card c-purple">
+                <div class="service-cost-badge"><i class="fas fa-unlock-alt"></i> अमर्यादित</div>
+                <div class="service-icon"><i class="fas fa-flag"></i></div>
+                <h3>राष्ट्रीयत्व घोषणा पत्र</h3>
+                <a href="rashtriyatva_ghoshana.html" class="start-btn">सेवा सुरु करा <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="service-card c-teal">
+                <div class="service-cost-badge"><i class="fas fa-unlock-alt"></i> अमर्यादित</div>
+                <div class="service-icon"><i class="fas fa-file-signature"></i></div>
+                <h3>नॉन-क्रीमीलेअर घोषणा पत्र</h3>
+                <a href="non_creamy_layer_ghoshana.html" class="start-btn">सेवा सुरु करा <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="service-card c-indigo">
+                <div class="service-cost-badge"><i class="fas fa-unlock-alt"></i> अमर्यादित</div>
+                <div class="service-icon"><i class="fas fa-tractor"></i></div>
+                <h3>अल्पभूधारक घोषणा पत्र</h3>
+                <a href="alpabhudharak_ghoshana.html" class="start-btn">सेवा सुरु करा <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            // 🔒 sessionStorage वापरून सुरक्षित लोडिंग
+            const userName = sessionStorage.getItem('userFullName');
+            const expireDate = sessionStorage.getItem('expireDate');
+            const remainingDays = sessionStorage.getItem('remainingDays');
+
+            if (!userName) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            document.getElementById('displayUserName').innerText = userName;
+
+            // 🟢 एक्स्पायरी डेट आणि उरलेले दिवस डॅशबोर्डवर सेट करा
+            const displayObj = document.getElementById('displayExpiry');
+            if (expireDate && remainingDays !== null) {
+                if (parseInt(remainingDays) >= 0) {
+                    displayObj.innerHTML = `उरलेले दिवस: ${remainingDays} <small>(${expireDate})</small>`;
+                } else {
+                    displayObj.innerHTML = `<span style="color:red;">प्लॅन संपला आहे</span>`;
+                }
+            } else {
+                displayObj.innerText = "माहिती उपलब्ध नाही";
+            }
+        };
+
+        function toggleDropdown() { document.getElementById('userMenu').classList.toggle('active'); }
+
+        window.onclick = function(event) {
+            if (!event.target.closest('.user-profile')) {
+                const dropdowns = document.getElementsByClassName("dropdown-menu");
+                for (let i = 0; i < dropdowns.length; i++) dropdowns[i].classList.remove('active');
+            }
+        }
+
+        function logoutUser() {
+            sessionStorage.clear();
+            window.location.href = "login.html";
+        }
+    </script>
+</body>
+</html>
