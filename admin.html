@@ -40,7 +40,6 @@
         .user-card { background: #f8fafc; border: 1px solid #cbd5e1; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 15px; }
         .user-card span { font-weight: bold; color: #ea580c; }
 
-        /* PDF Statement Design */
         #printAreaWrapper { display: none; margin-top: 30px; overflow-x: auto; }
         .pdf-container { width: 730px; min-width: 730px; margin: 0 auto; background: white; padding: 10px 20px; font-family: 'Mukta', sans-serif; position: relative; box-sizing: border-box; }
         .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #001040; padding-bottom: 10px; margin-bottom: 15px; }
@@ -95,7 +94,6 @@
     </nav>
 
     <div class="container">
-        <!-- Tabs -->
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('add')">Add User</button>
             <button class="tab-btn" onclick="switchTab('edit')">Edit User</button>
@@ -194,7 +192,6 @@
                 <button class="btn-green" id="btnFetchStmt" onclick="fetchStatement()">स्टेटमेंट जनरेट करा</button>
             </div>
 
-            <!-- PDF PRINT AREA -->
             <div id="printAreaWrapper">
                 <div class="pdf-container" id="pdfTemplate">
                     
@@ -251,7 +248,6 @@
                                 </tr>
                             </thead>
                             <tbody id="pdfTableBody">
-                                <!-- Data will populate here -->
                             </tbody>
                         </table>
                     </div>
@@ -304,7 +300,6 @@
             document.getElementById('rechRemark').value = act + " - " + amt + " Days";
         }
 
-        // 1. ADD USER
         function addUser() {
             let btn = document.getElementById('btnAdd');
             btn.innerText = "प्रक्रिया चालू आहे...";
@@ -317,7 +312,7 @@
             formData.append('mobile', document.getElementById('addMobile').value);
             formData.append('username', document.getElementById('addUsername').value);
             formData.append('password', document.getElementById('addPass').value);
-            formData.append('tokens', document.getElementById('addTokens').value); // tokens ID represents Days now
+            formData.append('tokens', document.getElementById('addTokens').value); 
 
             fetch(CONFIG.SCRIPT_URL, { method: 'POST', body: formData })
             .then(res=>res.json())
@@ -339,7 +334,6 @@
             });
         }
 
-        // 2. SEARCH USER
         function searchUser(type) {
             let searchId = "";
             let btnId = "";
@@ -393,7 +387,11 @@
                         document.getElementById('pdfShop').innerText = data.shop;
                         document.getElementById('pdfMobile').innerText = data.mobile;
                         document.getElementById('pdfUsername').innerText = data.username;
-                        document.getElementById('pdfStatus').innerText = data.userStatus || "Active";
+                        
+                        // 🟢 Status Color Coding
+                        let statusText = data.userStatus || "Active";
+                        let statusColor = (statusText.toLowerCase() === 'blocked') ? 'red' : 'green';
+                        document.getElementById('pdfStatus').innerHTML = `<span style="color:${statusColor}; font-weight:bold;">${statusText}</span>`;
                     }
                 } else {
                     alert(data.message); 
@@ -404,7 +402,6 @@
             });
         }
 
-        // 3. UPDATE USER
         function updateUser() {
             let formData = new FormData();
             formData.append('action', 'updateUser');
@@ -426,12 +423,11 @@
             });
         }
 
-        // 4. RECHARGE SUBMIT
         function submitRecharge() {
             let formData = new FormData();
             formData.append('action', 'recharge');
             formData.append('mobile', currentUserData.username);
-            formData.append('amount', document.getElementById('rechAmount').value); // Sending Days as amount
+            formData.append('amount', document.getElementById('rechAmount').value); 
             formData.append('remark', document.getElementById('rechRemark').value);
 
             fetch(CONFIG.SCRIPT_URL, { method: 'POST', body: formData }).then(res=>res.json()).then(data=>{
@@ -446,7 +442,6 @@
             });
         }
 
-        // 5. FETCH & FILTER STATEMENT
         function fetchStatement() {
             let fromDate = document.getElementById('stmtFrom').value;
             let toDate = document.getElementById('stmtTo').value;
@@ -503,7 +498,6 @@
                     let diffDays = Math.ceil((tDate - fDate) / (1000 * 60 * 60 * 24));
                     document.getElementById('pdfDays').innerText = diffDays;
 
-                    // Summary Update
                     document.getElementById('sumCredit').innerText = currentUserData.lastRecharge || "-";
                     document.getElementById('sumDebit').innerText = filtered.length;
                     document.getElementById('sumBalance').innerText = currentUserData.remainingDays || "0";
