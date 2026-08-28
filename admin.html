@@ -107,7 +107,7 @@
         <!-- 1. ADD USER -->
         <div id="add" class="section-content active">
             <h3><i class="fas fa-user-plus"></i> नवीन युजर जोडा</h3>
-            <p style="color:#64748b; font-size:13px; margin-bottom:15px;">(टीप: नवीन अकाउंटमध्ये उरलेले दिवस ० असतील. सेव्ह झाल्यावर 'Renew Plan' मधून दिवस ॲड करा.)</p>
+            <p style="color:#64748b; font-size:13px; margin-bottom:15px;">(टीप: नवीन अकाउंटमध्ये उरलेले दिवस ० असतील. सेव्ह झाल्यावर 'Renew Plan' मधून Welcome Plan किंवा दिवस ॲड करा.)</p>
             <div class="grid-2">
                 <div class="form-group"><label>नाव:</label><input type="text" id="addName"></div>
                 <div class="form-group"><label>शॉपचे नाव:</label><input type="text" id="addShop"></div>
@@ -135,13 +135,19 @@
                     <div class="form-group"><label>मोबाईल:</label><input type="text" id="edMobile"></div>
                     <div class="form-group"><label>युजरनेम:</label><input type="text" id="edUsername"></div>
                     <div class="form-group"><label>पासवर्ड:</label><input type="text" id="edPass"></div>
+                    
+                    <!-- 🟢 Block Reason Feature -->
                     <div class="form-group">
                         <label>स्टेटस:</label>
-                        <select id="edStatus">
+                        <select id="edStatus" onchange="toggleBlockReason()">
                             <option value="Active">Active</option>
                             <option value="Blocked">Blocked</option>
                         </select>
                     </div>
+                </div>
+                <div class="form-group" id="divBlockReason" style="display:none;">
+                    <label style="color:#dc2626;">ब्लॉक करण्याचे कारण (Reason):</label>
+                    <input type="text" id="edBlockReason" placeholder="उदा. Payment Due...">
                 </div>
                 <button class="btn-green" onclick="updateUser()">डेटा अपडेट करा</button>
             </div>
@@ -160,6 +166,7 @@
                     <div class="form-group">
                         <label>ॲक्शन (प्रकार निवडा):</label>
                         <select id="rechAction" onchange="autoRemark()">
+                            <option value="Welcome Plan">Welcome Plan (New User)</option>
                             <option value="Plan Renew">प्लॅन रिन्यू करा (Add Days)</option>
                             <option value="Reduce Days">दिवस कमी करा (Deduct Days)</option>
                             <option value="Zero Days">प्लॅन संपवा (Make Days 0)</option>
@@ -244,12 +251,13 @@
                             <thead>
                                 <tr>
                                     <th width="6%">अ.क्र.</th>
-                                    <th width="18%">दिनांक व वेळ</th>
-                                    <th width="20%">कृती (Action)</th>
-                                    <th width="22%">शेरा (Remark)</th>
-                                    <th width="14%">प्लॅन एक्सपायरी</th>
-                                    <th width="10%">उरलेले दिवस</th>
-                                    <th width="10%">स्थिती</th>
+                                    <th width="12%">दिनांक</th>
+                                    <th width="18%">कृती (Action)</th>
+                                    <th width="20%">शेरा (Remark)</th>
+                                    <th width="13%">Plan Start</th>
+                                    <th width="13%">प्लॅन एक्सपायरी</th>
+                                    <th width="9%">उरलेले दिवस</th>
+                                    <th width="9%">Status</th>
                                 </tr>
                             </thead>
                             <tbody id="pdfTableBody">
@@ -296,6 +304,16 @@
             document.getElementById('stmtFilters').style.display = 'none';
             document.getElementById('rechForm').style.display = 'none';
             document.getElementById('editForm').style.display = 'none';
+        }
+
+        // 🟢 Block Reason Toggle Function
+        function toggleBlockReason() {
+            let status = document.getElementById('edStatus').value;
+            if(status === 'Blocked') {
+                document.getElementById('divBlockReason').style.display = 'block';
+            } else {
+                document.getElementById('divBlockReason').style.display = 'none';
+            }
         }
 
         function autoRemark() {
@@ -386,6 +404,8 @@
                         
                         let st = data.userStatus ? data.userStatus.toLowerCase() : 'active';
                         document.getElementById('edStatus').value = (st === 'blocked') ? 'Blocked' : 'Active';
+                        toggleBlockReason();
+                        document.getElementById('edBlockReason').value = "";
                     }
                     if(type==='recharge') {
                         document.getElementById('rechForm').style.display = 'block';
@@ -424,6 +444,7 @@
             formData.append('newUsername', document.getElementById('edUsername').value);
             formData.append('newPass', document.getElementById('edPass').value);
             formData.append('newStatus', document.getElementById('edStatus').value);
+            formData.append('blockReason', document.getElementById('edBlockReason').value); // Send Block Reason
 
             fetch(CONFIG.SCRIPT_URL, { method: 'POST', body: formData }).then(res=>res.json()).then(data=>{
                 alert(data.message);
@@ -454,7 +475,7 @@
                     document.getElementById('rechSearch').value = ""; 
                     document.getElementById('rechAmount').value = "";
                     document.getElementById('rechRemark').value = "";
-                    document.getElementById('rechAction').value = "Plan Renew";
+                    document.getElementById('rechAction').value = "Welcome Plan";
                 }
                 btn.innerText = "प्लॅन अपडेट करा";
                 btn.disabled = false;
@@ -487,8 +508,7 @@
 
                     let filtered = data.transactions.filter(tx => {
                         if(!tx.date) return false;
-                        let cleanDate = String(tx.date).replace(/'/g, "").trim();
-                        let parts = cleanDate.split(' ')[0].split('/'); 
+                        let parts = tx.date.split('/'); 
                         if(parts.length < 3) return false;
                         let txDate = new Date(parts[2], parts[1]-1, parts[0]);
                         return txDate >= fDate && txDate <= tDate;
@@ -501,19 +521,21 @@
                     let lastRenewDate = "-";
 
                     filtered.forEach((tx, i) => {
-                        if(tx.actionType === "Plan Renew") {
+                        if(tx.actionType === "Plan Renew" || tx.actionType === "Welcome Plan") {
                             renewCount++;
-                            lastRenewDate = String(tx.date).split(' ')[0];
+                            lastRenewDate = tx.date;
                         }
                         
-                        let stColor = tx.status === 'Success' ? '#16a34a' : '#dc2626';
+                        let stColor = tx.status === 'Active' ? '#16a34a' : '#dc2626';
 
+                        // 🟢 Table Columns Mapping
                         tbody.innerHTML += `
                             <tr>
                                 <td>${i+1}</td>
                                 <td>${tx.date}</td>
                                 <td class="text-left" style="font-weight:bold; color:#0369a1;">${tx.actionType || '-'}</td>
                                 <td class="text-left">${tx.remark || '-'}</td>
+                                <td>${tx.planStart || '-'}</td>
                                 <td style="color:#16a34a; font-weight:bold;">${tx.expiry || '-'}</td>
                                 <td style="font-weight:bold;">${tx.remaining !== undefined ? tx.remaining : '-'}</td>
                                 <td style="color:${stColor}; font-weight:bold;">${tx.status || '-'}</td>
@@ -522,7 +544,7 @@
                     });
 
                     if(filtered.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="7">या कालावधीत कोणतीही ऍडमिन अ‍ॅक्टिव्हिटी नाही.</td></tr>`;
+                        tbody.innerHTML = `<tr><td colspan="8">या कालावधीत कोणतीही ऍडमिन अ‍ॅक्टिव्हिटी नाही.</td></tr>`;
                     }
 
                     document.getElementById('pdfFrom').innerText = fromDate.split('-').reverse().join('/');
