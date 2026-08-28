@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <title>उत्पन्न घोषणापत्र - SevaSpot Center</title>
+  <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="config.js"></script>
+  <!-- 🔒 इथे सिक्युरिटी गार्ड फाईल जोडली आहे -->
+  <script src="auth-guard.js"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; } 
+    body { font-family: 'Mukta', sans-serif; background-color: #f1f5f9; padding: 20px; color: #1e293b; }
+
+    .form-container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+    .form-section { margin-bottom: 15px; }
+    .form-section label { display: block; font-weight: 600; margin-bottom: 5px; color: #334155; }
+    .form-section input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 15px; background: #f8fafc; }
+    
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+    .upload-box { border: 2px dashed #cbd5e1; padding: 15px; border-radius: 8px; text-align: center; background: #f8fafc; margin-top: 15px; }
+    .upload-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    
+    .notice-box { background: #dcfce7; border: 1px solid #22c55e; color: #166534; padding: 12px; border-radius: 8px; font-weight: bold; margin-bottom: 25px; margin-top: 20px; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .notice-box a { color: #15803d; text-decoration: none; border-bottom: 1px dashed #15803d; }
+
+    .action-buttons { display: flex; gap: 15px; margin-top: 25px; }
+    .btn-print, .btn-download { flex: 1; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; border: none; color: white; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-print { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); }
+    .btn-print:hover { background: #1e40af; }
+    .btn-download { background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); }
+    .btn-download:hover { background: #166534; }
+
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
+    .modal-content { background: white; padding: 20px; border-radius: 10px; text-align: center; max-width: 400px; width: 90%; }
+    video { width: 100%; border-radius: 6px; background: #000; }
+
+    @media (max-width: 768px) {
+        body { padding: 10px; }
+        .form-container { padding: 15px !important; }
+        .grid-2 { grid-template-columns: 1fr !important; gap: 10px !important; } 
+        .action-buttons { flex-direction: column !important; gap: 10px !important; }
+        .upload-buttons { flex-direction: column !important; }
+        .upload-buttons label, .upload-buttons button { width: 100% !important; margin: 0 !important; }
+    }
+
+    .print-section { display: none; font-size: 18px; line-height: 2.0; color: #000; }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .form-container { display: none !important; }
+      .print-section { display: block !important; }
+    }
+
+    .photo-wrapper { text-align: right; margin-bottom: 10px; }
+    #photo { width: 120px; height: 150px; object-fit: cover; border: 2px solid #000; background-color: #fff; }
+    .heading { text-align: center; font-weight: bold; font-size: 24px; margin-top: 20px; margin-bottom: 30px; text-decoration: underline; }
+    .paragraph { margin-bottom: 20px; text-indent: 40px; text-align: justify; }
+    .signature-block { text-align: center; min-width: 200px; }
+  </style>
+</head>
+<body>
+
+<div class="form-container">
+  <div style="text-align: right; margin-bottom: 15px;">
+      <a href="home.html" style="color: #2563eb; text-decoration: none; font-weight: 600;"><i class="fas fa-arrow-left"></i> डॅशबोर्डवर जा</a>
+  </div>
+
+  <div class="notice-box">
+      <i class="fab fa-whatsapp" style="font-size: 24px; color: #25D366;"></i> 
+      <span>प्लॅन संपल्यास रिन्यू करण्यासाठी <a href="https://wa.me/919403901395?text=नमस्कार! मला QuickIDPrint पोर्टलवर माझा प्लॅन रिन्यू करायचा आहे." target="_blank">9403901395</a> वर संपर्क साधा.</span>
+  </div>
+
+  <h2 style="color: #ea580c; text-align: center; margin-bottom: 20px;">उत्पन्न घोषणापत्र अर्ज</h2>
+
+  <form id="incomeForm" onsubmit="return false;">
+    <div class="form-section">
+      <label>नाव:</label>
+      <input type="text" id="name" placeholder="अर्जदाराचे संपूर्ण नाव" required>
+    </div>
+
+    <div class="grid-2">
+      <div class="form-section">
+        <label>वडिलांचे / पतीचे नाव:</label>
+        <input type="text" id="father" required>
+      </div>
+      <div class="form-section">
+        <label>व्यवसाय:</label>
+        <input type="text" id="occupation" required>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="form-section">
+        <label>वय:</label>
+        <input type="number" id="age" required>
+      </div>
+      <div class="form-section">
+        <label>उत्पन्न रक्कम (हजारात):</label>
+        <input type="text" id="income" required>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <label>पत्ता:</label>
+      <input type="text" id="address" placeholder="गल्ली/गाव, तालुका, जिल्हा" required>
+    </div>
+
+    <div class="form-section">
+      <label>कशासाठी (कारण):</label>
+      <input type="text" id="purpose" placeholder="उदा. नवीन मीटर कनेक्शनसाठी" required>
+    </div>
+
+    <div class="grid-2">
+      <div class="form-section">
+        <label>दिनांक:</label>
+        <input type="date" id="date" required>
+      </div>
+      <div class="form-section">
+        <label>ठिकाण:</label>
+        <input type="text" id="location" value="हदगाव" required>
+      </div>
+    </div>
+
+    <div class="upload-box">
+      <label style="font-weight: bold; margin-bottom: 10px; display: block;"><i class="fas fa-camera"></i> फोटो निवडा किंवा काढा</label>
+      <div class="upload-buttons">
+        <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="loadPhoto(event)">
+        <label for="imageInput" style="background: #2563eb; color: white; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 15px; display: inline-block;">फाईल निवडा</label>
+        <button type="button" onclick="openCamModal()" style="background: #16a34a; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 15px;">वेबकॅम फोटो</button>
+      </div>
+      <img id="formPreviewImg" src="" style="display: none; width: 80px; height: 100px; object-fit: cover; margin: 15px auto 0; border: 2px solid #cbd5e1; border-radius: 8px;" alt="Preview">
+    </div>
+
+    <!-- 🟢 इथे टोकन काढले आणि अनलिमिटेड केले -->
+    <div class="action-buttons">
+        <button type="button" class="btn-print" id="btnPrint" onclick="processForm('print')">
+            <i class="fas fa-print"></i> प्रिंट करा (Unlimited)
+        </button>
+        <button type="button" class="btn-download" id="btnDownload" onclick="processForm('download')">
+            <i class="fas fa-file-pdf"></i> PDF डाऊनलोड (Unlimited)
+        </button>
+    </div>
+  </form>
+</div>
+
+<!-- वेबकॅम मोडल -->
+<div class="modal" id="camModal">
+  <div class="modal-content">
+      <h3 style="margin-top: 0; margin-bottom: 10px;">थेट कॅमेरा</h3>
+      <video id="webcamVideo" autoplay playsinline></video>
+      <canvas id="canvas" style="display:none;"></canvas>
+      <div style="margin-top: 15px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <button type="button" onclick="capturePhoto()" style="flex: 1; background: #16a34a; color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;">फोटो घ्या</button>
+          <button type="button" onclick="switchCamera()" style="flex: 1; background: #f59e0b; color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;"><i class="fas fa-sync-alt"></i> बदला</button>
+          <button type="button" onclick="closeCamModal()" style="flex: 1; background: #dc2626; color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;">बंद करा</button>
+      </div>
+  </div>
+</div>
+
+<!-- प्रिंट आऊटपुट सेक्शन -->
+<div class="print-section" id="output">
+  <div class="photo-wrapper">
+    <img id="photo" src="">
+  </div>
+  
+  <div class="heading">उत्पन्न घोषणापत्र</div>
+  
+  <p class="paragraph">
+    मा. श्री / श्रीमती <strong id="out_name"></strong> श्री <strong id="out_father"></strong> यांचा मुलगा/मुलगी/पत्नी वय <strong id="out_age"></strong> व्यवसाय <strong id="out_occupation"></strong> रा. <strong id="out_address"></strong> ता. हदगाव जि. नांदेड येथील रहिवासी आहे व माझे उत्पन्न 2025-2026 मध्ये <strong><span id="out_income"></span> हजार</strong> आहे व मला <strong id="out_purpose"></strong> या करिता स्वयघोषणा आधारे घोषित करतो / करते की मी स्वयं साक्षांकित उत्पन्न केलेल्या प्रती माझ्या या मूळ कागदपत्राच्या सत्यप्रति सह ही स्वयंघोषणापत्र देत आहे.
+  </p>
+
+  <p class="paragraph">
+    घोषणापत्राद्वारे घोषित करतो / करते की, वरील सर्व माहिती माझ्या व्यक्तिगत माहिती व समजूतीनुसार खरी आहे. सदर माहिती खोटी आढळून आल्यास, भारतीय दंड संहिता अन्वये आणि / किंवा संबंधित कायद्यानुसार माझ्यावर खटला भरला जाईल व त्यानुसार मी शिक्षेस पात्र राहीन. तसेच सदर स्वयंघोषणापत्राद्वारे मला मिळालेले सर्व लाभ काढून घेण्यात येतील, याची मला पूर्ण जाणीव आहे.<br><br>
+    करिता स्वःघोषणा पत्र लिहून देत आहे.
+  </p>
+
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 60px;">
+    <div>
+      <p style="margin: 5px 0;">दिनांक: <span id="out_date"></span></p>
+      <p style="margin: 5px 0;">ठिकाण : <span id="out_location">हदगाव</span></p>
+    </div>
+    <div class="signature-block">
+      <p style="margin-bottom: 50px;">अर्जदार</p> 
+      <p style="margin: 5px 0; font-weight: bold;"><span id="out_name2"></span></p>
+      <p style="margin: 5px 0;">रा. <span id="out_address2"></span> ता. हदगाव जि. नांदेड</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  let mediaStream = null;
+  let currentFacingMode = 'environment';
+
+  window.onload = function() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('date').value = today;
+  };
+
+  function loadPhoto(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      document.getElementById('photo').src = url;
+      const preview = document.getElementById('formPreviewImg');
+      preview.src = url;
+      preview.style.display = 'block';
+    }
+  }
+
+  function openCamModal() {
+      document.getElementById('camModal').style.display = 'flex';
+      startCamera();
+  }
+
+  function startCamera() {
+      if (mediaStream) mediaStream.getTracks().forEach(track => track.stop());
+      const video = document.getElementById('webcamVideo');
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: currentFacingMode }, audio: false })
+      .then(stream => { mediaStream = stream; video.srcObject = stream; })
+      .catch(err => { alert("कॅमेरा सुरू होऊ शकला नाही."); document.getElementById('camModal').style.display = 'none'; });
+  }
+
+  function switchCamera() {
+      currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user';
+      startCamera();
+  }
+
+  function capturePhoto() {
+      const video = document.getElementById('webcamVideo');
+      const canvas = document.getElementById('canvas');
+      canvas.width = video.videoWidth || 320; 
+      canvas.height = video.videoHeight || 240;
+      canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL('image/png');
+      document.getElementById('photo').src = dataUrl;
+      const preview = document.getElementById('formPreviewImg');
+      preview.src = dataUrl;
+      preview.style.display = 'block';
+      closeCamModal();
+  }
+
+  function closeCamModal() {
+      document.getElementById('camModal').style.display = 'none';
+      if (mediaStream) mediaStream.getTracks().forEach(track => track.stop());
+  }
+
+  function processForm(actionType) {
+    const form = document.getElementById('incomeForm');
+    
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
+    const photoSrc = document.getElementById('photo').src;
+    if (!photoSrc || photoSrc === window.location.href) {
+        alert("कृपया फोटो अपलोड करा किंवा वेबकॅमने घ्या.");
+        return;
+    }
+
+    const btn = (actionType === 'print') ? document.getElementById('btnPrint') : document.getElementById('btnDownload');
+    const originalHtml = btn.innerHTML;
+    btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> प्रक्रिया चालू आहे...";
+    btn.disabled = true;
+
+    // 🔒 सुरक्षित sessionStorage वापरले
+    const username = sessionStorage.getItem('username');
+
+    if(!username) {
+        alert("अनधिकृत प्रवेश! कृपया आधी लॉगिन करा.");
+        window.location.href = "login.html";
+        return;
+    }
+
+    const applicantName = document.getElementById('name').value; 
+
+    const formData = new FormData();
+    formData.append('action', 'submitForm'); 
+    formData.append('username', username);
+    
+    let actionLabel = actionType === 'print' ? 'Print' : 'Download';
+    formData.append('ghoshnaType', 'उत्पन्न घोषणापत्र (' + actionLabel + ')'); 
+    formData.append('applicantName', applicantName);
+
+    fetch(CONFIG.SCRIPT_URL, { method: 'POST', body: formData })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === 'success') {
+            
+            // 🟢 अनलिमिटेड मॉडेल असल्यामुळे टोकन कट करण्याची गरज नाही.
+            // फक्त एक्सपायरी डेट तपासायची असते जी बॅकएंडमध्ये होते.
+
+            const address = document.getElementById('address').value;
+            document.getElementById('out_name').innerText = applicantName;
+            document.getElementById('out_father').innerText = document.getElementById('father').value;
+            document.getElementById('out_age').innerText = document.getElementById('age').value;
+            document.getElementById('out_occupation').innerText = document.getElementById('occupation').value;
+            document.getElementById('out_address').innerText = address;
+            document.getElementById('out_income').innerText = document.getElementById('income').value;
+            document.getElementById('out_purpose').innerText = document.getElementById('purpose').value;
+            document.getElementById('out_location').innerText = document.getElementById('location').value;
+
+            const rawDate = document.getElementById('date').value;
+            if(rawDate) {
+                const parts = rawDate.split('-');
+                document.getElementById('out_date').innerText = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+
+            document.getElementById('out_name2').innerText = applicantName;
+            document.getElementById('out_address2').innerText = address;
+
+            setTimeout(() => {
+                if(actionType === 'print') {
+                    window.print();
+                } else if(actionType === 'download') {
+                    executeDownload();
+                }
+
+                // 🟢 ऑटो-क्लिअर फॉर्म 
+                setTimeout(() => {
+                    form.reset();
+                    document.getElementById('photo').src = "";
+                    document.getElementById('formPreviewImg').src = "";
+                    document.getElementById('formPreviewImg').style.display = 'none';
+                    
+                    btn.innerHTML = originalHtml;
+                    btn.disabled = false;
+                }, 2000);
+
+            }, 500);
+
+        } else {
+            alert("त्रुटी: " + data.message);
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+        }
+    })
+    .catch(err => {
+        alert("नेटवर्क एरर! कृपया पुन्हा प्रयत्न करा.");
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+    });
+  }
+
+  function executeDownload() {
+      const printArea = document.getElementById('output');
+      
+      printArea.style.display = 'block'; 
+      printArea.style.width = '950px';  
+      printArea.style.padding = '60px 50px'; 
+      printArea.style.background = 'white';
+      printArea.style.color = 'black';
+      printArea.style.position = 'absolute'; 
+      printArea.style.left = '-9999px';
+      printArea.style.top = '0';
+
+      document.fonts.ready.then(() => {
+          html2canvas(printArea, { 
+              scale: 4, 
+              useCORS: true,
+              letterRendering: true,
+              scrollY: 0
+          }).then(canvas => {
+              const imgData = canvas.toDataURL('image/jpeg', 1.0);
+              const { jsPDF } = window.jspdf;
+              const pdf = new jsPDF('p', 'mm', 'a4');
+              
+              const imgWidth = 210;
+              const imgHeight = (canvas.height * imgWidth) / canvas.width;
+              
+              pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+              pdf.save(`Utpanna_Ghoshnapatra_${new Date().getTime()}.pdf`);
+              
+              printArea.style.display = ''; 
+              printArea.style.width = '';
+              printArea.style.padding = '';
+              printArea.style.position = '';
+              printArea.style.left = '';
+              printArea.style.top = '';
+          });
+      });
+  }
+</script>
+
+</body>
+</html>
