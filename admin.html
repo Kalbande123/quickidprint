@@ -243,11 +243,13 @@
                         <table class="pdf-table">
                             <thead>
                                 <tr>
-                                    <th width="8%">अ.क्र.</th>
-                                    <th width="20%">दिनांक व वेळ</th>
-                                    <th width="25%">अॅक्शन (Action)</th>
-                                    <th width="27%">शेरा (Remark)</th>
-                                    <th width="20%">प्लॅन एक्सपायरी</th>
+                                    <th width="6%">अ.क्र.</th>
+                                    <th width="18%">दिनांक व वेळ</th>
+                                    <th width="20%">कृती (Action)</th>
+                                    <th width="22%">शेरा (Remark)</th>
+                                    <th width="14%">प्लॅन एक्सपायरी</th>
+                                    <th width="10%">उरलेले दिवस</th>
+                                    <th width="10%">स्थिती</th>
                                 </tr>
                             </thead>
                             <tbody id="pdfTableBody">
@@ -485,7 +487,8 @@
 
                     let filtered = data.transactions.filter(tx => {
                         if(!tx.date) return false;
-                        let parts = String(tx.date).split(' ')[0].split('/'); 
+                        let cleanDate = String(tx.date).replace(/'/g, "").trim();
+                        let parts = cleanDate.split(' ')[0].split('/'); 
                         if(parts.length < 3) return false;
                         let txDate = new Date(parts[2], parts[1]-1, parts[0]);
                         return txDate >= fDate && txDate <= tDate;
@@ -500,9 +503,11 @@
                     filtered.forEach((tx, i) => {
                         if(tx.actionType === "Plan Renew") {
                             renewCount++;
-                            lastRenewDate = tx.date.split(' ')[0];
+                            lastRenewDate = String(tx.date).split(' ')[0];
                         }
                         
+                        let stColor = tx.status === 'Success' ? '#16a34a' : '#dc2626';
+
                         tbody.innerHTML += `
                             <tr>
                                 <td>${i+1}</td>
@@ -510,12 +515,14 @@
                                 <td class="text-left" style="font-weight:bold; color:#0369a1;">${tx.actionType || '-'}</td>
                                 <td class="text-left">${tx.remark || '-'}</td>
                                 <td style="color:#16a34a; font-weight:bold;">${tx.expiry || '-'}</td>
+                                <td style="font-weight:bold;">${tx.remaining !== undefined ? tx.remaining : '-'}</td>
+                                <td style="color:${stColor}; font-weight:bold;">${tx.status || '-'}</td>
                             </tr>
                         `;
                     });
 
                     if(filtered.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="5">या कालावधीत कोणतीही ऍडमिन अ‍ॅक्टिव्हिटी नाही.</td></tr>`;
+                        tbody.innerHTML = `<tr><td colspan="7">या कालावधीत कोणतीही ऍडमिन अ‍ॅक्टिव्हिटी नाही.</td></tr>`;
                     }
 
                     document.getElementById('pdfFrom').innerText = fromDate.split('-').reverse().join('/');
@@ -527,7 +534,6 @@
                     let diffDays = Math.ceil((tDate - fDate) / (1000 * 60 * 60 * 24));
                     document.getElementById('pdfDays').innerText = diffDays;
 
-                    // Summary Update
                     document.getElementById('sumLastRenew').innerText = currentUserData.lastRecharge || lastRenewDate;
                     document.getElementById('sumTotalRenews').innerText = renewCount;
                     document.getElementById('sumBalance').innerText = currentUserData.remainingDays || "0";
