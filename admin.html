@@ -33,13 +33,15 @@
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
         
-        .btn-green { background: #16a34a; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+        .btn-green { background: #16a34a; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; transition: 0.3s; }
+        .btn-green:disabled { background: #94a3b8; cursor: not-allowed; }
         .btn-blue { background: #2563eb; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
         .btn-red { background: #dc2626; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 15px; }
         
         .user-card { background: #f8fafc; border: 1px solid #cbd5e1; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 15px; }
         .user-card span { font-weight: bold; color: #ea580c; }
 
+        /* PDF Statement Design */
         #printAreaWrapper { display: none; margin-top: 30px; overflow-x: auto; }
         .pdf-container { width: 730px; min-width: 730px; margin: 0 auto; background: white; padding: 10px 20px; font-family: 'Mukta', sans-serif; position: relative; box-sizing: border-box; }
         .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #001040; padding-bottom: 10px; margin-bottom: 15px; }
@@ -94,6 +96,7 @@
     </nav>
 
     <div class="container">
+        <!-- Tabs -->
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('add')">Add User</button>
             <button class="tab-btn" onclick="switchTab('edit')">Edit User</button>
@@ -104,6 +107,7 @@
         <!-- 1. ADD USER -->
         <div id="add" class="section-content active">
             <h3><i class="fas fa-user-plus"></i> नवीन युजर जोडा</h3>
+            <p style="color:#64748b; font-size:13px; margin-bottom:15px;">(टीप: नवीन अकाउंटमध्ये उरलेले दिवस ० असतील. सेव्ह झाल्यावर 'Renew Plan' मधून दिवस ॲड करा.)</p>
             <div class="grid-2">
                 <div class="form-group"><label>नाव:</label><input type="text" id="addName"></div>
                 <div class="form-group"><label>शॉपचे नाव:</label><input type="text" id="addShop"></div>
@@ -111,7 +115,6 @@
                 <div class="form-group"><label>मोबाईल नंबर:</label><input type="text" id="addMobile"></div>
                 <div class="form-group"><label>युजरनेम (लॉगिन आयडी):</label><input type="text" id="addUsername"></div>
                 <div class="form-group"><label>पासवर्ड:</label><input type="text" id="addPass"></div>
-                <div class="form-group"><label>प्लॅनचे दिवस (उदा. 30):</label><input type="number" id="addTokens" value="30"></div>
             </div>
             <button class="btn-green" id="btnAdd" onclick="addUser()">युजर सेव्ह करा</button>
         </div>
@@ -146,7 +149,7 @@
 
         <!-- 3. RENEW PLAN -->
         <div id="recharge" class="section-content">
-            <h3><i class="fas fa-sync-alt"></i> प्लॅन रिन्यू (Renew Plan)</h3>
+            <h3><i class="fas fa-sync-alt"></i> प्लॅन मॅनेजमेंट (Renew/Update)</h3>
             <div class="form-group" style="display:flex; gap:10px;">
                 <input type="text" id="rechSearch" placeholder="मोबाईल नंबर किंवा युजरनेम टाका" style="flex:1;">
                 <button class="btn-blue" id="btnRechSearch" style="width:120px; margin:0;" onclick="searchUser('recharge')">शोधा</button>
@@ -155,15 +158,15 @@
                 <div class="user-card" id="rechCard"></div>
                 <div class="grid-2">
                     <div class="form-group">
-                        <label>ॲक्शन (प्रकार):</label>
+                        <label>ॲक्शन (प्रकार निवडा):</label>
                         <select id="rechAction" onchange="autoRemark()">
-                            <option value="Plan Renew">Plan Renew</option>
-                            <option value="New Activation">New Activation</option>
-                            <option value="Days Adjustment">Adjustment</option>
+                            <option value="Plan Renew">प्लॅन रिन्यू करा (Add Days)</option>
+                            <option value="Reduce Days">दिवस कमी करा (Deduct Days)</option>
+                            <option value="Zero Days">प्लॅन संपवा (Make Days 0)</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>वाढवायचे दिवस (Days):</label>
+                    <div class="form-group" id="divRechAmount">
+                        <label>दिवस (Days):</label>
                         <input type="number" id="rechAmount" oninput="autoRemark()">
                     </div>
                 </div>
@@ -171,7 +174,7 @@
                     <label>शेरा (Remark):</label>
                     <input type="text" id="rechRemark">
                 </div>
-                <button class="btn-green" onclick="submitRecharge()">प्लॅन अपडेट करा</button>
+                <button class="btn-green" id="btnRechargeSubmit" onclick="submitRecharge()">प्लॅन अपडेट करा</button>
             </div>
         </div>
 
@@ -192,6 +195,7 @@
                 <button class="btn-green" id="btnFetchStmt" onclick="fetchStatement()">स्टेटमेंट जनरेट करा</button>
             </div>
 
+            <!-- PDF PRINT AREA -->
             <div id="printAreaWrapper">
                 <div class="pdf-container" id="pdfTemplate">
                     
@@ -204,7 +208,7 @@
                         <div class="pdf-title-box">
                             <h1>QUICK ID PRINT</h1>
                             <h3>घोषणापत्र व आयडी सेवा पोर्टल</h3>
-                            <div class="pdf-badge">USER SERVICE STATEMENT</div>
+                            <div class="pdf-badge">USER ACCOUNT STATEMENT</div>
                         </div>
                         <div class="pdf-features">
                             <i class="far fa-check-circle"></i> विश्वास<br>
@@ -235,19 +239,19 @@
                     </div>
 
                     <div class="pdf-table-wrapper">
-                        <div class="pill-title-center">SERVICE ACCESS DETAILS</div>
+                        <div class="pill-title-center">ACCOUNT & RENEWAL DETAILS</div>
                         <table class="pdf-table">
                             <thead>
                                 <tr>
-                                    <th width="6%">अ.क्र.</th>
-                                    <th width="18%">दिनांक व वेळ</th>
-                                    <th width="20%">सर्व्हिस प्रकार</th>
-                                    <th width="25%">अर्जदाराचे नाव / शेरा</th>
-                                    <th width="15%">स्टेटस</th>
-                                    <th width="16%">एक्सपायरी डेट</th>
+                                    <th width="8%">अ.क्र.</th>
+                                    <th width="20%">दिनांक व वेळ</th>
+                                    <th width="25%">अॅक्शन (Action)</th>
+                                    <th width="27%">शेरा (Remark)</th>
+                                    <th width="20%">प्लॅन एक्सपायरी</th>
                                 </tr>
                             </thead>
                             <tbody id="pdfTableBody">
+                                <!-- Data will populate here -->
                             </tbody>
                         </table>
                     </div>
@@ -255,23 +259,21 @@
                     <div class="pdf-summary-wrapper" style="page-break-inside: avoid;">
                         <div class="pill-title-center">सारांश (SUMMARY)</div>
                         <div class="sum-box">
-                            <div class="sum-title" style="color:#16a34a;"><i class="fas fa-sync-alt"></i> शेवटचा रिचार्ज</div>
-                            <div class="sum-val" id="sumCredit" style="color:#16a34a; font-size:16px;">-</div>
+                            <div class="sum-title" style="color:#16a34a;"><i class="fas fa-sync-alt"></i> शेवटचा रिन्यू</div>
+                            <div class="sum-val" id="sumLastRenew" style="color:#16a34a; font-size:16px;">-</div>
                         </div>
                         <div class="sum-box">
-                            <div class="sum-title" style="color:#dc2626;"><i class="fas fa-file-alt"></i> एकूण वापरलेली सेवा</div>
-                            <div class="sum-val" id="sumDebit" style="color:#dc2626;">0</div>
-                            <div style="color:#dc2626; font-weight:bold; font-size:11px;">Forms / Prints</div>
+                            <div class="sum-title" style="color:#dc2626;"><i class="fas fa-history"></i> एकूण रिन्यू (वेळा)</div>
+                            <div class="sum-val" id="sumTotalRenews" style="color:#dc2626;">0</div>
                         </div>
                         <div class="sum-box">
-                            <div class="sum-title" style="color:#001040;"><i class="fas fa-calendar-check"></i> उरलेले दिवस</div>
+                            <div class="sum-title" style="color:#001040;"><i class="fas fa-calendar-check"></i> सध्या उरलेले दिवस</div>
                             <div class="sum-val" id="sumBalance" style="color:#001040;">0</div>
-                            <div style="color:#001040; font-weight:bold; font-size:11px;">Days</div>
                         </div>
                     </div>
 
                     <div class="pdf-footer">
-                        <i class="fab fa-whatsapp" style="color: #25D366; font-size: 16px;"></i> कोणत्याही मदतीसाठी किंवा अधिक माहितीसाठी <b>9403901395</b> या नंबरवर WhatsApp करा.
+                        <i class="fab fa-whatsapp" style="color: #25D366; font-size: 16px;"></i> कोणत्याही मदतीसाठी <b>9403901395</b> या नंबरवर WhatsApp करा. (सेवांच्या नोंदी Service Log मध्ये उपलब्ध आहेत).
                     </div>
                 </div>
                 <button class="btn-red" onclick="downloadPDF()"><i class="fas fa-print"></i> स्टेटमेंट प्रिंट/PDF सेव्ह करा</button>
@@ -297,12 +299,21 @@
         function autoRemark() {
             let act = document.getElementById('rechAction').value;
             let amt = document.getElementById('rechAmount').value || '0';
-            document.getElementById('rechRemark').value = act + " - " + amt + " Days";
+            
+            if(act === 'Zero Days') {
+                document.getElementById('divRechAmount').style.display = 'none';
+                document.getElementById('rechRemark').value = "प्लॅन संपुष्टात आणला";
+            } else {
+                document.getElementById('divRechAmount').style.display = 'block';
+                document.getElementById('rechRemark').value = act + " - " + amt + " Days";
+            }
         }
 
+        // 1. ADD USER
         function addUser() {
             let btn = document.getElementById('btnAdd');
-            btn.innerText = "प्रक्रिया चालू आहे...";
+            btn.innerText = "Processing...";
+            btn.disabled = true;
             
             let formData = new FormData();
             formData.append('action', 'addUser');
@@ -312,7 +323,6 @@
             formData.append('mobile', document.getElementById('addMobile').value);
             formData.append('username', document.getElementById('addUsername').value);
             formData.append('password', document.getElementById('addPass').value);
-            formData.append('tokens', document.getElementById('addTokens').value); 
 
             fetch(CONFIG.SCRIPT_URL, { method: 'POST', body: formData })
             .then(res=>res.json())
@@ -325,15 +335,17 @@
                     document.getElementById('addMobile').value = "";
                     document.getElementById('addUsername').value = "";
                     document.getElementById('addPass').value = "";
-                    document.getElementById('addTokens').value = "30";
                 }
                 btn.innerText = "युजर सेव्ह करा";
+                btn.disabled = false;
             }).catch(err => {
                 alert("एरर! पुन्हा प्रयत्न करा.");
                 btn.innerText = "युजर सेव्ह करा";
+                btn.disabled = false;
             });
         }
 
+        // 2. SEARCH USER
         function searchUser(type) {
             let searchId = "";
             let btnId = "";
@@ -375,7 +387,7 @@
                     }
                     if(type==='recharge') {
                         document.getElementById('rechForm').style.display = 'block';
-                        document.getElementById('rechCard').innerHTML = `युजर: <span>${data.name}</span> | शॉप: <span>${data.shop}</span> | मुदत (Expiry): <span>${data.expireDate || 'N/A'}</span>`;
+                        document.getElementById('rechCard').innerHTML = `युजर: <span>${data.name}</span> | शॉप: <span>${data.shop}</span> | सध्याचे उरलेले दिवस: <span>${data.remainingDays || '0'}</span>`;
                     }
                     if(type==='statement') {
                         document.getElementById('stmtFilters').style.display = 'block';
@@ -387,11 +399,7 @@
                         document.getElementById('pdfShop').innerText = data.shop;
                         document.getElementById('pdfMobile').innerText = data.mobile;
                         document.getElementById('pdfUsername').innerText = data.username;
-                        
-                        // 🟢 Status Color Coding
-                        let statusText = data.userStatus || "Active";
-                        let statusColor = (statusText.toLowerCase() === 'blocked') ? 'red' : 'green';
-                        document.getElementById('pdfStatus').innerHTML = `<span style="color:${statusColor}; font-weight:bold;">${statusText}</span>`;
+                        document.getElementById('pdfStatus').innerText = data.userStatus || "Active";
                     }
                 } else {
                     alert(data.message); 
@@ -402,6 +410,7 @@
             });
         }
 
+        // 3. UPDATE USER
         function updateUser() {
             let formData = new FormData();
             formData.append('action', 'updateUser');
@@ -423,11 +432,17 @@
             });
         }
 
+        // 4. RECHARGE SUBMIT
         function submitRecharge() {
+            let btn = document.getElementById('btnRechargeSubmit');
+            btn.innerText = "Processing...";
+            btn.disabled = true;
+
             let formData = new FormData();
             formData.append('action', 'recharge');
             formData.append('mobile', currentUserData.username);
-            formData.append('amount', document.getElementById('rechAmount').value); 
+            formData.append('rechType', document.getElementById('rechAction').value);
+            formData.append('amount', document.getElementById('rechAmount').value || 0); 
             formData.append('remark', document.getElementById('rechRemark').value);
 
             fetch(CONFIG.SCRIPT_URL, { method: 'POST', body: formData }).then(res=>res.json()).then(data=>{
@@ -439,9 +454,16 @@
                     document.getElementById('rechRemark').value = "";
                     document.getElementById('rechAction').value = "Plan Renew";
                 }
+                btn.innerText = "प्लॅन अपडेट करा";
+                btn.disabled = false;
+            }).catch(err => {
+                alert("नेटवर्क एरर!");
+                btn.innerText = "प्लॅन अपडेट करा";
+                btn.disabled = false;
             });
         }
 
+        // 5. FETCH & FILTER STATEMENT
         function fetchStatement() {
             let fromDate = document.getElementById('stmtFrom').value;
             let toDate = document.getElementById('stmtTo').value;
@@ -471,22 +493,29 @@
 
                     let tbody = document.getElementById('pdfTableBody');
                     tbody.innerHTML = "";
+                    
+                    let renewCount = 0;
+                    let lastRenewDate = "-";
 
                     filtered.forEach((tx, i) => {
+                        if(tx.actionType === "Plan Renew") {
+                            renewCount++;
+                            lastRenewDate = tx.date.split(' ')[0];
+                        }
+                        
                         tbody.innerHTML += `
                             <tr>
                                 <td>${i+1}</td>
                                 <td>${tx.date}</td>
-                                <td class="text-left">${tx.particulars || '-'}</td>
+                                <td class="text-left" style="font-weight:bold; color:#0369a1;">${tx.actionType || '-'}</td>
                                 <td class="text-left">${tx.remark || '-'}</td>
-                                <td style="color:#16a34a; font-weight:bold;">${tx.status || 'Success'}</td>
-                                <td>${tx.expiry || '-'}</td>
+                                <td style="color:#16a34a; font-weight:bold;">${tx.expiry || '-'}</td>
                             </tr>
                         `;
                     });
 
                     if(filtered.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="6">या कालावधीत कोणतीही सेवा वापरलेली नाही.</td></tr>`;
+                        tbody.innerHTML = `<tr><td colspan="5">या कालावधीत कोणतीही ऍडमिन अ‍ॅक्टिव्हिटी नाही.</td></tr>`;
                     }
 
                     document.getElementById('pdfFrom').innerText = fromDate.split('-').reverse().join('/');
@@ -498,8 +527,9 @@
                     let diffDays = Math.ceil((tDate - fDate) / (1000 * 60 * 60 * 24));
                     document.getElementById('pdfDays').innerText = diffDays;
 
-                    document.getElementById('sumCredit').innerText = currentUserData.lastRecharge || "-";
-                    document.getElementById('sumDebit').innerText = filtered.length;
+                    // Summary Update
+                    document.getElementById('sumLastRenew').innerText = currentUserData.lastRecharge || lastRenewDate;
+                    document.getElementById('sumTotalRenews').innerText = renewCount;
                     document.getElementById('sumBalance').innerText = currentUserData.remainingDays || "0";
 
                     document.getElementById('printAreaWrapper').style.display = 'block';
