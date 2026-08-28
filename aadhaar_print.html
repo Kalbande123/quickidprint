@@ -1,0 +1,44 @@
+function deductTokenAndDownload() {
+            const btn = document.getElementById('btnDownload');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> प्रक्रिया चालू आहे...";
+            btn.disabled = true;
+
+            let username = sessionStorage.getItem('username');
+            if(!username) {
+                alert("अनधिकृत प्रवेश! कृपया आधी लॉगिन करा.");
+                window.location.href = "index.html";
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('action', 'printIdCard');
+            formData.append('username', username);
+            formData.append('cardType', 'आधार कार्ड');
+            formData.append('remark', currentSize + ' Size + Smart HD Photo Edit');
+
+            fetch(CONFIG.SCRIPT_URL, { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    // 🟢 लोकल टोकन कट करण्याचा कोड काढला आहे
+                    generateFinalCanvas();
+                    exportToPDF();
+
+                    setTimeout(() => {
+                        document.getElementById('successMsg').innerHTML = "<i class='fas fa-check-circle'></i> सेवा यशस्वीरीत्या वापरली. (Unlimited Access)";
+                        document.getElementById('editPanel').style.display = 'none';
+                        btn.style.display = 'none';
+                        document.getElementById('btnGoHome').style.display = 'flex';
+                    }, 500);
+                } else {
+                    alert("त्रुटी: " + data.message);
+                    btn.innerHTML = originalHtml; btn.disabled = false;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("नेटवर्क एरर! कृपया इंटरनेट कनेक्शन तपासा आणि पुन्हा प्रयत्न करा.");
+                btn.innerHTML = originalHtml; btn.disabled = false;
+            });
+        }
