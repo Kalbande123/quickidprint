@@ -1,6 +1,6 @@
 const CONFIG = {
     // तुमची नवीन Google Apps Script Web App URL
-    SCRIPT_URL: "https://script.google.com/macros/s/AKfycbwdkB01JqfUHQ0UIb3-KuOk6tZUsLdp1_bicbmHOiMbprb3osmrirWv5rY6s1koPpoKLg/exec",
+    SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzwQCeTpzBtbTByA0u4Kt5H0yCdwNkaU6yf4mcpDFqmdN0f2oQwYvqv3nhRaafhQeeS7g/exec",
     
     // आता आपण सबस्क्रिप्शन (Unlimited) मॉडेल वापरत आहोत, त्यामुळे येथे "Unlimited" सेट केले आहे
     GHOSHANA_TOKEN_COST: "Unlimited" 
