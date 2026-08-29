@@ -107,7 +107,7 @@
         <!-- 1. ADD USER -->
         <div id="add" class="section-content active">
             <h3><i class="fas fa-user-plus"></i> नवीन युजर जोडा</h3>
-            <p style="color:#64748b; font-size:13px; margin-bottom:15px;">(टीप: सर्व माहिती भरणे अनिवार्य आहे. नवीन युजरचे उरलेले दिवस ० असतील, नंतर 'Renew Plan' मधून Welcome Plan किंवा दिवस ॲड करा.)</p>
+            <p style="color:#64748b; font-size:13px; margin-bottom:15px;">(टीप: सर्व माहिती भरणे अनिवार्य आहे. नवीन युजरचे उरलेले दिवस ० असतील, नंतर 'Renew Plan' मधून Demo Plan किंवा दिवस ॲड करा.)</p>
             <div class="grid-2">
                 <div class="form-group"><label>नाव:</label><input type="text" id="addName"></div>
                 <div class="form-group"><label>शॉपचे नाव:</label><input type="text" id="addShop"></div>
@@ -144,6 +144,7 @@
                         </select>
                     </div>
                 </div>
+                <!-- 🟢 Block Reason Box -->
                 <div class="form-group" id="divBlockReason" style="display:none;">
                     <label style="color:#dc2626;">ब्लॉक करण्याचे कारण (Reason):</label>
                     <input type="text" id="edBlockReason" placeholder="उदा. Payment Due...">
@@ -165,7 +166,7 @@
                     <div class="form-group">
                         <label>ॲक्शन (प्रकार निवडा):</label>
                         <select id="rechAction" onchange="autoRemark()">
-                            <option value="Welcome Plan">Welcome Plan (New User)</option>
+                            <option value="Demo Plan">Demo Plan (Free Trial)</option>
                             <option value="Plan Renew">प्लॅन रिन्यू करा (Add Days)</option>
                             <option value="Reduce Days">दिवस कमी करा (Deduct Days)</option>
                             <option value="Zero Days">प्लॅन संपवा (Make Days 0)</option>
@@ -328,7 +329,7 @@
             }
         }
 
-        // 1. ADD USER (🟢 Validation added)
+        // 1. ADD USER
         function addUser() {
             let name = document.getElementById('addName').value.trim();
             let shop = document.getElementById('addShop').value.trim();
@@ -442,7 +443,7 @@
             });
         }
 
-        // 3. UPDATE USER (🟢 Double click prevention added)
+        // 3. UPDATE USER
         function updateUser() {
             let btn = event.target;
             btn.innerText = "Processing...";
@@ -478,7 +479,7 @@
             });
         }
 
-        // 4. RECHARGE SUBMIT (🟢 Double click prevention)
+        // 4. RECHARGE SUBMIT
         function submitRecharge() {
             let btn = document.getElementById('btnRechargeSubmit');
             btn.innerText = "Processing...";
@@ -498,7 +499,7 @@
                     document.getElementById('rechSearch').value = ""; 
                     document.getElementById('rechAmount').value = "";
                     document.getElementById('rechRemark').value = "";
-                    document.getElementById('rechAction').value = "Welcome Plan";
+                    document.getElementById('rechAction').value = "Demo Plan";
                 }
                 btn.innerText = "प्लॅन अपडेट करा";
                 btn.disabled = false;
@@ -541,12 +542,10 @@
                     let tbody = document.getElementById('pdfTableBody');
                     tbody.innerHTML = "";
                     
-                    let renewCount = 0;
                     let lastRenewDate = "-";
 
                     filtered.forEach((tx, i) => {
-                        if(tx.actionType === "Plan Renew" || tx.actionType === "Welcome Plan") {
-                            renewCount++;
+                        if(tx.actionType === "Plan Renew" || tx.actionType === "Demo Plan") {
                             lastRenewDate = tx.date;
                         }
                         
@@ -580,7 +579,7 @@
                     document.getElementById('pdfDays').innerText = diffDays;
 
                     document.getElementById('sumLastRenew').innerText = currentUserData.lastRecharge || lastRenewDate;
-                    document.getElementById('sumTotalRenews').innerText = renewCount;
+                    document.getElementById('sumTotalRenews').innerText = currentUserData.totalRenews || "0";
                     document.getElementById('sumBalance').innerText = currentUserData.remainingDays || "0";
 
                     document.getElementById('printAreaWrapper').style.display = 'block';
