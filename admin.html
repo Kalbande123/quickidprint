@@ -136,7 +136,6 @@
                     <div class="form-group"><label>युजरनेम:</label><input type="text" id="edUsername"></div>
                     <div class="form-group"><label>पासवर्ड:</label><input type="text" id="edPass"></div>
                     
-                    <!-- 🟢 Block Reason Feature -->
                     <div class="form-group">
                         <label>स्टेटस:</label>
                         <select id="edStatus" onchange="toggleBlockReason()">
@@ -145,6 +144,7 @@
                         </select>
                     </div>
                 </div>
+                <!-- 🟢 Block Reason Box -->
                 <div class="form-group" id="divBlockReason" style="display:none;">
                     <label style="color:#dc2626;">ब्लॉक करण्याचे कारण (Reason):</label>
                     <input type="text" id="edBlockReason" placeholder="उदा. Payment Due...">
@@ -306,13 +306,13 @@
             document.getElementById('editForm').style.display = 'none';
         }
 
-        // 🟢 Block Reason Toggle Function
         function toggleBlockReason() {
             let status = document.getElementById('edStatus').value;
             if(status === 'Blocked') {
                 document.getElementById('divBlockReason').style.display = 'block';
             } else {
                 document.getElementById('divBlockReason').style.display = 'none';
+                document.getElementById('edBlockReason').value = ""; 
             }
         }
 
@@ -405,7 +405,6 @@
                         let st = data.userStatus ? data.userStatus.toLowerCase() : 'active';
                         document.getElementById('edStatus').value = (st === 'blocked') ? 'Blocked' : 'Active';
                         toggleBlockReason();
-                        document.getElementById('edBlockReason').value = "";
                     }
                     if(type==='recharge') {
                         document.getElementById('rechForm').style.display = 'block';
@@ -444,7 +443,7 @@
             formData.append('newUsername', document.getElementById('edUsername').value);
             formData.append('newPass', document.getElementById('edPass').value);
             formData.append('newStatus', document.getElementById('edStatus').value);
-            formData.append('blockReason', document.getElementById('edBlockReason').value); // Send Block Reason
+            formData.append('blockReason', document.getElementById('edBlockReason').value);
 
             fetch(CONFIG.SCRIPT_URL, { method: 'POST', body: formData }).then(res=>res.json()).then(data=>{
                 alert(data.message);
@@ -486,7 +485,7 @@
             });
         }
 
-        // 5. FETCH & FILTER STATEMENT
+        // 5. FETCH & FILTER STATEMENT (🟢 Timezone Bug Fixed)
         function fetchStatement() {
             let fromDate = document.getElementById('stmtFrom').value;
             let toDate = document.getElementById('stmtTo').value;
@@ -502,15 +501,16 @@
             fetch(CONFIG.SCRIPT_URL, { method: 'POST', body: formData }).then(res=>res.json()).then(data=>{
                 if(data.status==='success') {
                     
-                    let fDate = new Date(fromDate);
-                    let tDate = new Date(toDate);
-                    tDate.setHours(23, 59, 59); 
+                    let fParts = fromDate.split('-');
+                    let fDate = new Date(fParts[0], fParts[1]-1, fParts[2], 0, 0, 0);
+                    let tParts = toDate.split('-');
+                    let tDate = new Date(tParts[0], tParts[1]-1, tParts[2], 23, 59, 59);
 
                     let filtered = data.transactions.filter(tx => {
-                        if(!tx.date) return false;
+                        if(!tx.date || tx.date === "-") return false;
                         let parts = tx.date.split('/'); 
                         if(parts.length < 3) return false;
-                        let txDate = new Date(parts[2], parts[1]-1, parts[0]);
+                        let txDate = new Date(parts[2], parts[1]-1, parts[0], 12, 0, 0); 
                         return txDate >= fDate && txDate <= tDate;
                     });
 
@@ -528,7 +528,6 @@
                         
                         let stColor = tx.status === 'Active' ? '#16a34a' : '#dc2626';
 
-                        // 🟢 Table Columns Mapping
                         tbody.innerHTML += `
                             <tr>
                                 <td>${i+1}</td>
