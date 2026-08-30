@@ -337,10 +337,12 @@
 
             setTimeout(() => {
                 if(actionType === 'print') {
+                    // 🟢 सेव्ह करताना फाईलचे नाव QuickIDPrint येण्यासाठी
+                    const originalTitle = document.title; 
+                    document.title = "QuickIDPrint_Income"; 
                     window.print();
+                    document.title = originalTitle; 
                 } else if(actionType === 'download') {
-                    executeDownload();
-                }
 
                 // ऑटो-क्लिअर फॉर्म 
                 setTimeout(() => {
