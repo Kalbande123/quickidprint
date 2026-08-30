@@ -121,8 +121,20 @@
     </div>
 
     <div class="form-section">
-      <label>पत्ता:</label>
-      <input type="text" id="address" placeholder="गल्ली/गाव, तालुका, जिल्हा" required>
+      <label>गल्ली / गाव:</label>
+      <input type="text" id="village" placeholder="उदा. मुख्य रोड, वस्ती" required>
+    </div>
+
+    <!-- 🟢 तालुका आणि जिल्हासाठी स्वतंत्र बॉक्सेस -->
+    <div class="grid-2">
+      <div class="form-section">
+        <label>तालुका:</label>
+        <input type="text" id="taluka" value="हदगाव" onfocus="this.select()" required>
+      </div>
+      <div class="form-section">
+        <label>जिल्हा:</label>
+        <input type="text" id="district" value="नांदेड" onfocus="this.select()" required>
+      </div>
     </div>
 
     <div class="form-section">
@@ -185,7 +197,7 @@
   <div class="heading">उत्पन्न घोषणापत्र</div>
   
   <p class="paragraph">
-    मा. श्री / श्रीमती <strong id="out_name"></strong> श्री <strong id="out_father"></strong> यांचा मुलगा/मुलगी/पत्नी वय <strong id="out_age"></strong> व्यवसाय <strong id="out_occupation"></strong> रा. <strong id="out_address"></strong> ता. हदगाव जि. नांदेड येथील रहिवासी आहे व माझे उत्पन्न 2025-2026 मध्ये <strong><span id="out_income"></span> हजार</strong> आहे व मला <strong id="out_purpose"></strong> या करिता स्वयघोषणा आधारे घोषित करतो / करते की मी स्वयं साक्षांकित उत्पन्न केलेल्या प्रती माझ्या या मूळ कागदपत्राच्या सत्यप्रति सह ही स्वयंघोषणापत्र देत आहे.
+    मा. श्री / श्रीमती <strong id="out_name"></strong> श्री <strong id="out_father"></strong> यांचा मुलगा/मुलगी/पत्नी वय <strong id="out_age"></strong> व्यवसाय <strong id="out_occupation"></strong> रा. <strong id="out_village"></strong>, ता. <strong id="out_taluka"></strong>, जि. <strong id="out_district"></strong> येथील रहिवासी आहे व माझे उत्पन्न 2025-2026 मध्ये <strong><span id="out_income"></span> हजार</strong> आहे व मला <strong id="out_purpose"></strong> या करिता स्वयघोषणा आधारे घोषित करतो / करते की मी स्वयं साक्षांकित उत्पन्न केलेल्या प्रती माझ्या या मूळ कागदपत्राच्या सत्यप्रति सह ही स्वयंघोषणापत्र देत आहे.
   </p>
 
   <p class="paragraph">
@@ -201,7 +213,7 @@
     <div class="signature-block">
       <p style="margin-bottom: 50px;">अर्जदार</p> 
       <p style="margin: 5px 0; font-weight: bold;"><span id="out_name2"></span></p>
-      <p style="margin: 5px 0;">रा. <span id="out_address2"></span> ता. हदगाव जि. नांदेड</p>
+      <p style="margin: 5px 0;">रा. <span id="out_village2"></span>, ता. <span id="out_taluka2"></span>, जि. <span id="out_district2"></span></p>
     </div>
   </div>
 </div>
@@ -300,6 +312,10 @@
     }
 
     const applicantName = document.getElementById('name').value; 
+    const village = document.getElementById('village').value;
+    const taluka = document.getElementById('taluka').value;
+    const district = document.getElementById('district').value;
+
     const formData = new FormData();
     formData.append('action', 'submitForm'); 
     formData.append('username', username);
@@ -314,15 +330,18 @@
         if(data.status === 'success') {
             
             // डेटा प्रिंट/पीडीएफ साठी सेट करणे
-            const address = document.getElementById('address').value;
             document.getElementById('out_name').innerText = applicantName;
             document.getElementById('out_father').innerText = document.getElementById('father').value;
             document.getElementById('out_age').innerText = document.getElementById('age').value;
             document.getElementById('out_occupation').innerText = document.getElementById('occupation').value;
-            document.getElementById('out_address').innerText = address;
+            
+            document.getElementById('out_village').innerText = village;
+            document.getElementById('out_taluka').innerText = taluka;
+            document.getElementById('out_district').innerText = district;
+
             document.getElementById('out_income').innerText = document.getElementById('income').value;
             document.getElementById('out_purpose').innerText = document.getElementById('purpose').value;
-            document.getElementById('out_location').innerText = document.getElementById('location').value;
+            document.getElementById('out_location').innerText = taluka;
 
             const rawDate = document.getElementById('date').value;
             if(rawDate) {
@@ -331,7 +350,9 @@
             }
 
             document.getElementById('out_name2').innerText = applicantName;
-            document.getElementById('out_address2').innerText = address;
+            document.getElementById('out_village2').innerText = village;
+            document.getElementById('out_taluka2').innerText = taluka;
+            document.getElementById('out_district2').innerText = district;
 
             setTimeout(() => {
                 if(actionType === 'print') {
@@ -347,6 +368,10 @@
                 // ऑटो-क्लिअर फॉर्म 
                 setTimeout(() => {
                     form.reset();
+                    document.getElementById('taluka').value = "हदगाव";
+                    document.getElementById('district').value = "नांदेड";
+                    document.getElementById('location').value = "हदगाव";
+
                     document.getElementById('photo').src = "";
                     document.getElementById('formPreviewImg').src = "";
                     document.getElementById('formPreviewImg').style.display = 'none';
