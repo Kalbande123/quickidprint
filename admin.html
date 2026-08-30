@@ -144,7 +144,6 @@
                         </select>
                     </div>
                 </div>
-                <!-- 🟢 Block Reason Box -->
                 <div class="form-group" id="divBlockReason" style="display:none;">
                     <label style="color:#dc2626;">ब्लॉक करण्याचे कारण (Reason):</label>
                     <input type="text" id="edBlockReason" placeholder="उदा. Payment Due...">
@@ -510,7 +509,7 @@
             });
         }
 
-        // 5. FETCH & FILTER STATEMENT (🟢 Demo Plan will NOT update 'Last Renew')
+        // 5. FETCH & FILTER STATEMENT (🟢 Shows Fresh Data in Summary Box)
         function fetchStatement() {
             let fromDate = document.getElementById('stmtFrom').value;
             let toDate = document.getElementById('stmtTo').value;
@@ -542,14 +541,7 @@
                     let tbody = document.getElementById('pdfTableBody');
                     tbody.innerHTML = "";
                     
-                    let lastRenewDate = "-";
-
                     filtered.forEach((tx, i) => {
-                        // 🟢 फक्त 'Plan Renew' असल्यास Last Renew ची तारीख अपडेट होईल
-                        if(tx.actionType === "Plan Renew") {
-                            lastRenewDate = tx.date;
-                        }
-                        
                         let stColor = tx.status === 'Active' ? '#16a34a' : '#dc2626';
 
                         tbody.innerHTML += `
@@ -579,9 +571,10 @@
                     let diffDays = Math.ceil((tDate - fDate) / (1000 * 60 * 60 * 24));
                     document.getElementById('pdfDays').innerText = diffDays;
 
-                    document.getElementById('sumLastRenew').innerText = currentUserData.lastRecharge || lastRenewDate;
-                    document.getElementById('sumTotalRenews').innerText = currentUserData.totalRenews || "0";
-                    document.getElementById('sumBalance').innerText = currentUserData.remainingDays || "0";
+                    // 🟢 येथे जुन्या मेमरी ऐवजी सर्व्हरवरून आलेला फ्रेश डेटा वापरला आहे
+                    document.getElementById('sumLastRenew').innerText = data.currentLastRenew || "-";
+                    document.getElementById('sumTotalRenews').innerText = data.currentTotalRenews || "0";
+                    document.getElementById('sumBalance').innerText = data.currentRemainingDays || "0";
 
                     document.getElementById('printAreaWrapper').style.display = 'block';
                 } else {
