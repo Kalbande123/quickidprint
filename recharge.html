@@ -183,11 +183,11 @@ body{ min-height:100vh; background: radial-gradient(circle at top left,#fff4b8 0
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    // Session Storage मधून युजरचा डेटा घेणे
+    // Session Storage मधून युजरचा डेटा योग्य नावाने (Keys) घेणे
     const sessionUsername = sessionStorage.getItem('username');
     const sessionName = sessionStorage.getItem('userFullName');
-    const sessionDays = sessionStorage.getItem('userDaysLeft');
-    const sessionExpiry = sessionStorage.getItem('userExpireDate');
+    const sessionDays = sessionStorage.getItem('remainingDays'); // 🟢 इथे नाव बदलले आहे
+    const sessionExpiry = sessionStorage.getItem('expireDate'); // 🟢 इथे नाव बदलले आहे
 
     if(sessionUsername) document.getElementById("userId").value = sessionUsername;
     if(sessionName) document.getElementById("userName").value = sessionName;
@@ -217,7 +217,6 @@ function sendRechargeRequest(){
 ------------------------------------
 कृपया माझा पेमेंट स्क्रीनशॉट तपासा आणि माझ्या खात्याची मुदत (Validity) वाढवून द्या. धन्यवाद! 🙏`;
 
-    // 🟢 तुमचा WhatsApp नंबर टाका
     const whatsappNumber = "919403901395";
     const url = "https://wa.me/" + whatsappNumber + "?text=" + encodeURIComponent(message);
     window.open(url,"_blank");
