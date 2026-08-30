@@ -11,7 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="config.js"></script>
-    <!-- 🔒 इथे सिक्युरिटी गार्ड फाईल जोडली आहे -->
+    <!-- 🔒 सिक्युरिटी गार्ड -->
     <script src="auth-guard.js"></script>
 
     <style>
@@ -24,6 +24,7 @@
         .back-link:hover { text-decoration: underline; }
 
         .notice-box { background: #dcfce7; border: 1px solid #22c55e; color: #166534; padding: 12px; border-radius: 8px; font-weight: bold; margin-bottom: 20px; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 30px; }
+        .notice-box a { color: #15803d; text-decoration: none; border-bottom: 1px dashed #15803d; }
         
         h2 { color: #ea580c; margin-bottom: 20px; border-bottom: 2px solid #ea580c; padding-bottom: 10px; display: inline-block; font-size: 24px; }
         
@@ -68,9 +69,10 @@
     <div class="container">
         <a href="home.html" class="back-link"><i class="fas fa-arrow-left"></i> डॅशबोर्ड</a>
 
+        <!-- 🟢 ऑटो मेसेज / प्लॅन रिन्यू नोटीस -->
         <div class="notice-box">
             <i class="fab fa-whatsapp" style="font-size: 24px; color: #25D366;"></i> 
-            <span>प्लॅन संपल्यास रिन्यू करण्यासाठी <a href="https://wa.me/919403901395" target="_blank">9403901395</a> वर संपर्क साधा.</span>
+            <span>प्लॅन संपल्यास रिन्यू करण्यासाठी <a href="https://wa.me/919403901395?text=नमस्कार! मला QuickIDPrint पोर्टलवर माझा प्लॅन रिन्यू करायचा आहे." target="_blank">9403901395</a> वर संपर्क साधा.</span>
         </div>
 
         <h2><i class="fas fa-fingerprint"></i> स्मार्ट आधार प्रिंट</h2>
@@ -134,7 +136,7 @@
                 <i class="fas fa-check-circle"></i> एडिटिंग पूर्ण झाल्यावर खालील बटणावरून फाईल डाऊनलोड करा.
             </div>
             
-            <!-- 🟢 इथे टोकन काढले आणि अनलिमिटेड केले -->
+            <!-- 🟢 अनलिमिटेड डाऊनलोड बटण -->
             <button id="btnDownload" class="btn-download" onclick="downloadIdCard()">
                 <i class="fas fa-file-pdf"></i> HD PDF डाऊनलोड करा (Unlimited)
             </button>
@@ -360,11 +362,20 @@
             btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> प्रक्रिया चालू आहे...";
             btn.disabled = true;
 
+            // 🔒 सुरक्षित लॉगिन चेक
             let username = sessionStorage.getItem('username');
-
             if(!username) {
                 alert("अनधिकृत प्रवेश! कृपया आधी लॉगिन करा.");
-                window.location.href = "index.html";
+                window.location.href = "login.html";
+                return;
+            }
+
+            // 🟢 एक्सपायरी चेक (प्लॅन संपला असेल तर ब्लॉक करा)
+            const remainingDays = parseInt(sessionStorage.getItem('remainingDays')) || 0;
+            if(remainingDays <= 0) {
+                alert("तुमच्या प्लॅनची मुदत संपली आहे. कृपया रिन्यू करा.");
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
                 return;
             }
             
@@ -378,8 +389,6 @@
             .then(res => res.json())
             .then(data => {
                 if(data.status === 'success') {
-                    // 🟢 अनलिमिटेड मॉडेल असल्यामुळे टोकन कट करण्याची गरज नाही.
-
                     generateFinalCanvas();
                     exportToPDF();
 
@@ -416,7 +425,8 @@
             }
             
             const ts = new Date().getTime();
-            pdf.save(`Aadhaar_${currentSize}_${ts}.pdf`);
+            // 🟢 डाऊनलोड करताना फाईलचे नाव QuickIDPrint_Aadhaar येण्यासाठी
+            pdf.save(`QuickIDPrint_Aadhaar_${currentSize}_${ts}.pdf`);
         }
     </script>
 </body>
