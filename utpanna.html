@@ -52,10 +52,23 @@
 
     .print-section { display: none; font-size: 18px; line-height: 2.0; color: #000; }
 
+    /* 🟢 फिक्स केलेले प्रिंट लॉजिक (डाऊनलोड आणि प्रिंट एकसारखे दिसेल) */
     @media print {
-      body { background: white; padding: 0; }
+      body { background: white !important; padding: 0 !important; margin: 0 !important; }
       .form-container { display: none !important; }
-      .print-section { display: block !important; }
+      .print-section { 
+          display: block !important; 
+          width: 950px !important; 
+          padding: 60px 50px !important; 
+          margin: 0 auto !important;
+          font-size: 19px !important;
+          line-height: 2.0 !important;
+          color: #000 !important;
+      }
+      @page { 
+          size: A4 portrait; 
+          margin: 0; 
+      }
     }
 
     .photo-wrapper { text-align: right; margin-bottom: 10px; }
@@ -74,7 +87,7 @@
 
   <div class="notice-box">
       <i class="fab fa-whatsapp" style="font-size: 24px; color: #25D366;"></i> 
-      <span>प्लॅन संपल्यास रिन्यू करण्यासाठी <a href="https://wa.me/919403901395?text=नमस्कार! मला QuickIDPrint पोर्टलवर माझा प्लॅन रिन्यू करायचा आहे." target="_blank">9403901395</a> वर संपर्क साधा.</span>
+      <span>टोकन संपल्यास रिचार्जसाठी <a href="https://wa.me/919403901395?text=नमस्कार! मला सेवास्पॉट पोर्टलवर नवीन टोकन रिचार्ज करायचे आहेत." target="_blank">9403901395</a> वर संपर्क साधा.</span>
   </div>
 
   <h2 style="color: #ea580c; text-align: center; margin-bottom: 20px;">उत्पन्न घोषणापत्र अर्ज</h2>
@@ -138,13 +151,12 @@
       <img id="formPreviewImg" src="" style="display: none; width: 80px; height: 100px; object-fit: cover; margin: 15px auto 0; border: 2px solid #cbd5e1; border-radius: 8px;" alt="Preview">
     </div>
 
-    <!-- 🟢 इथे टोकन काढले आणि अनलिमिटेड केले -->
     <div class="action-buttons">
         <button type="button" class="btn-print" id="btnPrint" onclick="processForm('print')">
-            <i class="fas fa-print"></i> प्रिंट करा (Unlimited)
+            <i class="fas fa-print"></i> प्रिंट करा (<span class="token-cost">2</span> टोकन)
         </button>
         <button type="button" class="btn-download" id="btnDownload" onclick="processForm('download')">
-            <i class="fas fa-file-pdf"></i> PDF डाऊनलोड (Unlimited)
+            <i class="fas fa-file-pdf"></i> PDF डाऊनलोड (<span class="token-cost">2</span> टोकन)
         </button>
     </div>
   </form>
@@ -201,6 +213,10 @@
   window.onload = function() {
       const today = new Date().toISOString().split('T')[0];
       document.getElementById('date').value = today;
+      
+      if(typeof CONFIG !== 'undefined' && CONFIG.GHOSHANA_TOKEN_COST) {
+          document.querySelectorAll('.token-cost').forEach(el => el.innerText = CONFIG.GHOSHANA_TOKEN_COST);
+      }
   };
 
   function loadPhoto(event) {
@@ -251,6 +267,7 @@
       if (mediaStream) mediaStream.getTracks().forEach(track => track.stop());
   }
 
+  // 🔒 ॲडमिन स्टेटमेंट फिक्स केलेले आणि sessionStorage वापरणारे प्रोसेस फंक्शन 
   function processForm(actionType) {
     const form = document.getElementById('incomeForm');
     
@@ -273,9 +290,10 @@
     // 🔒 सुरक्षित sessionStorage वापरले
     const username = sessionStorage.getItem('username');
 
+    // जर कोणी विनालॉगिन आले असेल, तर अडवा
     if(!username) {
         alert("अनधिकृत प्रवेश! कृपया आधी लॉगिन करा.");
-        window.location.href = "login.html";
+        window.location.href = "index.html";
         return;
     }
 
@@ -285,8 +303,11 @@
     formData.append('action', 'submitForm'); 
     formData.append('username', username);
     
+    // 'घोषणापत्र प्रकार' मध्ये Print किंवा Download नोंदवले जाईल
     let actionLabel = actionType === 'print' ? 'Print' : 'Download';
     formData.append('ghoshnaType', 'उत्पन्न घोषणापत्र (' + actionLabel + ')'); 
+    
+    // अर्जदाराचे नाव एकदम अचूक राहील
     formData.append('applicantName', applicantName);
 
     fetch(CONFIG.SCRIPT_URL, { method: 'POST', body: formData })
@@ -294,8 +315,12 @@
     .then(data => {
         if(data.status === 'success') {
             
-            // 🟢 अनलिमिटेड मॉडेल असल्यामुळे टोकन कट करण्याची गरज नाही.
-            // फक्त एक्सपायरी डेट तपासायची असते जी बॅकएंडमध्ये होते.
+            let tokenCost = (typeof CONFIG !== 'undefined') ? CONFIG.GHOSHANA_TOKEN_COST : 2;
+            // 🔒 सुरक्षित sessionStorage वापरले
+            let currentTokens = parseInt(sessionStorage.getItem('remainingTokens')) || 0;
+            if(currentTokens >= tokenCost) { 
+                sessionStorage.setItem('remainingTokens', currentTokens - tokenCost); 
+            }
 
             const address = document.getElementById('address').value;
             document.getElementById('out_name').innerText = applicantName;
