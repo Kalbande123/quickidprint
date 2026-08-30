@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickIDPrint | मदत आणि FAQ</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- 🔒 सिक्युरिटी गार्ड -->
+    <script src="auth-guard.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Mukta', sans-serif; }
+        body { background-color: #f1f5f9; color: #1e293b; padding: 20px; padding-bottom: 50px; }
+        
+        .container { max-width: 900px; margin: 20px auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(18,58,143,.05); position: relative; }
+        
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; }
+        .page-title { color: #123a8f; font-size: 26px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        .back-link { background: #eff6ff; color: #1d4ed8; padding: 8px 15px; border-radius: 20px; text-decoration: none; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 6px; transition: 0.2s; border: 1px solid #dbeafe; }
+        .back-link:hover { background: #dbeafe; transform: translateY(-2px); }
+
+        .faq-category { margin-top: 30px; margin-bottom: 15px; font-size: 20px; font-weight: 800; color: #ea580c; display: flex; align-items: center; gap: 8px; background: #fff7ed; padding: 10px 15px; border-radius: 8px; border-left: 4px solid #ea580c; }
+        
+        .faq-item { margin-bottom: 12px; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; background: white; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        
+        .faq-question { background: #f8fafc; padding: 16px 20px; font-size: 16px; font-weight: 700; color: #334155; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+        .faq-question:hover { background: #f1f5f9; color: #2563eb; }
+        .faq-question i { color: #94a3b8; transition: transform 0.3s; }
+        
+        .faq-answer { padding: 0 20px; max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, padding 0.4s ease-out; background: white; color: #475569; font-size: 15px; line-height: 1.7; }
+        .faq-answer b { color: #1e293b; }
+        
+        .faq-item.active { border-color: #bfd3ff; box-shadow: 0 5px 15px rgba(37,99,235,0.1); }
+        .faq-item.active .faq-question { background: #eff6ff; color: #1d4ed8; }
+        .faq-item.active .faq-question i { transform: rotate(180deg); color: #1d4ed8; }
+        .faq-item.active .faq-answer { padding: 15px 20px 20px 20px; max-height: 600px; border-top: 1px solid #e2e8f0; }
+
+        .support-box { margin-top: 40px; background: linear-gradient(135deg, #dcfce7, #f0fdf4); border: 1px solid #bbf7d0; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(34,197,94,.1); }
+        .support-box h3 { color: #166534; margin-bottom: 10px; font-size: 18px; }
+        .support-box p { color: #15803d; font-size: 15px; margin-bottom: 15px; }
+        .support-btn { display: inline-flex; align-items: center; gap: 8px; background: #22c55e; color: white; padding: 10px 25px; border-radius: 25px; text-decoration: none; font-weight: bold; font-size: 16px; transition: 0.2s; box-shadow: 0 4px 10px rgba(34,197,94,.3); }
+        .support-btn:hover { background: #16a34a; transform: translateY(-2px); }
+
+        @media(max-width: 600px) {
+            .container { padding: 20px; margin: 10px auto; }
+            .header-top { flex-direction: column; gap: 15px; align-items: flex-start; }
+            .page-title { font-size: 22px; }
+            .faq-question { font-size: 15px; padding: 14px 15px; }
+            .faq-answer { font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div class="header-top">
+            <div class="page-title"><i class="fas fa-info-circle"></i> नेहमी विचारले जाणारे प्रश्न (FAQ)</div>
+            <a href="home.html" class="back-link"><i class="fas fa-arrow-left"></i> डॅशबोर्डवर जा</a>
+        </div>
+
+        <!-- 🔹 १. सर्वसाधारण माहिती -->
+        <div class="faq-category"><i class="fas fa-layer-group"></i> १. सर्वसाधारण माहिती (General Information)</div>
+        
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">प्रश्न १: QuickIDPrint पोर्टल काय आहे? <i class="fas fa-chevron-down"></i></div>
+            <div class="faq-answer"><b>उत्तर:</b> QuickIDPrint हे एक प्रगत आणि सुरक्षित स्मार्ट ऑनलाईन पोर्टल आहे. या पोर्टलच्या माध्यमातून तुम्ही विविध स्मार्ट आयडी कार्ड्स (उदा. आधार, पॅन, मतदान) आणि सर्व प्रकारची प्रशासकीय मराठी घोषणापत्रे (उदा. उत्पन्न, रहिवासी, जात) अत्यंत जलद, अचूक आणि HD क्वालिटीमध्ये बनवून डाऊनलोड करू शकता.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">प्रश्न २: या पोर्टलवर कोणकोणत्या सेवा उपलब्ध आहेत? <i class="fas fa-chevron-down"></i></div>
+            <div class="faq-answer"><b>उत्तर:</b> पोर्टलवर मुख्यत्वे दोन प्रकारच्या सेवा आहेत:<br><br>
+            • <b>स्मार्ट आयडी कार्ड प्रिंटिंग:</b> आधार कार्ड, मतदान कार्ड, पॅन कार्ड, शेतकरी ओळखपत्र, आयुष्मान कार्ड आणि महा आयडी.<br>
+            • <b>घोषणापत्रे (Declarations):</b> उत्पन्न (१ आणि ३ वर्षाचे), रहिवासी, जात, राष्ट्रीयत्व (Nationality), नॉन-क्रीमीलेअर आणि अल्पभूधारक घोषणापत्र.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">प्रश्न ३: हे पोर्टल मोबाईलवर वापरता येईल का? <i class="fas fa-chevron-down"></i></div>
+            <div class="faq-answer"><b>उत्तर:</b> होय, नक्कीच! हे पोर्टल मोबाईल, कम्प्युटर आणि टॅब्लेटवर अगदी सहज आणि फास्ट चालते. तुम्ही मोबाईलवरूनही घोषणापत्रे भरून थेट PDF डाऊनलोड करू शकता.</div>
+        </div>
+
+        <!-- 🔹 २. प्लॅन आणि सबस्क्रिप्शन -->
+        <div class="faq-category"><i class="fas fa-calendar-check"></i> २. प्लॅन आणि सबस्क्रिप्शन (Plans & Subscriptions)</div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">प्रश्न ४: पोर्टलवर सेवा वापरण्यासाठी कोणता प्लॅन आहे? <i class="fas fa-chevron-down"></i></div>
+            <div class="faq-answer"><b>उत्तर:</b> आमच्या पोर्टलवर सर्व सेवा **अमर्यादित (Unlimited Access)** आहेत! सक्रिय प्लॅनच्या मुदतीत तुम्ही कितीही आयडी कार्ड्स आणि घोषणापत्रे प्रिंट किंवा PDF डाऊनलोड करू शकता.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">प्रश्न ५: माझ्या प्लॅनची मुदत संपल्यास मी तो कसा रिन्यू करू शकतो? <i class="fas fa-chevron-down"></i></div>
+            <div class="faq-answer"><b>उत्तर:</b> डॅशबोर्डवर वरच्या बाजूला असलेल्या <b>'Renew Plan'</b> बटणावर क्लिक करा. तिथे दिलेल्या माहितीनुसार संपर्क साधून किंवा WhatsApp द्वारे रिक्वेस्ट पाठवून तुम्ही तुमचा प्लॅन सहज रिन्यू करू शकता.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">प्रश्न ६: माझ्या प्लॅनची मुदत (Expiry Date) कुठे पाहता येईल? <i class="fas fa-chevron-down"></i></div>
+            <div class="faq-answer"><b>उत्तर:</b> तुम्ही डॅशबोर्डवर लॉगिन केल्यावर वरच्या बाजूला प्रोफाईलजवळ तुमच्या प्लॅनचे <b>'उरलेले दिवस आणि अंतिम तारीख'</b> स्पष्टपणे दिसेल.</div>
+        </div>
+
+        <!-- 🔹 ३. सुरक्षितता आणि तांत्रिक माहिती -->
+        <div class="faq-category"><i class="fas fa-shield-alt"></i> ३. सुरक्षितता आणि तांत्रिक माहिती (Security & Technical)</div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">प्रश्न ७: मी अपलोड केलेले डॉक्युमेंट्स सुरक्षित आहेत का? <i class="fas fa-chevron-down"></i></div>
+            <div class="faq-answer"><b>उत्तर:</b> होय, १००% सुरक्षित आहेत! तुम्ही अपलोड केलेली कोणतीही PDF किंवा माहिती आमच्या सर्व्हरवर सेव्ह केली जात नाही; सर्व प्रोसेस थेट तुमच्या कॉम्प्युटरवरच (Client-side) होते. लॉगआऊट केल्यावर किंवा ब्राऊजर बंद केल्यावर तुमचा सर्व डेटा सिस्टीममधून आपोआप नष्ट (Clear) होतो.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">प्रश्न ८: 'स्मार्ट फोटो एडिट' (Smart Photo Edit) फीचर काय आहे? <i class="fas fa-chevron-down"></i></div>
+            <div class="faq-answer"><b>उत्तर:</b> हे आमच्या पोर्टलचे एक खास वैशिष्ट्य आहे. जेव्हा तुम्ही एखादे आयडी कार्ड प्रिंट करण्यासाठी अपलोड करता, तेव्हा तुम्ही त्यावरील फक्त फोटोची ब्राइटनेस आणि क्वालिटी वाढवू शकता. यामुळे कार्डवरील मूळ मजकूर सुरक्षित राहतो आणि फोटो एकदम क्लिअर येतो.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">प्रश्न ९: आधार किंवा पॅन कार्डची पासवर्डने लॉक असल्यास काय करावे? <i class="fas fa-chevron-down"></i></div>
+            <div class="faq-answer"><b>उत्तर:</b> फाईल अपलोड करताना पासवर्ड टाकण्याचा पर्याय दिला आहे. आधारसाठी तुमच्या नावातील <b>पहिली ४ अक्षरे व जन्मवर्ष</b> (उदा. RAHU1995) टाका. पॅन कार्डसाठी तुमची <b>पूर्ण जन्मतारीख</b> (उदा. 05041990) टाका.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">प्रश्न १०: स्मार्ट आयडी कार्ड आणि घोषणापत्र कोणत्या पेपरवर प्रिंट करावे? <i class="fas fa-chevron-down"></i></div>
+            <div class="faq-answer"><b>उत्तर:</b> उत्तम रिझल्टसाठी स्मार्ट आयडी कार्ड <b>'4x6 Glossy Photo Paper'</b> वर (High Quality मध्ये) प्रिंट करावे आणि A4 साईझची सर्व घोषणापत्रे सामान्य <b>70 किंवा 80 GSM प्रिंटर पेपरवर</b> प्रिंट करावीत.</div>
+        </div>
+
+        <!-- 🔹 ४. ग्राहक मदत -->
+        <div class="faq-category"><i class="fas fa-headset"></i> ४. ग्राहक मदत (Customer Support)</div>
+
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFAQ(this)">प्रश्न ११: पोर्टलवर नवीन सेवा हवी असल्यास किंवा अडचण आल्यास काय करावे? <i class="fas fa-chevron-down"></i></div>
+            <div class="faq-answer"><b>उत्तर:</b> जर तुम्हाला एखादे नवीन कस्टम घोषणापत्र हवे असेल, किंवा फाईल अपलोड करताना काही तांत्रिक अडचण येत असेल, तर तुम्ही आमच्या हेल्पलाइन नंबरवर थेट WhatsApp मेसेज करू शकता. आम्ही ती सेवा किंवा मदत लवकरात लवकर उपलब्ध करून देऊ.</div>
+        </div>
+
+        <!-- 🟢 सपोर्ट संपर्क बॉक्स -->
+        <div class="support-box">
+            <h3><i class="fab fa-whatsapp"></i> आणखी काही अडचण आहे का?</h3>
+            <p>आमची सपोर्ट टीम तुम्हाला मदत करण्यासाठी नेहमी तयार आहे.</p>
+            <a href="https://wa.me/919403901395?text=नमस्कार! मला QuickIDPrint पोर्टलवर मदत हवी आहे." target="_blank" class="support-btn">
+                सपोर्ट टीमशी संपर्क साधा
+            </a>
+        </div>
+
+    </div>
+
+    <script>
+        function toggleFAQ(element) {
+            const parent = element.parentElement;
+            
+            const allItems = document.querySelectorAll('.faq-item');
+            allItems.forEach(item => {
+                if(item !== parent && item.classList.contains('active')) {
+                    item.classList.remove('active');
+                }
+            });
+
+            parent.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>
