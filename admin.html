@@ -510,7 +510,7 @@
             });
         }
 
-        // 5. FETCH & FILTER STATEMENT
+        // 5. FETCH & FILTER STATEMENT (🟢 Demo Plan will NOT update 'Last Renew')
         function fetchStatement() {
             let fromDate = document.getElementById('stmtFrom').value;
             let toDate = document.getElementById('stmtTo').value;
@@ -545,7 +545,8 @@
                     let lastRenewDate = "-";
 
                     filtered.forEach((tx, i) => {
-                        if(tx.actionType === "Plan Renew" || tx.actionType === "Demo Plan") {
+                        // 🟢 फक्त 'Plan Renew' असल्यास Last Renew ची तारीख अपडेट होईल
+                        if(tx.actionType === "Plan Renew") {
                             lastRenewDate = tx.date;
                         }
                         
