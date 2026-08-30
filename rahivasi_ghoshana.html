@@ -42,6 +42,7 @@
     .modal-content { background: white; padding: 20px; border-radius: 10px; text-align: center; max-width: 400px; width: 90%; }
     video { width: 100%; border-radius: 6px; background: #000; }
 
+    /* 🟢 मोबाईल ओव्हरलॅप फिक्स */
     @media (max-width: 768px) {
         body { padding: 10px; }
         .form-container { padding: 15px !important; }
@@ -125,8 +126,20 @@
     </div>
 
     <div class="form-section">
-      <label>पत्ता:</label>
-      <input type="text" id="address" placeholder="गल्ली/गाव, तालुका, जिल्हा" required>
+      <label>गल्ली / गाव:</label>
+      <input type="text" id="village" placeholder="उदा. मुख्य रोड, वस्ती" required>
+    </div>
+
+    <!-- 🟢 तालुका आणि जिल्हासाठी स्वतंत्र बॉक्सेस (क्लिक केल्यावर सहज एडिट करता येतील) -->
+    <div class="grid-2">
+      <div class="form-section">
+        <label>तालुका:</label>
+        <input type="text" id="taluka" value="हदगाव" onfocus="this.select()" required>
+      </div>
+      <div class="form-section">
+        <label>जिल्हा:</label>
+        <input type="text" id="district" value="नांदेड" onfocus="this.select()" required>
+      </div>
     </div>
 
     <div class="grid-2">
@@ -189,7 +202,7 @@
   <div class="heading">रहिवासी घोषणापत्र</div>
   
   <p class="paragraph">
-    मी, श्री/श्रीमती/कु. <span id="out_name"></span>, श्री. <span id="out_father"></span> यांचा मुलगा/मुलगी/पत्नी, वय <span id="out_age"></span> वर्ष, आधार कार्ड क्रमांक. (असल्यास) <span id="out_adharnumber"></span> व्यवसाय <span id="out_occupation"></span>, रा. <span id="out_address"></span> ता. हदगाव जि. नांदेड. येथील रहिवासी असून याद्वारे घोषित करतो/करते की, मी रा. <span id="out_address2"></span> ता. हदगाव जि. नांदेड या ठिकाणी मागील <span id="out_since"></span> वर्षांपासून राहत/वास्तव्यास आहे.
+    मी, श्री/श्रीमती/कु. <span id="out_name"></span>, श्री. <span id="out_father"></span> यांचा मुलगा/मुलगी/पत्नी, वय <span id="out_age"></span> वर्ष, आधार कार्ड क्रमांक. <span id="out_adharnumber"></span> व्यवसाय <span id="out_occupation"></span>, रा. <span id="out_village"></span>, ता. <span id="out_taluka"></span>, जि. <span id="out_district"></span>. येथील रहिवासी असून याद्वारे घोषित करतो/करते की, मी रा. <span id="out_village2"></span>, ता. <span id="out_taluka2"></span>, जि. <span id="out_district2"></span> या ठिकाणी मागील <span id="out_since"></span> वर्षांपासून राहत/वास्तव्यास आहे.
   </p>
 
   <p class="paragraph">
@@ -205,7 +218,7 @@
     <div class="right-side">
         अर्जदार<br><br><br>
         <span id="out_name2"></span><br>
-        रा. <span id="out_address3"></span>, ता. हदगाव, जि. नांदेड.
+        रा. <span id="out_village3"></span>, ता. <span id="out_taluka3"></span>, जि. <span id="out_district3"></span>.
     </div>
   </div>
 </div>
@@ -267,6 +280,7 @@
       if (mediaStream) mediaStream.getTracks().forEach(track => track.stop());
   }
 
+  // 🔒 सुरक्षित प्रोसेस फंक्शन
   function processForm(actionType) {
     const form = document.getElementById('affidavitForm');
     
@@ -286,7 +300,7 @@
     btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> प्रक्रिया चालू आहे...";
     btn.disabled = true;
 
-    // 🔒 सुरक्षित लॉगिन चेक
+    // 🔒 सुरक्षित sessionStorage वापरले
     const username = sessionStorage.getItem('username');
     if(!username) {
         alert("अनधिकृत प्रवेश! कृपया आधी लॉगिन करा.");
@@ -304,6 +318,10 @@
     }
 
     const applicantName = document.getElementById('name').value; 
+    const village = document.getElementById('village').value;
+    const taluka = document.getElementById('taluka').value;
+    const district = document.getElementById('district').value;
+
     const formData = new FormData();
     formData.append('action', 'submitForm'); 
     formData.append('username', username);
@@ -317,16 +335,23 @@
     .then(data => {
         if(data.status === 'success') {
             
-            const address = document.getElementById('address').value;
             document.getElementById('out_name').innerText = applicantName;
             document.getElementById('out_father').innerText = document.getElementById('father').value;
             document.getElementById('out_age').innerText = document.getElementById('age').value;
             document.getElementById('out_adharnumber').innerText = document.getElementById('adharnumber').value || '-';
             document.getElementById('out_occupation').innerText = document.getElementById('occupation').value;
-            document.getElementById('out_address').innerText = address;
-            document.getElementById('out_address2').innerText = address;
+            
+            // पत्ते सेट करणे
+            document.getElementById('out_village').innerText = village;
+            document.getElementById('out_taluka').innerText = taluka;
+            document.getElementById('out_district').innerText = district;
+
+            document.getElementById('out_village2').innerText = village;
+            document.getElementById('out_taluka2').innerText = taluka;
+            document.getElementById('out_district2').innerText = district;
+
             document.getElementById('out_since').innerText = document.getElementById('since').value;
-            document.getElementById('out_location').innerText = document.getElementById('location').value;
+            document.getElementById('out_location').innerText = taluka; // ठिकाण तालुक्यानुसार बदलेल
 
             const rawDate = document.getElementById('date').value;
             if(rawDate) {
@@ -335,7 +360,9 @@
             }
 
             document.getElementById('out_name2').innerText = applicantName;
-            document.getElementById('out_address3').innerText = address;
+            document.getElementById('out_village3').innerText = village;
+            document.getElementById('out_taluka3').innerText = taluka;
+            document.getElementById('out_district3').innerText = district;
 
             setTimeout(() => {
                 if(actionType === 'print') {
@@ -350,6 +377,11 @@
 
                 setTimeout(() => {
                     form.reset();
+                    // रिसेट झाल्यावर परत डिफॉल्ट वैल्यू सेट करणे
+                    document.getElementById('taluka').value = "हदगाव";
+                    document.getElementById('district').value = "नांदेड";
+                    document.getElementById('location').value = "हदगाव";
+
                     document.getElementById('photo').src = "";
                     document.getElementById('formPreviewImg').src = "";
                     document.getElementById('formPreviewImg').style.display = 'none';
