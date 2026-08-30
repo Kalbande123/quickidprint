@@ -15,7 +15,7 @@
 <style>
 *{ margin:0; padding:0; box-sizing:border-box; font-family:'Mukta',sans-serif; }
 body{ min-height:100vh; background: radial-gradient(circle at top left,#fff4b8 0%,transparent 30%), linear-gradient(135deg,#fffdf4,#f1f6ff); color:#172554; }
-.header{ background:#ffffff; height:76px; padding:8px 6%; display:flex; align-items:center; justify-content:space-between; box-shadow:0 5px 20px rgba(0,0,0,.07); }
+.header{ background:#ffffff; height:76px; padding:8px 6%; display:flex; align-items:center; justify-content:space-between; box-shadow:0 5px 20px rgba(0,0,0,.07); position: sticky; top: 0; z-index: 100; }
 .logo-area{ display:flex; align-items:center; gap:12px; }
 .logo{ width:54px; height:54px; border-radius:14px; background:#fff5bf; display:flex; align-items:center; justify-content:center; color:#123a8f; font-size:25px; }
 .logo-text h1{ font-size:26px; line-height:1; font-weight:800; }
@@ -28,6 +28,15 @@ body{ min-height:100vh; background: radial-gradient(circle at top left,#fff4b8 0
 .heading .tag{ display:inline-block; background:#fff0e5; color:#f97316; padding:5px 12px; border-radius:30px; font-size:11px; font-weight:800; }
 .heading h2{ color:#123a8f; font-size:32px; margin-top:7px; }
 .heading p{ color:#64748b; font-size:14px; }
+
+/* 🟢 Current Status Box Design */
+.status-box { background: #ffffff; border: 1px solid #cfe0ff; border-radius: 16px; padding: 15px 25px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 15px rgba(18,58,143,.05); }
+.status-item { text-align: center; }
+.status-title { font-size: 13px; color: #64748b; font-weight: 600; margin-bottom: 2px; }
+.status-val { font-size: 22px; font-weight: 800; color: #123a8f; }
+.status-val.highlight { color: #f97316; }
+.status-divider { width: 1px; height: 40px; background: #e2e8f0; }
+
 .recharge-card{ background:#ffffff; border:1px solid #e1e8f2; border-radius:24px; padding:25px; box-shadow:0 15px 40px rgba(18,58,143,.09); }
 .payment-grid{ display:grid; grid-template-columns:300px 1fr; gap:25px; }
 .qr-section{ background:#f7faff; border:1px solid #e0e8f4; border-radius:18px; padding:18px; text-align:center; }
@@ -62,6 +71,8 @@ body{ min-height:100vh; background: radial-gradient(circle at top left,#fff4b8 0
     .demo{ font-size:11px; padding: 5px 10px; }
     .container{ margin-top:20px; }
     .heading h2{ font-size:27px; }
+    .status-box { flex-direction: column; gap: 15px; padding: 20px; }
+    .status-divider { width: 100%; height: 1px; }
     .recharge-card{ padding:16px; }
     .payment-grid{ grid-template-columns:1fr; }
     .qr-box{ width:210px; height:210px; }
@@ -88,6 +99,24 @@ body{ min-height:100vh; background: radial-gradient(circle at top left,#fff4b8 0
     <span class="tag"><i class="fas fa-sync-alt"></i> RENEW PLAN</span>
     <h2>Plan Renewal</h2>
     <p>तुमच्या QuickIDPrint खात्याची मुदत वाढवा (Renew).</p>
+</div>
+
+<!-- 🟢 Current Plan Status Box -->
+<div class="status-box">
+    <div class="status-item">
+        <div class="status-title">सध्याचे उरलेले दिवस</div>
+        <div class="status-val highlight" id="dispDays">-</div>
+    </div>
+    <div class="status-divider"></div>
+    <div class="status-item">
+        <div class="status-title">प्लॅन एक्सपायरी डेट</div>
+        <div class="status-val" id="dispExpiry" style="font-size: 18px; margin-top: 4px;">-</div>
+    </div>
+    <div class="status-divider"></div>
+    <div class="status-item">
+        <div class="status-title">अकाउंट स्टेटस</div>
+        <div class="status-val" id="dispStatus" style="font-size: 16px; margin-top: 5px; color:#16a34a;"><i class="fas fa-check-circle"></i> Active</div>
+    </div>
 </div>
 
 <section class="recharge-card">
@@ -154,10 +183,18 @@ body{ min-height:100vh; background: radial-gradient(circle at top left,#fff4b8 0
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+    // Session Storage मधून युजरचा डेटा घेणे
     const sessionUsername = sessionStorage.getItem('username');
     const sessionName = sessionStorage.getItem('userFullName');
+    const sessionDays = sessionStorage.getItem('userDaysLeft');
+    const sessionExpiry = sessionStorage.getItem('userExpireDate');
+
     if(sessionUsername) document.getElementById("userId").value = sessionUsername;
     if(sessionName) document.getElementById("userName").value = sessionName;
+    
+    // Status Box भरणे
+    if(sessionDays !== null) document.getElementById("dispDays").innerText = sessionDays + " दिवस";
+    if(sessionExpiry) document.getElementById("dispExpiry").innerText = sessionExpiry;
 });
 
 function sendRechargeRequest(){
@@ -180,6 +217,7 @@ function sendRechargeRequest(){
 ------------------------------------
 कृपया माझा पेमेंट स्क्रीनशॉट तपासा आणि माझ्या खात्याची मुदत (Validity) वाढवून द्या. धन्यवाद! 🙏`;
 
+    // 🟢 तुमचा WhatsApp नंबर टाका
     const whatsappNumber = "919403901395";
     const url = "https://wa.me/" + whatsappNumber + "?text=" + encodeURIComponent(message);
     window.open(url,"_blank");
