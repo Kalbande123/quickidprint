@@ -52,7 +52,7 @@
 
     .print-section { display: none; font-size: 18px; line-height: 2.0; color: #000; }
 
-    /* 🟢 PDF डाऊनलोड आणि डायरेक्ट प्रिंटसाठी एकसमान लॉजिक */
+    /* 🟢 PDF डाऊनलोड आणि डायरेक्ट प्रिंटसाठी फिक्स आणि एकसमान लॉजिक */
     @media print {
       body { background: white !important; padding: 0 !important; margin: 0 !important; }
       .form-container { display: none !important; }
@@ -85,7 +85,6 @@
       <a href="home.html" style="color: #2563eb; text-decoration: none; font-weight: 600;"><i class="fas fa-arrow-left"></i> डॅशबोर्डवर जा</a>
   </div>
 
-  <!-- 🟢 एक्सपायरी बेस नोटीस -->
   <div class="notice-box">
       <i class="fab fa-whatsapp" style="font-size: 24px; color: #25D366;"></i> 
       <span>प्लॅन संपल्यास रिन्यू करण्यासाठी <a href="https://wa.me/919403901395?text=नमस्कार! मला QuickIDPrint पोर्टलवर माझा प्लॅन रिन्यू करायचा आहे." target="_blank">9403901395</a> वर संपर्क साधा.</span>
@@ -152,7 +151,6 @@
       <img id="formPreviewImg" src="" style="display: none; width: 80px; height: 100px; object-fit: cover; margin: 15px auto 0; border: 2px solid #cbd5e1; border-radius: 8px;" alt="Preview">
     </div>
 
-    <!-- 🟢 अनलिमिटेड ऍक्सेस बटणे (टोकन काढले) -->
     <div class="action-buttons">
         <button type="button" class="btn-print" id="btnPrint" onclick="processForm('print')">
             <i class="fas fa-print"></i> प्रिंट करा (Unlimited)
@@ -337,12 +335,14 @@
 
             setTimeout(() => {
                 if(actionType === 'print') {
-                    // 🟢 सेव्ह करताना फाईलचे नाव QuickIDPrint येण्यासाठी
+                    // 🟢 प्रिंट करताना फाईलचे नाव QuickIDPrint येण्यासाठी
                     const originalTitle = document.title; 
                     document.title = "QuickIDPrint_Income"; 
                     window.print();
                     document.title = originalTitle; 
                 } else if(actionType === 'download') {
+                    executeDownload();
+                }
 
                 // ऑटो-क्लिअर फॉर्म 
                 setTimeout(() => {
@@ -397,7 +397,7 @@
               const imgHeight = (canvas.height * imgWidth) / canvas.width;
               
               pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
-              pdf.save(`Utpanna_Ghoshnapatra_${new Date().getTime()}.pdf`);
+              pdf.save(`QuickIDPrint_Income_${new Date().getTime()}.pdf`);
               
               printArea.style.display = ''; 
               printArea.style.width = '';
