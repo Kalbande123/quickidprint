@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer ID Card Generator - QuickIDPrint</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="config.js"></script>
+    <!-- 🔒 सिक्युरिटी गार्ड -->
+    <script src="auth-guard.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Mukta', sans-serif; }
+        body { background-color: #f1f5f9; color: #1e293b; padding: 20px; text-align: center; }
+        
+        .container { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); max-width: 850px; margin: auto; position: relative; padding-bottom: 30px; }
+        
+        .back-link { position: absolute; top: 20px; right: 20px; color: #16a34a; text-decoration: none; font-weight: 600; font-size: 15px; }
+        .back-link:hover { text-decoration: underline; }
+
+        .notice-box { background: #dcfce7; border: 1px solid #22c55e; color: #166534; padding: 12px; border-radius: 8px; font-weight: bold; margin-bottom: 20px; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 30px; }
+        .notice-box a { color: #15803d; text-decoration: none; border-bottom: 1px dashed #15803d; }
+
+        h2 { color: #16a34a; margin-bottom: 20px; border-bottom: 2px solid #16a34a; padding-bottom: 10px; display: inline-block; font-size: 24px; }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left; margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; color: #334155; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; font-size: 15px; border-radius: 6px; border: 1px solid #cbd5e1; background: #f8fafc; transition: 0.3s; }
+        .form-group input:invalid { border-color: #ef4444; } 
+        .form-group input:valid { border-color: #22c55e; }
+        .full-width { grid-column: span 2; }
+
+        .table-responsive { overflow-x: auto; margin-bottom: 15px; border: 1px solid #cbd5e1; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: center; }
+        th { background-color: #dcfce7; color: #166534; }
+        td input { width: 100%; border: 1px solid #e2e8f0; padding: 5px; border-radius: 4px; text-align: center; outline: none; font-size: 14px; transition: 0.3s; }
+        .btn-remove { background: #dc2626; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+
+        .btn-add-row { background: #eab308; color: #854d0e; border: none; padding: 10px 15px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-bottom: 20px; display: inline-block; transition: 0.3s; }
+        .btn-add-row:hover { background: #ca8a04; color: white; }
+
+        .btn-process { background-color: #16a34a; color: white; border: none; padding: 14px; width: 100%; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        .btn-process:hover { background-color: #15803d; }
+        
+        .btn-download { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); color: white; border: none; padding: 14px; width: 100%; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 15px; display: none; transition: 0.3s; }
+        .btn-download:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4); }
+        
+        #previewArea { margin-top: 20px; display: none; }
+        canvas { max-width: 100%; height: auto; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        .success-strip { background: #dcfce7; border: 1px solid #22c55e; color: #166534; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; margin-top: 20px; margin-bottom: 15px; display: none; }
+        
+        #qrCodeContainer { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <a href="home.html" class="back-link"><i class="fas fa-arrow-left"></i> डॅशबोर्ड</a>
+
+        <!-- 🟢 प्लॅन रिन्यू नोटीस -->
+        <div class="notice-box">
+            <i class="fab fa-whatsapp" style="font-size: 24px; color: #25D366;"></i> 
+            <span>प्लॅन संपल्यास रिन्यू करण्यासाठी <a href="https://wa.me/919403901395?text=नमस्कार! मला QuickIDPrint पोर्टलवर माझा प्लॅन रिन्यू करायचा आहे." target="_blank">9403901395</a> वर संपर्क साधा.</span>
+        </div>
+
+        <h2><i class="fas fa-tractor"></i> स्मार्ट शेतकरी ओळखपत्र</h2>
+        
+        <form id="farmerForm" onsubmit="return false;">
+            <h3 style="text-align: left; color: #15803d; margin-bottom: 10px;">१. वैयक्तिक माहिती (Front Side)</h3>
+            
+            <div class="form-group" style="text-align: left; margin-bottom: 15px;">
+                <label>पेपरची साईझ निवडा:</label>
+                <select id="printSize" style="width: 50%;">
+                    <option value="4x6">4x6 Photo Paper (HD)</option>
+                    <option value="A4">A4 Full Size Paper</option>
+                </select>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group full-width" style="background: #fef3c7; padding: 10px; border-radius: 6px; border: 1px solid #f59e0b;">
+                    <label style="color: #b45309;"><i class="fas fa-id-badge"></i> शेतकरी आयडी (Farmer ID):</label>
+                    <input type="text" id="farmerId" placeholder="उदा. MH-12345678 (११ अक्षरे/अंक आवश्यक)" maxlength="11" style="border: 1px solid #f59e0b;" required>
+                </div>
+
+                <div class="form-group">
+                    <label>इंग्रजी नाव (Name):</label>
+                    <input type="text" id="engName" placeholder="उदा. RAGHUNATH TUKARAM PATIL" required>
+                </div>
+                <div class="form-group">
+                    <label>मराठी नाव:</label>
+                    <input type="text" id="marName" placeholder="उदा. रघुनाथ तुकाराम पाटील" required>
+                </div>
+                <div class="form-group">
+                    <label>जन्मतारीख (DOB):</label>
+                    <input type="date" id="dob" required>
+                </div>
+                <div class="form-group">
+                    <label>लिंग (Gender):</label>
+                    <select id="gender">
+                        <option value="Male">Male / पुरुष</option>
+                        <option value="Female">Female / स्त्री</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>मोबाईल नं:</label>
+                    <input type="text" id="mobile" placeholder="१० अंकी मोबाईल नंबर" maxlength="10" required>
+                </div>
+                <div class="form-group">
+                    <label>आधार नं:</label>
+                    <input type="text" id="aadhar" placeholder="१२ अंकी आधार नंबर (स्पेस देऊ नका)" maxlength="12" required>
+                </div>
+                <div class="form-group full-width">
+                    <label>शेतकऱ्याचा फोटो निवडा:</label>
+                    <input type="file" id="farmerPhoto" accept="image/*" required>
+                </div>
+            </div>
+
+            <h3 style="text-align: left; color: #15803d; margin-bottom: 10px; margin-top: 20px;">२. पत्ता आणि जमिनीचा तपशील (Back Side)</h3>
+            <div class="form-group" style="text-align: left; margin-bottom: 15px;">
+                <label>संपूर्ण पत्ता:</label>
+                <input type="text" id="address" placeholder="उदा. मु. पो. हदगाव, ता. हदगाव, जि. नांदेड" style="width: 100%;" required>
+            </div>
+
+            <div class="table-responsive">
+                <table id="landTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">अ.क्र.</th>
+                            <th>जिल्हा</th>
+                            <th>तालुका</th>
+                            <th>गाव</th>
+                            <th>गट नंबर</th>
+                            <th>क्षेत्र (हे.)</th>
+                            <th style="width: 60px;">काढा</th>
+                        </tr>
+                    </thead>
+                    <tbody id="landTbody">
+                        <tr>
+                            <td class="row-index">1</td>
+                            <td><input type="text" class="l-dist" placeholder="आवश्यक"></td>
+                            <td><input type="text" class="l-tal" placeholder="आवश्यक"></td>
+                            <td><input type="text" class="l-vil" placeholder="आवश्यक"></td>
+                            <td><input type="text" class="l-gat" placeholder="आवश्यक"></td>
+                            <td><input type="text" class="l-area" placeholder="आवश्यक"></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div style="text-align: left;">
+                <button type="button" class="btn-add-row" onclick="addLandRow()"><i class="fas fa-plus-circle"></i> नवीन जमीन ऍड करा</button>
+            </div>
+
+            <button id="btnProcess" type="button" class="btn-process" onclick="validateAndGenerate()"><i class="fas fa-magic"></i> ओळखपत्र तयार करा</button>
+        </form>
+
+        <div id="qrCodeContainer"></div>
+
+        <div id="previewArea">
+            <div id="successMsg" class="success-strip">
+                <i class="fas fa-check-circle"></i> तुमचे ओळखपत्र तयार आहे! फायनल PDF साठी खाली क्लिक करा[cite: 13].
+            </div>
+            
+            <canvas id="frontCanvas"></canvas>
+            <canvas id="backCanvas"></canvas>
+            
+            <!-- 🟢 अनलिमिटेड डाऊनलोड बटण -->
+            <button id="btnDownload" class="btn-download" onclick="downloadIdCard()">
+                <i class="fas fa-file-pdf"></i> HD PDF डाऊनलोड करा (Unlimited)
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const FRONT_TEMPLATE_URL = 'front_bg.png'; 
+        const BACK_TEMPLATE_URL = 'back_bg.png';   
+        
+        let finalFrontImgData = null;
+        let finalBackImgData = null;
+        
+        let cleanFrontCanvas = document.createElement('canvas');
+        let cleanBackCanvas = document.createElement('canvas');
+
+        let maxRows = 5;
+
+        function updateRowIndexes() {
+            const rows = document.querySelectorAll('#landTbody tr');
+            rows.forEach((row, index) => {
+                row.querySelector('.row-index').innerText = index + 1;
+            });
+        }
+
+        function addLandRow() {
+            const tbody = document.getElementById('landTbody');
+            const rowCount = tbody.getElementsByTagName('tr').length;
+            
+            if(rowCount >= maxRows) {
+                alert("तुम्ही जास्तीत जास्त ५ जमिनीच्या नोंदी ऍड करू शकता.");
+                return;
+            }
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="row-index"></td>
+                <td><input type="text" class="l-dist"></td>
+                <td><input type="text" class="l-tal"></td>
+                <td><input type="text" class="l-vil"></td>
+                <td><input type="text" class="l-gat"></td>
+                <td><input type="text" class="l-area"></td>
+                <td><button type="button" class="btn-remove" onclick="this.closest('tr').remove(); updateRowIndexes();"><i class="fas fa-times"></i></button></td>
+            `;
+            tbody.appendChild(tr);
+            updateRowIndexes();
+        }
+
+        function formatDate(dateString) {
+            if(!dateString) return "";
+            const parts = dateString.split("-");
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+
+        function readFileAsDataURL(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function loadImage(src) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = "Anonymous";
+                img.onload = () => resolve(img);
+                img.onerror = () => reject(new Error("Image not found: " + src));
+                img.src = src;
+            });
+        }
+
+        function validateAndGenerate() {
+            const form = document.getElementById('farmerForm');
+            
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const farmerId = document.getElementById('farmerId');
+            if (farmerId.value.trim().length !== 11) {
+                farmerId.setCustomValidity("शेतकरी आयडी बरोबर ११ अक्षरांचा/अंकांचा असावा.");
+                farmerId.reportValidity();
+                farmerId.addEventListener('input', function() { this.setCustomValidity(''); }, {once:true});
+                return;
+            }
+
+            const mobile = document.getElementById('mobile');
+            if (mobile.value.trim().length !== 10 || isNaN(mobile.value.trim())) {
+                mobile.setCustomValidity("मोबाईल नंबर बरोबर १० अंकांचा असावा.");
+                mobile.reportValidity();
+                mobile.addEventListener('input', function() { this.setCustomValidity(''); }, {once:true});
+                return;
+            }
+
+            const aadhar = document.getElementById('aadhar');
+            if (aadhar.value.trim().length !== 12 || isNaN(aadhar.value.trim())) {
+                aadhar.setCustomValidity("आधार क्रमांक बरोबर १२ अंकांचा असावा (स्पेस न देता).");
+                aadhar.reportValidity();
+                aadhar.addEventListener('input', function() { this.setCustomValidity(''); }, {once:true});
+                return;
+            }
+
+            let hasValidLandData = false;
+            const rows = document.querySelectorAll('#landTbody tr');
+            rows.forEach(row => {
+                let d = row.querySelector('.l-dist').value.trim();
+                let t = row.querySelector('.l-tal').value.trim();
+                let v = row.querySelector('.l-vil').value.trim();
+                let g = row.querySelector('.l-gat').value.trim();
+                let a = row.querySelector('.l-area').value.trim();
+                
+                if (d && t && v && g && a) {
+                    hasValidLandData = true;
+                }
+            });
+
+            if (!hasValidLandData) {
+                alert("⚠️ शेती विषयक माहिती भरणे आवश्यक आहे!\nकृपया किमान एका जमिनीचा संपूर्ण तपशील (जिल्हा, तालुका, गाव, गट नंबर आणि क्षेत्र) भरा.");
+                const firstDistInput = document.querySelector('.l-dist');
+                firstDistInput.focus();
+                firstDistInput.style.border = "2px solid #dc2626"; 
+                setTimeout(() => firstDistInput.style.border = "1px solid #e2e8f0", 3000);
+                return;
+            }
+
+            generateCard();
+        }
+
+        async function generateCard() {
+            const btnProcess = document.getElementById('btnProcess');
+            btnProcess.innerHTML = "<i class='fas fa-spinner fa-spin'></i> कार्ड बनत आहे...";
+            btnProcess.disabled = true;
+
+            try {
+                const photoFile = document.getElementById('farmerPhoto').files[0];
+                const photoUrl = await readFileAsDataURL(photoFile);
+
+                const data = {
+                    farmerId: document.getElementById('farmerId').value.trim(), 
+                    engName: document.getElementById('engName').value.trim().toUpperCase(),
+                    marName: document.getElementById('marName').value.trim(),
+                    dob: formatDate(document.getElementById('dob').value),
+                    gender: document.getElementById('gender').value,
+                    mobile: document.getElementById('mobile').value.trim(),
+                    aadhar: document.getElementById('aadhar').value.trim(),
+                    address: document.getElementById('address').value.trim(),
+                    landData: []
+                };
+
+                const rows = document.querySelectorAll('#landTbody tr');
+                rows.forEach(row => {
+                    let d = row.querySelector('.l-dist').value.trim();
+                    let t = row.querySelector('.l-tal').value.trim();
+                    let v = row.querySelector('.l-vil').value.trim();
+                    let g = row.querySelector('.l-gat').value.trim();
+                    let a = row.querySelector('.l-area').value.trim();
+                    if(d && t && v && g && a) {
+                        data.landData.push({ dist: d, tal: t, vil: v, gat: g, area: a });
+                    }
+                });
+
+                const qrContainer = document.getElementById('qrCodeContainer');
+                qrContainer.innerHTML = "";
+                const qrText = `F-ID:${data.farmerId}, Name:${data.engName}, Mob:${data.mobile}`;
+                
+                new QRCode(qrContainer, { 
+                    text: qrText, 
+                    width: 200, 
+                    height: 200,
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+
+                setTimeout(async () => {
+                    try {
+                        let qrImgUrl = "";
+                        const qrCanvas = document.querySelector('#qrCodeContainer canvas');
+                        
+                        if(qrCanvas) {
+                            qrImgUrl = qrCanvas.toDataURL('image/png');
+                        } else {
+                            const qrImg = document.querySelector('#qrCodeContainer img');
+                            if(qrImg) qrImgUrl = qrImg.src;
+                        }
+
+                        await drawFrontCard(data, photoUrl, qrImgUrl);
+                        await drawBackCard(data);
+
+                        document.getElementById('farmerForm').style.display = 'none';
+                        document.getElementById('previewArea').style.display = 'block';
+                        document.getElementById('successMsg').style.display = 'block';
+                        document.getElementById('btnDownload').style.display = 'block';
+
+                    } catch (drawErr) {
+                        console.error(drawErr);
+                        alert("कार्ड रेखाटताना त्रुटी आली. कृपया इमेजेस आणि डेटा तपासा.");
+                        btnProcess.disabled = false;
+                        btnProcess.innerHTML = "<i class='fas fa-magic'></i> ओळखपत्र तयार करा";
+                    }
+                }, 800); 
+
+            } catch (err) {
+                console.error(err);
+                alert("तांत्रिक त्रुटी: " + err.message);
+                btnProcess.disabled = false;
+                btnProcess.innerHTML = "<i class='fas fa-magic'></i> ओळखपत्र तयार करा";
+            }
+        }
+
+        async function drawFrontCard(data, photoUrl, qrImgUrl) {
+            const canvas = document.getElementById('frontCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 1040; canvas.height = 650;
+
+            try {
+                const bgImg = await loadImage(FRONT_TEMPLATE_URL);
+                ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+            } catch(e) {
+                ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.strokeStyle = "#16a34a"; ctx.lineWidth = 10; ctx.strokeRect(0, 0, canvas.width, canvas.height);
+            }
+
+            const photoX = 50;  const photoY = 130;  const photoW = 220; const photoH = 270;
+            const qrX = 830;    const qrY = 280;     const qrW = 180;    const qrH = 180;
+
+            const userPhoto = await loadImage(photoUrl);
+            ctx.drawImage(userPhoto, photoX, photoY, photoW, photoH); 
+            
+            try {
+                const qrCodeImg = await loadImage(qrImgUrl);
+                ctx.drawImage(qrCodeImg, qrX, qrY, qrW, qrH); 
+            } catch(e) { console.log("QR Error"); }
+
+            ctx.fillStyle = "#000000";
+            ctx.textAlign = "left";
+            ctx.font = "bold 26px Mukta, sans-serif";
+            
+            const labelX = 330;   
+            const colonX = 490;   
+            const valueX = 510;   
+            
+            let startY = 160;     
+            const gapY = 55;      
+
+            ctx.fillText("Name", labelX, startY); ctx.fillText(":", colonX, startY); ctx.fillText(data.engName, valueX, startY);
+            startY += gapY; ctx.fillText("नाव", labelX, startY); ctx.fillText(":", colonX, startY); ctx.fillText(data.marName, valueX, startY);
+            startY += gapY; ctx.fillText("DOB", labelX, startY); ctx.fillText(":", colonX, startY); ctx.fillText(data.dob, valueX, startY);
+            startY += gapY; ctx.fillText("Gender", labelX, startY); ctx.fillText(":", colonX, startY); ctx.fillText(data.gender, valueX, startY);
+            startY += gapY; ctx.fillText("मोबाईल नं.", labelX, startY); ctx.fillText(":", colonX, startY); ctx.fillText(data.mobile, valueX, startY);
+            startY += gapY; ctx.fillText("आधार नं.", labelX, startY); ctx.fillText(":", colonX, startY); ctx.fillText(data.aadhar, valueX, startY);
+            
+            ctx.textAlign = "center";
+            ctx.font = "bold 38px Mukta, sans-serif";
+            ctx.fillStyle = "#075d2c"; 
+            ctx.fillText(data.farmerId, 520, 530); 
+
+            cleanFrontCanvas.width = canvas.width;
+            cleanFrontCanvas.height = canvas.height;
+            cleanFrontCanvas.getContext('2d').drawImage(canvas, 0, 0);
+            finalFrontImgData = cleanFrontCanvas.toDataURL('image/jpeg', 1.0);
+
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate(-Math.PI / 6); 
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.font = "bold 130px Mukta, sans-serif";
+            ctx.fillStyle = "rgba(220, 38, 38, 0.15)"; 
+            ctx.fillText("NOT FOR PRINT", 0, -20);
+            ctx.font = "bold 45px Mukta, sans-serif";
+            ctx.fillStyle = "rgba(220, 38, 38, 0.25)";
+            ctx.fillText("(Download PDF for Clear Card)", 0, 70);
+            ctx.restore();
+        }
+
+        async function drawBackCard(data) {
+            const canvas = document.getElementById('backCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 1040; canvas.height = 650;
+
+            try {
+                const bgImg = await loadImage(BACK_TEMPLATE_URL);
+                ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+            } catch(e) {
+                ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.strokeStyle = "#16a34a"; ctx.lineWidth = 10; ctx.strokeRect(0, 0, canvas.width, canvas.height);
+            }
+
+            ctx.fillStyle = "#000000";
+            ctx.font = "bold 28px Mukta, sans-serif";
+            ctx.textAlign = "left";
+
+            ctx.fillText("पत्ता: " + data.address, 100, 160);
+
+            let startX = 60;
+            let startY = 210;
+            let tableWidth = 920;
+            let rowHeight = 45;
+            let totalRows = data.landData.length;
+            
+            if(totalRows > 0) {
+                const cols = [
+                    { title: "अ. क्र.", w: 80 },
+                    { title: "जिल्हा", w: 180 },
+                    { title: "तालुका", w: 180 },
+                    { title: "गाव", w: 200 },
+                    { title: "गट नंबर", w: 140 },
+                    { title: "क्षेत्र (हे.)", w: 140 }
+                ];
+
+                ctx.lineWidth = 1.5;
+                ctx.strokeStyle = "#166534"; 
+
+                ctx.fillStyle = "#dcfce7";
+                ctx.fillRect(startX, startY, tableWidth, rowHeight);
+                
+                for(let i = 0; i <= totalRows + 1; i++) {
+                    let y = startY + (i * rowHeight);
+                    ctx.beginPath();
+                    ctx.moveTo(startX, y);
+                    ctx.lineTo(startX + tableWidth, y);
+                    ctx.stroke();
+                }
+
+                let currentX = startX;
+                ctx.fillStyle = "#166534"; 
+                ctx.font = "bold 22px Mukta, sans-serif";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+
+                cols.forEach((col, index) => {
+                    ctx.beginPath();
+                    ctx.moveTo(currentX, startY);
+                    ctx.lineTo(currentX, startY + (rowHeight * (totalRows + 1)));
+                    ctx.stroke();
+
+                    ctx.fillText(col.title, currentX + (col.w / 2), startY + (rowHeight / 2));
+                    currentX += col.w;
+                });
+                
+                ctx.beginPath();
+                ctx.moveTo(startX + tableWidth, startY);
+                ctx.lineTo(startX + tableWidth, startY + (rowHeight * (totalRows + 1)));
+                ctx.stroke();
+
+                ctx.fillStyle = "#000000";
+                ctx.font = "20px Mukta, sans-serif";
+                
+                data.landData.forEach((land, rIndex) => {
+                    let rY = startY + rowHeight + (rIndex * rowHeight) + (rowHeight / 2);
+                    let cX = startX;
+                    
+                    ctx.fillText((rIndex + 1).toString(), cX + (cols[0].w / 2), rY); cX += cols[0].w;
+                    ctx.fillText(land.dist, cX + (cols[1].w / 2), rY); cX += cols[1].w;
+                    ctx.fillText(land.tal, cX + (cols[2].w / 2), rY); cX += cols[2].w;
+                    ctx.fillText(land.vil, cX + (cols[3].w / 2), rY); cX += cols[3].w;
+                    ctx.fillText(land.gat, cX + (cols[4].w / 2), rY); cX += cols[4].w;
+                    ctx.fillText(land.area, cX + (cols[5].w / 2), rY);
+                });
+            }
+
+            cleanBackCanvas.width = canvas.width;
+            cleanBackCanvas.height = canvas.height;
+            cleanBackCanvas.getContext('2d').drawImage(canvas, 0, 0);
+            finalBackImgData = cleanBackCanvas.toDataURL('image/jpeg', 1.0);
+
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate(-Math.PI / 6); 
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.font = "bold 130px Mukta, sans-serif";
+            ctx.fillStyle = "rgba(220, 38, 38, 0.15)"; 
+            ctx.fillText("NOT FOR PRINT", 0, -20);
+            ctx.font = "bold 45px Mukta, sans-serif";
+            ctx.fillStyle = "rgba(220, 38, 38, 0.25)";
+            ctx.fillText("(Download PDF for Clear Card)", 0, 70);
+            ctx.restore();
+        }
+
+        function generateFinalCanvas() {
+            const finalCanvas = document.createElement('canvas');
+            const finalCtx = finalCanvas.getContext('2d');
+            const printSize = document.getElementById('printSize').value;
+
+            const frontCanvas = cleanFrontCanvas;
+            const backCanvas = cleanBackCanvas;
+
+            if (printSize === '4x6') {
+                finalCanvas.width = 1200; finalCanvas.height = 1800; 
+            } else {
+                finalCanvas.width = 2480; finalCanvas.height = 3508; 
+            }
+            finalCtx.fillStyle = "white";
+            finalCtx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+
+            const drawWidth = 1040; 
+            const drawHeight = 655; 
+            const cornerRadius = 32; 
+
+            function drawRounded(ctx, sourceCanvas, dx, dy, dw, dh, radius) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(dx + radius, dy);
+                ctx.lineTo(dx + dw - radius, dy);
+                ctx.quadraticCurveTo(dx + dw, dy, dx + dw, dy + radius);
+                ctx.lineTo(dx + dw, dy + dh - radius);
+                ctx.quadraticCurveTo(dx + dw, dy + dh, dx + dw - radius, dy + dh);
+                ctx.lineTo(dx + radius, dy + dh);
+                ctx.quadraticCurveTo(dx, dy + dh, dx, dy + dh - radius);
+                ctx.lineTo(dx, dy + radius);
+                ctx.quadraticCurveTo(dx, dy, dx + radius, dy);
+                ctx.closePath();
+                ctx.clip(); 
+                ctx.drawImage(sourceCanvas, 0, 0, sourceCanvas.width, sourceCanvas.height, dx, dy, dw, dh);
+                ctx.lineWidth = 6; 
+                ctx.strokeStyle = "#000000"; 
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            if (printSize === '4x6') {
+                const marginX = (finalCanvas.width - drawWidth) / 2; 
+                const gapBetweenCards = 130; 
+                const topPadding = (finalCanvas.height - (drawHeight * 2) - gapBetweenCards) / 2;
+
+                drawRounded(finalCtx, frontCanvas, marginX, topPadding, drawWidth, drawHeight, cornerRadius);
+                drawRounded(finalCtx, backCanvas, marginX, topPadding + drawHeight + gapBetweenCards, drawWidth, drawHeight, cornerRadius);
+            
+            } else if (printSize === 'A4') {
+                const gapBetweenCards = 140; 
+                const startX = (finalCanvas.width - (drawWidth * 2 + gapBetweenCards)) / 2; 
+                const gapY = 38; 
+
+                drawRounded(finalCtx, frontCanvas, startX, gapY, drawWidth, drawHeight, cornerRadius);
+                drawRounded(finalCtx, backCanvas, startX + drawWidth + gapBetweenCards, gapY, drawWidth, drawHeight, cornerRadius);
+
+                finalCtx.lineWidth = 3; 
+                finalCtx.strokeStyle = "#aaaaaa"; 
+                finalCtx.setLineDash([20, 15]); 
+                let cutLineY = gapY + drawHeight + (gapY / 2); 
+                finalCtx.beginPath();
+                finalCtx.moveTo(80, cutLineY); 
+                finalCtx.lineTo(finalCanvas.width - 80, cutLineY); 
+                finalCtx.stroke();
+                finalCtx.setLineDash([]);
+            }
+
+            return finalCanvas.toDataURL('image/jpeg', 1.0);
+        }
+
+        // 🔒 सुरक्षित डाऊनलोड फंक्शन (एक्सपायरी बेस सिस्टीमसह)
+        function downloadIdCard() {
+            const btn = document.getElementById('btnDownload');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> प्रक्रिया चालू आहे...";
+            btn.disabled = true;
+
+            // 🔒 थेट sessionStorage मधून सुरक्षित युजरनेम घेणे
+            let username = sessionStorage.getItem('username');
+
+            // जर कोणी विनालॉगिन आले असेल, तर अडवा
+            if(!username) {
+                alert("अनधिकृत प्रवेश! कृपया आधी लॉगिन करा.");
+                window.location.href = "login.html";
+                return;
+            }
+
+            // 🟢 एक्सपायरी चेक (प्लॅन संपला असेल तर ब्लॉक करा)
+            const remainingDays = parseInt(sessionStorage.getItem('remainingDays')) || 0;
+            if(remainingDays <= 0) {
+                alert("तुमच्या प्लॅनची मुदत संपली आहे. कृपया रिन्यू करा.");
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+                return;
+            }
+
+            if (typeof CONFIG === 'undefined' || !CONFIG.SCRIPT_URL) {
+                console.warn("CONFIG object not found. Skipping API call.");
+                exportToPDF();
+                btn.innerHTML = originalHtml; 
+                btn.disabled = false;
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append('action', 'printIdCard');
+            formData.append('username', username);
+            formData.append('cardType', 'शेतकरी ओळखपत्र'); 
+            formData.append('remark', document.getElementById('printSize').value + ' Size Export');
+
+            fetch(CONFIG.SCRIPT_URL, { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    exportToPDF();
+
+                    setTimeout(() => {
+                        window.location.href = "home.html"; 
+                    }, 1500);
+                } else {
+                    alert("त्रुटी: " + data.message); 
+                    btn.innerHTML = originalHtml; btn.disabled = false;
+                }
+            })
+            .catch(err => {
+                alert("नेटवर्क एरर! कृपया पुन्हा प्रयत्न करा.");
+                btn.innerHTML = originalHtml; btn.disabled = false;
+            });
+        }
+
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const printSize = document.getElementById('printSize').value;
+            const finalImgData = generateFinalCanvas(); 
+            let pdf;
+
+            if (printSize === '4x6') {
+                pdf = new jsPDF({ orientation: 'portrait', unit: 'in', format: [4, 6] });
+                pdf.addImage(finalImgData, 'JPEG', 0, 0, 4, 6);
+            } else {
+                pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+                pdf.addImage(finalImgData, 'JPEG', 0, 0, 210, 297);
+            }
+            
+            const ts = new Date().getTime();
+            // 🟢 डाऊनलोड करताना फाईलचे नाव QuickIDPrint_Farmer येण्यासाठी
+            pdf.save(`QuickIDPrint_Farmer_${printSize}_${ts}.pdf`);
+        }
+    </script>
+</body>
+</html>
