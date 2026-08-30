@@ -10,7 +10,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="config.js"></script>
-  <!-- 🔒 इथे सिक्युरिटी गार्ड फाईल जोडली आहे -->
+  <!-- 🔒 सिक्युरिटी गार्ड -->
   <script src="auth-guard.js"></script>
 
   <style>
@@ -52,7 +52,7 @@
 
     .print-section { display: none; font-size: 18px; line-height: 2.0; color: #000; }
 
-    /* 🟢 फिक्स केलेले प्रिंट लॉजिक (डाऊनलोड आणि प्रिंट एकसारखे दिसेल) */
+    /* 🟢 PDF डाऊनलोड आणि डायरेक्ट प्रिंटसाठी एकसमान लॉजिक */
     @media print {
       body { background: white !important; padding: 0 !important; margin: 0 !important; }
       .form-container { display: none !important; }
@@ -85,9 +85,10 @@
       <a href="home.html" style="color: #2563eb; text-decoration: none; font-weight: 600;"><i class="fas fa-arrow-left"></i> डॅशबोर्डवर जा</a>
   </div>
 
+  <!-- 🟢 एक्सपायरी बेस नोटीस -->
   <div class="notice-box">
       <i class="fab fa-whatsapp" style="font-size: 24px; color: #25D366;"></i> 
-      <span>टोकन संपल्यास रिचार्जसाठी <a href="https://wa.me/919403901395?text=नमस्कार! मला सेवास्पॉट पोर्टलवर नवीन टोकन रिचार्ज करायचे आहेत." target="_blank">9403901395</a> वर संपर्क साधा.</span>
+      <span>प्लॅन संपल्यास रिन्यू करण्यासाठी <a href="https://wa.me/919403901395?text=नमस्कार! मला QuickIDPrint पोर्टलवर माझा प्लॅन रिन्यू करायचा आहे." target="_blank">9403901395</a> वर संपर्क साधा.</span>
   </div>
 
   <h2 style="color: #ea580c; text-align: center; margin-bottom: 20px;">उत्पन्न घोषणापत्र अर्ज</h2>
@@ -151,12 +152,13 @@
       <img id="formPreviewImg" src="" style="display: none; width: 80px; height: 100px; object-fit: cover; margin: 15px auto 0; border: 2px solid #cbd5e1; border-radius: 8px;" alt="Preview">
     </div>
 
+    <!-- 🟢 अनलिमिटेड ऍक्सेस बटणे (टोकन काढले) -->
     <div class="action-buttons">
         <button type="button" class="btn-print" id="btnPrint" onclick="processForm('print')">
-            <i class="fas fa-print"></i> प्रिंट करा (<span class="token-cost">2</span> टोकन)
+            <i class="fas fa-print"></i> प्रिंट करा (Unlimited)
         </button>
         <button type="button" class="btn-download" id="btnDownload" onclick="processForm('download')">
-            <i class="fas fa-file-pdf"></i> PDF डाऊनलोड (<span class="token-cost">2</span> टोकन)
+            <i class="fas fa-file-pdf"></i> PDF डाऊनलोड (Unlimited)
         </button>
     </div>
   </form>
@@ -213,10 +215,6 @@
   window.onload = function() {
       const today = new Date().toISOString().split('T')[0];
       document.getElementById('date').value = today;
-      
-      if(typeof CONFIG !== 'undefined' && CONFIG.GHOSHANA_TOKEN_COST) {
-          document.querySelectorAll('.token-cost').forEach(el => el.innerText = CONFIG.GHOSHANA_TOKEN_COST);
-      }
   };
 
   function loadPhoto(event) {
@@ -267,7 +265,6 @@
       if (mediaStream) mediaStream.getTracks().forEach(track => track.stop());
   }
 
-  // 🔒 ॲडमिन स्टेटमेंट फिक्स केलेले आणि sessionStorage वापरणारे प्रोसेस फंक्शन 
   function processForm(actionType) {
     const form = document.getElementById('incomeForm');
     
@@ -287,27 +284,30 @@
     btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> प्रक्रिया चालू आहे...";
     btn.disabled = true;
 
-    // 🔒 सुरक्षित sessionStorage वापरले
+    // 🔒 सुरक्षित लॉगिन चेक
     const username = sessionStorage.getItem('username');
-
-    // जर कोणी विनालॉगिन आले असेल, तर अडवा
     if(!username) {
         alert("अनधिकृत प्रवेश! कृपया आधी लॉगिन करा.");
-        window.location.href = "index.html";
+        window.location.href = "login.html";
+        return;
+    }
+
+    // 🟢 एक्सपायरी चेक (प्लॅन संपला असेल तर ब्लॉक करा)
+    const remainingDays = parseInt(sessionStorage.getItem('remainingDays')) || 0;
+    if(remainingDays <= 0) {
+        alert("तुमच्या प्लॅनची मुदत संपली आहे. कृपया रिन्यू करा.");
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
         return;
     }
 
     const applicantName = document.getElementById('name').value; 
-
     const formData = new FormData();
     formData.append('action', 'submitForm'); 
     formData.append('username', username);
     
-    // 'घोषणापत्र प्रकार' मध्ये Print किंवा Download नोंदवले जाईल
     let actionLabel = actionType === 'print' ? 'Print' : 'Download';
     formData.append('ghoshnaType', 'उत्पन्न घोषणापत्र (' + actionLabel + ')'); 
-    
-    // अर्जदाराचे नाव एकदम अचूक राहील
     formData.append('applicantName', applicantName);
 
     fetch(CONFIG.SCRIPT_URL, { method: 'POST', body: formData })
@@ -315,13 +315,7 @@
     .then(data => {
         if(data.status === 'success') {
             
-            let tokenCost = (typeof CONFIG !== 'undefined') ? CONFIG.GHOSHANA_TOKEN_COST : 2;
-            // 🔒 सुरक्षित sessionStorage वापरले
-            let currentTokens = parseInt(sessionStorage.getItem('remainingTokens')) || 0;
-            if(currentTokens >= tokenCost) { 
-                sessionStorage.setItem('remainingTokens', currentTokens - tokenCost); 
-            }
-
+            // डेटा प्रिंट/पीडीएफ साठी सेट करणे
             const address = document.getElementById('address').value;
             document.getElementById('out_name').innerText = applicantName;
             document.getElementById('out_father').innerText = document.getElementById('father').value;
@@ -348,7 +342,7 @@
                     executeDownload();
                 }
 
-                // 🟢 ऑटो-क्लिअर फॉर्म 
+                // ऑटो-क्लिअर फॉर्म 
                 setTimeout(() => {
                     form.reset();
                     document.getElementById('photo').src = "";
