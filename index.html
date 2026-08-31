@@ -41,7 +41,6 @@
         .btn-outline { background-color: transparent; color: var(--primary-blue); border: 2px solid var(--primary-blue); }
         .btn-outline:hover { background-color: var(--primary-blue); color: var(--white); }
 
-        /* ---------- User Manual Button ---------- */
         .qid-manual-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 18px; border: none; border-radius: 8px; background: linear-gradient(135deg, #f97316, #ea580c); color: #ffffff; font-size: 15px; font-weight: 700; cursor: pointer; text-decoration: none; box-shadow: 0 4px 10px rgba(234, 88, 12, 0.2); transition: all 0.3s ease; border: 1px solid #c2410c;}
         .qid-manual-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(234, 88, 12, 0.3); color: white; background: linear-gradient(135deg, #ea580c, #c2410c); }
 
@@ -97,10 +96,13 @@
         .faq-item.active .faq-q i { transform: rotate(180deg); color: var(--secondary-blue); }
         .faq-item.active .faq-a { padding: 15px 25px 20px; max-height: 500px; border-top: 1px solid #e2e8f0; }
 
+        /* Footer Links Style */
         footer { background-color: var(--primary-blue); color: var(--white); padding: 50px 5% 20px; margin-top: 60px; }
         .footer-content { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 40px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 30px; margin-bottom: 20px; }
         .footer-col h3 { font-size: 20px; margin-bottom: 20px; color: #93c5fd; font-weight: 800; }
         .footer-col p { margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-size: 15px; color: #cbd5e1; }
+        .footer-col a { color: #cbd5e1; text-decoration: none; display: block; margin-bottom: 8px; transition: 0.2s; font-size: 15px; }
+        .footer-col a:hover { color: #ffffff; text-decoration: underline; }
         .footer-social { display: flex; gap: 15px; margin-top: 15px; }
         .social-icon { width: 45px; height: 45px; background: rgba(255,255,255,0.1); color: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; text-decoration: none; transition: 0.3s; }
         .social-icon:hover { background: #25D366; transform: translateY(-3px); }
@@ -136,7 +138,6 @@
             </div>
         </div>
         <div class="header-buttons">
-            <!-- 🟢 User Manual Button (Direct PDF Link) -->
             <a href="QuickIDPrint_User_Manual.pdf" target="_blank" class="qid-manual-btn" title="User Manual">
                 <i class="fas fa-book-open"></i> <span>Manual</span>
             </a>
@@ -280,6 +281,10 @@
             <div class="footer-col">
                 <h3>QuickIDPrint</h3>
                 <p>ऑनलाईन स्मार्ट आयडी आणि घोषणापत्र सेवा.<br>तुमच्या वेळेची बचत, आमची जबाबदारी.</p>
+                <!-- 🟢 नियम व अटी लिंक जोडली -->
+                <div style="margin-top: 15px;">
+                    <a href="terms.html"><i class="fas fa-file-contract"></i> नियम, अटी आणि गोपनीयता धोरण</a>
+                </div>
             </div>
             
             <div class="footer-col">
