@@ -28,6 +28,10 @@
         .logo-text p { font-size: 13px; color: #64748b; font-weight: 600; margin-top: 4px; }
         .nav-right { display: flex; align-items: center; gap: 15px; }
         
+        /* ---------- User Manual Button CSS ---------- */
+        .qid-manual-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 15px; border: none; border-radius: 20px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #ffffff; font-size: 14px; font-weight: bold; cursor: pointer; text-decoration: none; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2); transition: all 0.2s ease; border: 1px solid #1e40af;}
+        .qid-manual-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(37, 99, 235, 0.3); background: linear-gradient(135deg, #1d4ed8, #2563eb);}
+
         .btn-top-faq { background: #eff6ff; color: #1e3a8a; padding: 7px 15px; border-radius: 20px; font-weight: 800; font-size: 14px; text-decoration: none; display: flex; align-items: center; gap: 5px; border: 1px solid #dbeafe; transition: 0.2s; }
         .btn-top-faq:hover { background: #dbeafe; transform: translateY(-2px); }
 
@@ -150,6 +154,7 @@
             .qid-hero{display:block;min-height:515px;padding:24px 19px}
             .qid-hero-copy{width:100%;padding-right:0}.qid-hero-copy h1{font-size:27px}
             .services-grid{grid-template-columns:repeat(2,1fr);gap:11px}.pricing-list{grid-template-columns:1fr!important}
+            .qid-manual-btn{ padding: 7px 10px;} .qid-manual-btn span{display: none;}
         }
         @media(max-width:470px){ .services-grid{grid-template-columns:1fr} }
     </style>
@@ -166,6 +171,11 @@
         </div>
         
         <div class="nav-right">
+            <!-- 🟢 User Manual Button (Direct PDF Link) -->
+            <a href="QuickIDPrint_User_Manual.pdf" target="_blank" class="qid-manual-btn" title="User Manual">
+                <i class="fas fa-book-open"></i> <span>Manual</span>
+            </a>
+
             <a href="faq.html" class="btn-top-faq" title="FAQ">
                 <i class="fas fa-info-circle"></i> FAQ
             </a>
@@ -261,7 +271,6 @@
             </div>
         </section>
 
-        <!-- 🟢 बॅनर मेसेज अपडेट केला -->
         <div class="whatsapp-banner">
             <i class="fab fa-whatsapp"></i> 
             <div><strong>प्लॅन रिन्यूअल:</strong> तुमच्या प्लॅनची मुदत संपल्यास रिन्यू करण्यासाठी <a href="recharge.html">येथे क्लिक करा</a> किंवा <a href="https://wa.me/919403901395?text=नमस्कार! मला QuickIDPrint पोर्टलवर माझा प्लॅन रिन्यू करायचा आहे." target="_blank">9403901395</a> या नंबरवर WhatsApp करा.</div>
