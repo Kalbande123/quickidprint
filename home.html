@@ -142,6 +142,15 @@
         .c-teal .service-icon { color: #14b8a6; }
         .c-indigo .service-icon { color: #6366f1; }
 
+        /* Footer Style */
+        footer { background-color: #123a8f; color: #ffffff; padding: 40px 5% 20px; margin-top: 50px; }
+        .footer-content { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 25px; margin-bottom: 20px; }
+        .footer-col h3 { font-size: 18px; color: #93c5fd; font-weight: 800; margin-bottom: 5px; }
+        .footer-col p { font-size: 14px; color: #cbd5e1; }
+        .footer-link { color: #cbd5e1; text-decoration: none; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 8px; transition: 0.2s; }
+        .footer-link:hover { background: rgba(255,255,255,0.2); color: #ffffff; }
+        .footer-bottom { text-align: center; font-size: 13px; color: #94a3b8; }
+
         @media(max-width:1050px){ .services-grid{grid-template-columns:repeat(3,1fr)} .qid-hero-copy{width:43%}.qid-hero-visual{width:57%} }
         @media(max-width:760px){
             .navbar{padding:8px 13px}.site-logo{width:90px;height:80px}
@@ -171,7 +180,6 @@
         </div>
         
         <div class="nav-right">
-            <!-- 🟢 User Manual Button (Direct PDF Link) -->
             <a href="QuickIDPrint_User_Manual.pdf" target="_blank" class="qid-manual-btn" title="User Manual">
                 <i class="fas fa-book-open"></i> <span>Manual</span>
             </a>
@@ -184,7 +192,6 @@
                 <i class="fas fa-sync-alt"></i> <span>Renew Plan</span>
             </a>
 
-            <!-- 🟢 येथे टोकन ऐवजी एक्सपायरी डेट दिसेल -->
             <div class="token-badge" title="प्लॅनची मुदत">
                 <i class="far fa-calendar-check"></i> <span id="displayExpiry">तपासत आहे...</span>
             </div>
@@ -392,9 +399,26 @@
         </div>
     </div>
 
+    <!-- ----- Footer Section ----- -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-col">
+                <h3>QuickIDPrint</h3>
+                <p>ऑनलाईन स्मार्ट आयडी आणि घोषणापत्र सेवा.</p>
+            </div>
+            <div>
+                <a href="terms.html" target="_blank" class="footer-link">
+                    <i class="fas fa-file-contract"></i> नियम, अटी आणि गोपनीयता धोरण
+                </a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 QuickIDPrint. सर्व हक्क राखीव. | सपोर्ट: 9403901395
+        </div>
+    </footer>
+
     <script>
         window.onload = function() {
-            // 🔒 sessionStorage वापरून सुरक्षित लोडिंग
             const userName = sessionStorage.getItem('userFullName');
             const expireDate = sessionStorage.getItem('expireDate');
             const remainingDays = sessionStorage.getItem('remainingDays');
@@ -406,7 +430,6 @@
 
             document.getElementById('displayUserName').innerText = userName;
 
-            // 🟢 एक्स्पायरी डेट आणि उरलेले दिवस डॅशबोर्डवर सेट करा
             const displayObj = document.getElementById('displayExpiry');
             if (expireDate && remainingDays !== null) {
                 if (parseInt(remainingDays) >= 0) {
