@@ -57,8 +57,8 @@
         .logo-text h1 .brand-print { color: var(--primary-blue); }
         .logo-text p { color: var(--text-gray); font-size: 12px; font-weight: 600; margin-top: 2px; }
 
-        .header-buttons { display: flex; gap: 15px; }
-        .btn { padding: 10px 22px; border-radius: 8px; font-weight: 700; font-size: 15px; text-decoration: none; display: flex; align-items: center; gap: 8px; transition: all 0.3s; }
+        .header-buttons { display: flex; align-items: center; gap: 10px; }
+        .btn { padding: 9px 20px; border-radius: 8px; font-weight: 700; font-size: 15px; text-decoration: none; display: flex; align-items: center; gap: 8px; transition: all 0.3s; }
         .btn-primary { background-color: var(--primary-blue); color: var(--white); border: 2px solid var(--primary-blue); }
         .btn-primary:hover { background-color: var(--white); color: var(--primary-blue); }
         .btn-outline { background-color: transparent; color: var(--primary-blue); border: 2px solid var(--primary-blue); }
@@ -132,6 +132,34 @@
         .social-icon:hover { background: #25D366; transform: translateY(-3px); }
         .footer-bottom { text-align: center; font-size: 14px; color: #94a3b8; }
 
+        /* ---------- User Manual Button CSS ---------- */
+        .qid-manual-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 18px; border: none; border-radius: 8px; background: linear-gradient(135deg, #f97316, #ea580c); color: #ffffff; font-size: 15px; font-weight: 700; cursor: pointer; text-decoration: none; box-shadow: 0 4px 10px rgba(234, 88, 12, 0.2); transition: all 0.3s ease; }
+        .qid-manual-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(234, 88, 12, 0.3); color: white; background: linear-gradient(135deg, #ea580c, #c2410c); }
+        .qid-manual-btn:active { transform: scale(0.98); }
+
+        /* ---------- User Manual Modal CSS ---------- */
+        .qid-manual-modal { display: none; position: fixed; z-index: 999999; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); padding: 20px; box-sizing: border-box; }
+        .qid-manual-box { width: 100%; max-width: 1100px; height: 94vh; margin: auto; background: #ffffff; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.30); animation: qidManualOpen 0.2s ease; }
+        @keyframes qidManualOpen { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+        .qid-manual-header { min-height: 62px; display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: linear-gradient(135deg, #123a8f, #1d4ed8); color: #ffffff; box-sizing: border-box; }
+        .qid-manual-title { display: flex; align-items: center; gap: 10px; }
+        .qid-manual-title-icon { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.15); border-radius: 9px; font-size: 20px; }
+        .qid-manual-title-text { display: flex; flex-direction: column; }
+        .qid-manual-title-main { font-size: 16px; font-weight: 700; }
+        .qid-manual-title-sub { font-size: 11px; opacity: 0.85; }
+        .qid-manual-actions { display: flex; align-items: center; gap: 8px; }
+        .qid-manual-download { display: inline-flex; align-items: center; gap: 6px; padding: 9px 13px; background: #ffffff; color: #123a8f; border-radius: 8px; font-size: 13px; font-weight: 700; text-decoration: none; transition: 0.2s; }
+        .qid-manual-download:hover { background: #eef5fc; }
+        .qid-manual-close { width: 38px; height: 38px; border: none; background: rgba(255,255,255,0.12); color: #ffffff; border-radius: 8px; font-size: 22px; cursor: pointer; transition: 0.2s; }
+        .qid-manual-close:hover { background: rgba(255,255,255,0.25); }
+        .qid-manual-content { flex: 1; position: relative; background: #e5e7eb; overflow: hidden; }
+        .qid-manual-pdf { width: 100%; height: 100%; border: none; display: block; background: #ffffff; }
+        .qid-manual-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; background: #f8fafc; z-index: 2; }
+        .qid-manual-spinner { width: 36px; height: 36px; border: 4px solid #dbeafe; border-top-color: #2563eb; border-radius: 50%; animation: qidSpin 0.8s linear infinite; }
+        @keyframes qidSpin { to { transform: rotate(360deg); } }
+        .qid-manual-loading-text { font-size: 14px; color: #64748b; font-weight: 600; }
+        .qid-manual-footer { min-height: 48px; display: flex; align-items: center; justify-content: center; padding: 8px 15px; background: #ffffff; border-top: 1px solid #e5e7eb; font-size: 13px; color: #64748b; font-weight: 600; box-sizing: border-box; }
+        
         /* ----- Responsive ----- */
         @media (max-width: 900px) {
             .hero { flex-direction: column; text-align: center; padding: 40px 5%; }
@@ -140,14 +168,21 @@
             .hero-image { margin-top: 30px; display: none; }
         }
         @media (max-width: 600px) {
-            .header-buttons .btn span { display: none; }
-            .btn { padding: 8px 15px; }
+            .header-buttons .btn span, .header-buttons .qid-manual-btn span { display: none; }
+            .btn, .qid-manual-btn { padding: 8px 12px; }
             .logo-text h1 { font-size: 20px; }
             .hero-content h1 { font-size: 32px; }
             .whatsapp-alert-box h3 { font-size: 18px; }
             .whatsapp-btn { font-size: 16px; padding: 10px 20px; }
             .faq-q { font-size: 15px; padding: 15px; }
             .faq-a { font-size: 14px; }
+            .qid-manual-modal { padding: 0; }
+            .qid-manual-box { height: 100vh; max-width: none; border-radius: 0; }
+            .qid-manual-header { min-height: 58px; padding: 8px 10px; }
+            .qid-manual-title-main { font-size: 14px; }
+            .qid-manual-title-sub { display: none; }
+            .qid-manual-download { padding: 8px 10px; font-size: 12px; }
+            .qid-manual-close { width: 34px; height: 34px; }
         }
     </style>
 </head>
@@ -163,6 +198,10 @@
             </div>
         </div>
         <div class="header-buttons">
+            <!-- 🟢 युजर मॅन्युअल बटण -->
+            <button type="button" class="qid-manual-btn" onclick="openQuickIDManual()" title="User Manual">
+                <i class="fas fa-book-open"></i> <span>Manual</span>
+            </button>
             <a href="login.html" class="btn btn-primary"><i class="fas fa-user-circle"></i> <span>Login</span></a>
             <a href="https://wa.me/919403901395" target="_blank" class="btn btn-outline"><i class="fas fa-headset"></i> <span>Support</span></a>
         </div>
@@ -266,7 +305,6 @@
         <div class="feature-box"><i class="fas fa-bullseye"></i><p>अचूक आणि योग्य फॉरमॅटमध्ये सेवा</p></div>
         <div class="feature-box"><i class="fas fa-image"></i><p>स्मार्ट फोटो एडिट आणि HD क्वालिटी</p></div>
         <div class="feature-box"><i class="fas fa-lock"></i><p>१00% सुरक्षित आणि Session Privacy</p></div>
-        <!-- 🟢 येथे बदल केला आहे -->
         <div class="feature-box"><i class="fas fa-infinity"></i><p>परवडणारे अमर्यादित (Unlimited) प्लॅन</p></div>
     </section>
 
@@ -275,33 +313,26 @@
         <h2>नेहमी विचारले जाणारे प्रश्न (FAQ)</h2>
     </div>
     <div class="faq-section">
-        
         <div class="faq-item">
             <div class="faq-q" onclick="toggleFAQ(this)">१. QuickIDPrint पोर्टल काय आहे? <i class="fas fa-chevron-down"></i></div>
             <div class="faq-a">QuickIDPrint हे एक प्रगत आणि सुरक्षित स्मार्ट ऑनलाईन पोर्टल आहे. या पोर्टलच्या माध्यमातून तुम्ही विविध स्मार्ट आयडी कार्ड्स (उदा. आधार, पॅन, मतदान) आणि सर्व प्रकारची प्रशासकीय मराठी घोषणापत्रे (उदा. उत्पन्न, रहिवासी, जात) अत्यंत जलद, अचूक आणि HD क्वालिटीमध्ये बनवून डाऊनलोड करू शकता.</div>
         </div>
-
-        <!-- 🟢 येथे बदल केला आहे -->
         <div class="faq-item">
             <div class="faq-q" onclick="toggleFAQ(this)">२. पोर्टल वापरण्यासाठी पैसे लागतात का? (सबस्क्रिप्शन प्लॅन) <i class="fas fa-chevron-down"></i></div>
             <div class="faq-a">होय, आम्ही अत्यंत परवडणाऱ्या दरात 'सबस्क्रिप्शन प्लॅन (महिनेवारी)' देतो. एकदा प्लॅन ॲक्टिव्हेट केल्यावर तुम्ही मुदत संपेपर्यंत कोणतीही आयडी कार्ड किंवा घोषणापत्र सेवा अमर्यादित (Unlimited) वापरू शकता. प्रत्येक अर्जासाठी वेगळे पैसे कट होणार नाहीत.</div>
         </div>
-
         <div class="faq-item">
             <div class="faq-q" onclick="toggleFAQ(this)">३. नवीन अकाउंट कसे उघडावे? <i class="fas fa-chevron-down"></i></div>
             <div class="faq-a">नवीन अकाउंट उघडण्यासाठी तुम्ही आमच्या अधिकृत WhatsApp नंबरवर (9403901395) संपर्क साधू शकता. आमची टीम तुम्हाला युजरनेम आणि पासवर्ड तयार करून देईल.</div>
         </div>
-
         <div class="faq-item">
             <div class="faq-q" onclick="toggleFAQ(this)">४. मी अपलोड केलेले डॉक्युमेंट्स सुरक्षित आहेत का? <i class="fas fa-chevron-down"></i></div>
-            <div class="faq-a">होय, १००% सुरक्षित आहेत! QuickIDPrint पोर्टल प्रगत 'Session Security' वर चालते. तुम्ही अपलोड केलेली कोणतीही PDF किंवा माहिती आमच्या सर्व्हरवर सेव्ह केली जात नाही. लॉगआऊट केल्यावर तुमचा सर्व डेटा सिस्टीममधून आपोआप नष्ट होतो.</div>
+            <div class="faq-a">होय, १००% सुरक्षित आहेत! तुम्ही अपलोड केलेली कोणतीही PDF किंवा माहिती आमच्या सर्व्हरवर सेव्ह केली जात नाही; सर्व प्रोसेस थेट तुमच्या कॉम्प्युटरवरच (Client-side) होते. लॉगआऊट केल्यावर तुमचा सर्व डेटा सिस्टीममधून आपोआप नष्ट होतो.</div>
         </div>
-
         <div class="faq-item">
             <div class="faq-q" onclick="toggleFAQ(this)">५. हे पोर्टल मोबाईलवर वापरता येईल का? <i class="fas fa-chevron-down"></i></div>
             <div class="faq-a">होय, नक्कीच! हे पोर्टल मोबाईल, कम्प्युटर आणि टॅब्लेटवर अगदी सहज आणि फास्ट चालते. तुम्ही मोबाईलवरूनही घोषणापत्रे भरून थेट PDF डाऊनलोड करू शकता किंवा WhatsApp वर ग्राहकांना पाठवू शकता.</div>
         </div>
-
     </div>
 
     <!-- ----- Footer ----- -->
@@ -315,7 +346,6 @@
             <div class="footer-col">
                 <h3>सम्पर्क माहिती</h3>
                 <p><i class="fas fa-phone-alt"></i> +91 9403901395</p>
-               
             </div>
 
             <div class="footer-col">
@@ -331,20 +361,104 @@
         </div>
     </footer>
 
+    <!-- 🟢 USER MANUAL MODAL (पॉप-अप HTML) -->
+    <div id="qidManualModal" class="qid-manual-modal" onclick="closeQuickIDManualOutside(event)">
+        <div class="qid-manual-box" onclick="event.stopPropagation()">
+            <!-- Header -->
+            <div class="qid-manual-header">
+                <div class="qid-manual-title">
+                    <div class="qid-manual-title-icon">📘</div>
+                    <div class="qid-manual-title-text">
+                        <div class="qid-manual-title-main">QuickIDPrint User Manual</div>
+                        <div class="qid-manual-title-sub">वापरकर्ता मार्गदर्शिका</div>
+                    </div>
+                </div>
+                <div class="qid-manual-actions">
+                    <!-- Download Button -->
+                    <a id="qidManualDownload" class="qid-manual-download" href="#" target="_blank" download>
+                        ⬇️ Download
+                    </a>
+                    <!-- Close Button -->
+                    <button type="button" class="qid-manual-close" onclick="closeQuickIDManual()" aria-label="Close">×</button>
+                </div>
+            </div>
+
+            <!-- PDF Area -->
+            <div class="qid-manual-content">
+                <div id="qidManualLoading" class="qid-manual-loading">
+                    <div class="qid-manual-spinner"></div>
+                    <div class="qid-manual-loading-text">User Manual उघडत आहे...</div>
+                </div>
+                <iframe id="qidManualPDF" class="qid-manual-pdf" title="QuickIDPrint User Manual"></iframe>
+            </div>
+
+            <!-- Footer -->
+            <div class="qid-manual-footer">
+                QuickIDPrint • User Manual • Smart ID & Declarations
+            </div>
+        </div>
+    </div>
+
     <script>
         // 🟢 FAQ Accordion Script
         function toggleFAQ(element) {
             const parent = element.parentElement;
-            
             const allItems = document.querySelectorAll('.faq-item');
             allItems.forEach(item => {
                 if(item !== parent && item.classList.contains('active')) {
                     item.classList.remove('active');
                 }
             });
-
             parent.classList.toggle('active');
         }
+
+        /* =========================================================
+           USER MANUAL JS LOGIC
+           ========================================================= */
+        
+        // 🟢 तुमच्या PDF फाईलचे नाव (ज्या नावाने तुम्ही फोल्डरमध्ये टाकाल)
+        const QUICKID_MANUAL_PDF = "QuickIDPrint_User_Manual.pdf";
+
+        function openQuickIDManual() {
+            const modal = document.getElementById("qidManualModal");
+            const pdf = document.getElementById("qidManualPDF");
+            const loading = document.getElementById("qidManualLoading");
+            const download = document.getElementById("qidManualDownload");
+
+            modal.style.display = "flex";
+            document.body.style.overflow = "hidden";
+            loading.style.display = "flex";
+
+            pdf.onload = function () {
+                setTimeout(function () {
+                    loading.style.display = "none";
+                }, 500);
+            };
+
+            pdf.src = QUICKID_MANUAL_PDF;
+            download.href = QUICKID_MANUAL_PDF;
+        }
+
+        function closeQuickIDManual() {
+            const modal = document.getElementById("qidManualModal");
+            const pdf = document.getElementById("qidManualPDF");
+
+            modal.style.display = "none";
+            document.body.style.overflow = "";
+            pdf.src = ""; // Unload PDF
+        }
+
+        function closeQuickIDManualOutside(event) {
+            if (event.target.id === "qidManualModal") {
+                closeQuickIDManual();
+            }
+        }
+
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "Escape") {
+                closeQuickIDManual();
+            }
+        });
     </script>
 </body>
 </html>
