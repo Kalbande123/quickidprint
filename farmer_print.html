@@ -26,6 +26,10 @@
         .notice-box { background: #dcfce7; border: 1px solid #22c55e; color: #166534; padding: 12px; border-radius: 8px; font-weight: bold; margin-bottom: 20px; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 30px; }
         .notice-box a { color: #15803d; text-decoration: none; border-bottom: 1px dashed #15803d; }
 
+        /* 🟢 ठळक सूचनेसाठी नवीन आकर्षक बॉक्स */
+        .info-alert-box { background: #fffbeb; border: 2px solid #f59e0b; color: #b45309; padding: 15px; border-radius: 8px; font-weight: 700; font-size: 16px; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; gap: 12px; box-shadow: 0 3px 10px rgba(245, 158, 11, 0.1); text-align: left; }
+        .info-alert-box i { font-size: 24px; color: #d97706; flex-shrink: 0; }
+
         h2 { color: #16a34a; margin-bottom: 20px; border-bottom: 2px solid #16a34a; padding-bottom: 10px; display: inline-block; font-size: 24px; }
         
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left; margin-bottom: 20px; }
@@ -71,6 +75,14 @@
         </div>
 
         <h2><i class="fas fa-tractor"></i> स्मार्ट शेतकरी ओळखपत्र</h2>
+
+        <!-- 🟢 ठळक सूचना बॉक्स -->
+        <div class="info-alert-box">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div>
+                <strong>महत्त्वाची सूचना:</strong> हे स्मार्ट शेतकरी ओळखपत्र शासकीय नसून शेतकऱ्यांच्या सोयीसाठी आणि माहितीकरिता तयार केले जात आहे.याची महिती वापरकर्त्याने ग्राहकास देणे आवाश्यक असे.
+            </div>
+        </div>
         
         <form id="farmerForm" onsubmit="return false;">
             <h3 style="text-align: left; color: #15803d; margin-bottom: 10px;">१. वैयक्तिक माहिती (Front Side)</h3>
@@ -166,7 +178,7 @@
 
         <div id="previewArea">
             <div id="successMsg" class="success-strip">
-                <i class="fas fa-check-circle"></i> तुमचे ओळखपत्र तयार आहे! फायनल PDF साठी खाली क्लिक करा[cite: 13].
+                <i class="fas fa-check-circle"></i> तुमचे ओळखपत्र तयार आहे! फायनल PDF साठी खाली क्लिक करा.
             </div>
             
             <canvas id="frontCanvas"></canvas>
