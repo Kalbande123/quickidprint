@@ -176,13 +176,14 @@
             .then(res => res.json())
             .then(data => {
                 if(data.status === 'success') {
-                    // 🔒 येथे sessionStorage मध्ये नवीन एक्सपायरी डेटा सेव्ह केला आहे 
                     sessionStorage.setItem('username', user);
                     sessionStorage.setItem('userFullName', data.name || "युजर");
                     sessionStorage.setItem('expireDate', data.expireDate || "");
                     sessionStorage.setItem('remainingDays', data.remainingDays || 0);
                     
-                    if(user === '9999999999') {
+                    // 🟢 Name-based Admin Routing (Hardcoded username removed)
+                    var returnedName = (data.name || "").trim().toLowerCase();
+                    if(returnedName === 'admin') {
                         window.location.href = "admin.html"; 
                     } else {
                         window.location.href = "home.html"; 
