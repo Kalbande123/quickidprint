@@ -1,25 +1,41 @@
 // ==============================================================================
-// 🚀 SEVASPOT CENTER - HIGH-SPEED & SECURE AUTH-GUARD (100% COMPLETE)
+// 🚀 UNIVERSAL COMPATIBLE AUTH-GUARD (Zero Breaking Change - Works Instantly)
 // ==============================================================================
 
 (function () {
-  var currentUser = localStorage.getItem("sevaspot_user");
-  var userExpiryStr = localStorage.getItem("sevaspot_expiry");
-  var userStatus = localStorage.getItem("sevaspot_status") || "Active";
-  var storedDays = localStorage.getItem("sevaspot_days");
+  // १. जुनी सिस्टिम किंवा नवीन सिस्टिम - दोन्हीतून युजर शोधणे
+  var currentUser = localStorage.getItem("sevaspot_user") || 
+                    localStorage.getItem("username") || 
+                    localStorage.getItem("loggedInUser") ||
+                    sessionStorage.getItem("sevaspot_user") ||
+                    sessionStorage.getItem("username") ||
+                    sessionStorage.getItem("loggedInUser");
 
-  // १. युजर लॉगिन नसेल तर थेट लॉगिन पेजवर पाठवा
+  var userExpiryStr = localStorage.getItem("sevaspot_expiry") || 
+                      localStorage.getItem("expireDate") || 
+                      sessionStorage.getItem("sevaspot_expiry") ||
+                      sessionStorage.getItem("expireDate");
+
+  var userStatus = localStorage.getItem("sevaspot_status") || 
+                    localStorage.getItem("status") || 
+                    sessionStorage.getItem("sevaspot_status") || "Active";
+
+  // जर युजर लॉगिनच नसेल, तरच लॉगिन पेजवर पाठवा
   if (!currentUser) {
-    window.location.href = "login.html";
+    // सध्याचे पेज आधीच लॉगिन पेज असेल तर रिडायरेक्ट करू नका
+    var currentPath = window.location.pathname.toLowerCase();
+    if (!currentPath.endsWith("login.html") && !currentPath.endsWith("index.html") && currentPath !== "/") {
+      window.location.href = "login.html";
+    }
     return;
   }
 
-  // २. ॲडमिन बायपास (Lifetime Access / 9999 Days)
-  var cleanUser = currentUser.trim().toLowerCase();
+  // २. ॲडमिन बायपास (Lifetime Access)
+  var cleanUser = String(currentUser).trim().toLowerCase();
   var isAdmin = (cleanUser === "admin" || cleanUser === "admin123" || userExpiryStr === "Lifetime");
 
   if (isAdmin) {
-    updateNavbar(localStorage.getItem("sevaspot_name") || currentUser, "Lifetime");
+    updateNavbar(currentUser, "Lifetime");
     return;
   }
 
@@ -27,34 +43,33 @@
   if (userStatus === "Blocked" || userStatus === "Inactive") {
     alert("तुमचे अकाउंट ब्लॉक (Inactive) करण्यात आले आहे. कृपया ॲडमिनशी संपर्क साधा.");
     localStorage.clear();
+    sessionStorage.clear();
     window.location.href = "login.html";
     return;
   }
 
-  // ४. आजच्या तारखेशी Live Expiry तारीख तपासा
-  var daysRemaining = calculateLiveDaysLeft(userExpiryStr);
+  // ४. उर्वरित दिवस तपासणे (जर एक्सपायरी तारीख उपलब्ध असेल तर)
+  if (userExpiryStr && userExpiryStr !== "-") {
+    var daysRemaining = calculateLiveDaysLeft(userExpiryStr);
 
-  if (daysRemaining <= 0) {
-    alert("तुमच्या प्लॅनची मुदत संपली आहे. कृपया सेवा सुरू ठेवण्यासाठी रिचार्ज करा.");
-    window.location.href = "recharge.html";
-    return;
+    if (daysRemaining <= 0) {
+      alert("तुमच्या प्लॅनची मुदत संपली आहे. कृपया सेवा सुरू ठेवण्यासाठी रिचार्ज करा.");
+      window.location.href = "recharge.html";
+      return;
+    }
+    updateNavbar(currentUser, daysRemaining + " दिवस बाकी");
+  } else {
+    // जर जुनी सिस्टिम असेल तर नॉर्मल नाव दाखवा
+    updateNavbar(currentUser, "Active");
   }
-
-  // लोकल स्टोरेज अपडेट करा
-  localStorage.setItem("sevaspot_days", String(daysRemaining));
-
-  // ५. उर्वरित दिवस स्क्रीनवर दाखवा
-  var displayName = localStorage.getItem("sevaspot_name") || currentUser;
-  updateNavbar(displayName, daysRemaining + " दिवस बाकी");
 
   // --- Helper Functions ---
   function calculateLiveDaysLeft(dateStr) {
-    if (!dateStr || dateStr === "-") return 0;
+    if (!dateStr || dateStr === "-") return 9999;
     var clean = String(dateStr).replace(/'/g, "").trim();
     var p = clean.split("/");
-    if (p.length !== 3) return 0;
+    if (p.length !== 3) return 9999;
     
-    // Day, Month (0-indexed), Year
     var expDate = new Date(parseInt(p[2]), parseInt(p[1]) - 1, parseInt(p[0]));
     var today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -66,7 +81,6 @@
 
   function updateNavbar(name, daysText) {
     function applyDOM() {
-      // पोर्टलवरील विविध संभाव्य आयडी सपोर्ट
       var nameEl = document.getElementById("navUserName") || 
                    document.getElementById("userNameDisplay") || 
                    document.getElementById("userDisplay") ||
