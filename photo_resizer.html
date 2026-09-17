@@ -11,7 +11,7 @@
   <!-- Google Fonts: Mukta -->
   <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
-  <!-- तुमच्या पोर्टलची कॉन्फिगरेशन व सुरक्षा (Auth Guard) -->
+  <!-- तुमच्या पोर्टलची सुरक्षा (Auth Guard) जोडण्यासाठी -->
   <script src="config.js"></script>
   <script src="auth-guard.js"></script>
 
@@ -270,8 +270,8 @@
   <script>
     // 🟢 AUTH GUARD & HEADER DATA LOGIC (QuickIDPrint Standard)
     window.onload = function() {
-        const userName = sessionStorage.getItem('userFullName') || localStorage.getItem('sevaspot_user');
-        const remainingDays = sessionStorage.getItem('remainingDays') || localStorage.getItem('sevaspot_days');
+        const userName = sessionStorage.getItem('userFullName');
+        const remainingDays = sessionStorage.getItem('remainingDays');
 
         if (!userName) {
             window.location.href = "login.html";
@@ -295,13 +295,12 @@
 
     // Global State
     let loadedImage = null;
-    let currentUnit = 'px'; // 'px', 'cm', 'inch'
+    let currentUnit = 'px'; 
     let currentDpi = 300;
     let originalAspectRatio = 1;
     let originalFileSize = 0;
     let originalFileName = 'photo';
 
-    // Drag and Drop support
     const dropZone = document.getElementById('dropZone');
     ['dragenter', 'dragover'].forEach(name => {
       dropZone.addEventListener(name, (e) => { e.preventDefault(); dropZone.classList.add('border-indigo-500', 'bg-indigo-50'); });
@@ -317,7 +316,6 @@
       }
     });
 
-    // File Selector
     function handleFileSelect(input) {
       const file = input.files[0];
       if (!file) return;
@@ -332,12 +330,10 @@
           loadedImage = img;
           originalAspectRatio = img.naturalWidth / img.naturalHeight;
 
-          // Show meta info
           document.getElementById('origDims').innerText = `${img.naturalWidth} x ${img.naturalHeight} px`;
           document.getElementById('origSize').innerText = formatBytes(originalFileSize);
           document.getElementById('origMetaBox').classList.remove('hidden');
 
-          // Initialize input values matching image
           if (currentUnit === 'px') {
             document.getElementById('inputWidth').value = img.naturalWidth;
             document.getElementById('inputHeight').value = img.naturalHeight;
@@ -356,7 +352,6 @@
       reader.readAsDataURL(file);
     }
 
-    // Switch Unit (px, cm, inch)
     function switchUnit(unit) {
       currentUnit = unit;
       ['px', 'cm', 'inch'].forEach(u => {
@@ -405,7 +400,6 @@
       processResizedImage();
     }
 
-    // Aspect Ratio lock calculation
     function onDimensionChange(changedAxis) {
       if (!document.getElementById('aspectLock').checked || !originalAspectRatio) {
         processResizedImage();
@@ -426,18 +420,16 @@
       processResizedImage();
     }
 
-    // DPI selector update
     function updateDpi(val) {
       currentDpi = parseInt(val);
       document.getElementById('dpiDisplay').innerText = `${currentDpi} DPI`;
       processResizedImage();
     }
 
-    // Apply Presets
     function applyPreset(presetKey) {
       if (presetKey === 'custom') return;
 
-      document.getElementById('aspectLock').checked = false; // Presets have specific fixed ratios
+      document.getElementById('aspectLock').checked = false; 
 
       if (presetKey === 'passport_cm') {
         switchUnit('cm');
@@ -477,7 +469,6 @@
       processResizedImage();
     }
 
-    // Calculate effective pixel dimensions
     function getEffectivePxWidth() {
       const val = parseFloat(document.getElementById('inputWidth').value) || 100;
       if (currentUnit === 'px') return val;
@@ -494,7 +485,6 @@
       return val;
     }
 
-    // Main Canvas Processor
     function processResizedImage() {
       if (!loadedImage) return;
 
@@ -506,20 +496,16 @@
       canvas.height = targetPxH;
       const ctx = canvas.getContext('2d');
 
-      // High quality smoothing settings
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
 
-      // Draw resized image
       ctx.drawImage(loadedImage, 0, 0, targetPxW, targetPxH);
 
-      // Export format & quality
       const format = document.querySelector('input[name="exportFormat"]:checked').value;
       const quality = parseInt(document.getElementById('qualitySlider').value) / 100;
 
       const dataUrl = canvas.toDataURL(format, quality);
 
-      // Render to preview
       const previewImg = document.getElementById('previewImage');
       previewImg.src = dataUrl;
       previewImg.classList.remove('hidden');
@@ -527,15 +513,12 @@
       document.getElementById('outputBadge').classList.remove('hidden');
       document.getElementById('outputStats').classList.remove('hidden');
 
-      // Enable Download button
       const downloadBtn = document.getElementById('downloadBtn');
       downloadBtn.disabled = false;
 
-      // Calculate approximate resulting base64 file size
       const stringLength = dataUrl.length - 'data:image/png;base64,'.length;
       const approxBytes = stringLength * 0.75;
 
-      // Update statistics
       document.getElementById('statPixels').innerText = `${targetPxW} x ${targetPxH} px`;
       document.getElementById('statSize').innerText = formatBytes(approxBytes);
       
@@ -544,16 +527,13 @@
       document.getElementById('statPhysical').innerText = `${cmW} x ${cmH} cm`;
     }
 
-    // 🟢 Download final image & Send Record to Service_Log Sheet
     function downloadResizedImage() {
       const previewImg = document.getElementById('previewImage');
       if (!previewImg || !previewImg.src) return;
 
       const format = document.querySelector('input[name="exportFormat"]:checked').value;
       const ext = format === 'image/png' ? 'png' : 'jpg';
-      const w = document.getElementById('inputWidth').value;
-      const h = document.getElementById('inputHeight').value;
-      const filename = `${originalFileName}_resized_${w}x${h}.${ext}`;
+      const filename = `${originalFileName}_resized_${document.getElementById('inputWidth').value}x${document.getElementById('inputHeight').value}.${ext}`;
 
       const a = document.createElement('a');
       a.href = previewImg.src;
@@ -562,10 +542,21 @@
       a.click();
       document.body.removeChild(a);
 
-      // ⚡ Google Sheet च्या Service_Log मध्ये अचूक नोंद करणे
-      const loggedUser = sessionStorage.getItem('userFullName') || localStorage.getItem('sevaspot_user') || 'User';
-      const sizeRemark = `${w} x ${h} ${currentUnit} (${ext.toUpperCase()})`;
+      // 🟢 Silent service log
+      logUsage("Photo Resized: " + format);
+    }
 
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 KB';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    // 🟢 Silent Background Logging Function (with no-cors)
+    function logUsage(remark) {
+      const user = sessionStorage.getItem('userFullName') || sessionStorage.getItem('userName') || "User";
       if (typeof SCRIPT_URL !== "undefined" && SCRIPT_URL) {
         fetch(SCRIPT_URL, {
           method: "POST",
@@ -573,22 +564,13 @@
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: new URLSearchParams({
             action: "submitForm",
-            username: loggedUser,
+            username: user,
             ghoshnaType: "Photo Resizer",
-            remark: sizeRemark
+            remark: remark
           })
-        }).then(() => console.log("Photo Resizer logged in Service_Log successfully."))
-          .catch(e => console.log("Log Error:", e));
+        }).then(() => console.log("Log request sent."))
+          .catch(e => console.log("Log error:", e));
       }
-    }
-
-    // Utility: Format bytes into readable KB/MB
-    function formatBytes(bytes) {
-      if (bytes === 0) return '0 KB';
-      const k = 1024;
-      const sizes = ['Bytes', 'KB', 'MB'];
-      const i = Math.floor(Math.log(bytes) / Math.log(k));
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
     }
   </script>
 
