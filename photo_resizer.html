@@ -11,7 +11,8 @@
   <!-- Google Fonts: Mukta -->
   <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
-  <!-- तुमच्या पोर्टलची सुरक्षा (Auth Guard) जोडण्यासाठी -->
+  <!-- तुमच्या पोर्टलची कॉन्फिगरेशन व सुरक्षा (Auth Guard) -->
+  <script src="config.js"></script>
   <script src="auth-guard.js"></script>
 
   <style>
@@ -269,8 +270,8 @@
   <script>
     // 🟢 AUTH GUARD & HEADER DATA LOGIC (QuickIDPrint Standard)
     window.onload = function() {
-        const userName = sessionStorage.getItem('userFullName');
-        const remainingDays = sessionStorage.getItem('remainingDays');
+        const userName = sessionStorage.getItem('userFullName') || localStorage.getItem('sevaspot_user');
+        const remainingDays = sessionStorage.getItem('remainingDays') || localStorage.getItem('sevaspot_days');
 
         if (!userName) {
             window.location.href = "login.html";
@@ -543,14 +544,16 @@
       document.getElementById('statPhysical').innerText = `${cmW} x ${cmH} cm`;
     }
 
-    // Download final image
+    // 🟢 Download final image & Send Record to Service_Log Sheet
     function downloadResizedImage() {
       const previewImg = document.getElementById('previewImage');
       if (!previewImg || !previewImg.src) return;
 
       const format = document.querySelector('input[name="exportFormat"]:checked').value;
       const ext = format === 'image/png' ? 'png' : 'jpg';
-      const filename = `${originalFileName}_resized_${document.getElementById('inputWidth').value}x${document.getElementById('inputHeight').value}.${ext}`;
+      const w = document.getElementById('inputWidth').value;
+      const h = document.getElementById('inputHeight').value;
+      const filename = `${originalFileName}_resized_${w}x${h}.${ext}`;
 
       const a = document.createElement('a');
       a.href = previewImg.src;
@@ -558,6 +561,25 @@
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+
+      // ⚡ Google Sheet च्या Service_Log मध्ये अचूक नोंद करणे
+      const loggedUser = sessionStorage.getItem('userFullName') || localStorage.getItem('sevaspot_user') || 'User';
+      const sizeRemark = `${w} x ${h} ${currentUnit} (${ext.toUpperCase()})`;
+
+      if (typeof SCRIPT_URL !== "undefined" && SCRIPT_URL) {
+        fetch(SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({
+            action: "submitForm",
+            username: loggedUser,
+            ghoshnaType: "Photo Resizer",
+            remark: sizeRemark
+          })
+        }).then(() => console.log("Photo Resizer logged in Service_Log successfully."))
+          .catch(e => console.log("Log Error:", e));
+      }
     }
 
     // Utility: Format bytes into readable KB/MB
