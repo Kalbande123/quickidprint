@@ -315,7 +315,7 @@
 
   <!-- ================= JAVASCRIPT ENGINE ================= -->
   <script>
-    // 🟢 AUTH GUARD & HEADER DATA LOGIC (QuickIDPrint Standard)
+    // 🟢 AUTH GUARD & HEADER DATA LOGIC
     window.onload = function() {
         const userName = sessionStorage.getItem('userFullName');
         const remainingDays = sessionStorage.getItem('remainingDays');
@@ -572,13 +572,14 @@
       }, 400);
     }
 
-    // 4. Download Final PDF
+    // 🟢 4. Download Final PDF AND Send Service Log (FormData Method)
     function downloadFinalCompressedPdf() {
       if (!finalCompressedPdfBlob) return;
 
       const level = document.querySelector('input[name="compressionOption"]:checked').value;
       const downloadFileName = `${originalPdfName}_compressed_${level}.pdf`;
 
+      // 1. Download Action
       const link = document.createElement('a');
       link.href = URL.createObjectURL(finalCompressedPdfBlob);
       link.download = downloadFileName;
@@ -586,8 +587,25 @@
       link.click();
       document.body.removeChild(link);
 
-      // Silent service log
-      logUsage("PDF Compressed: " + level);
+      // 2. Logging Action via FormData (Like utpanna.html)
+      const username = sessionStorage.getItem('username') || sessionStorage.getItem('userFullName') || 'User';
+
+      const formData = new FormData();
+      formData.append('action', 'submitForm');
+      formData.append('username', username);
+      formData.append('ghoshnaType', 'PDF Compressor');
+      formData.append('applicantName', 'PDF Compressed');
+      formData.append('remark', 'Level: ' + level);
+
+      if (typeof CONFIG !== "undefined" && CONFIG.SCRIPT_URL) {
+          fetch(CONFIG.SCRIPT_URL, {
+              method: 'POST',
+              body: formData
+          })
+          .then(res => res.json())
+          .then(data => console.log("Log Success:", data))
+          .catch(err => console.log("Log Error:", err));
+      }
     }
 
     // 5. Reset All Tool
@@ -613,25 +631,6 @@
       const sizes = ['Bytes', 'KB', 'MB', 'GB'];
       const i = Math.floor(Math.log(bytes) / Math.log(k));
       return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    }
-
-    // 🟢 Silent Background Logging (Updated with no-cors fix)
-    function logUsage(remark) {
-      const user = sessionStorage.getItem('userFullName') || "User";
-      if (typeof SCRIPT_URL !== "undefined" && SCRIPT_URL) {
-        fetch(SCRIPT_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({
-            action: "submitForm",
-            username: user,
-            ghoshnaType: "PDF Compressor",
-            remark: remark
-          })
-        }).then(() => console.log("Log request sent."))
-          .catch(e => console.log("Log error:", e));
-      }
     }
   </script>
 
