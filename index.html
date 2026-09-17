@@ -124,6 +124,71 @@
             .faq-q { font-size: 15px; padding: 15px; }
             .faq-a { font-size: 14px; }
         }
+
+        /* ----- Premium Floating Ticker CSS ----- */
+        .floating-ticker-wrapper {
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 750px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(18, 58, 143, 0.15);
+            border: 1px solid #dbeafe;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            z-index: 1000;
+        }
+        .ticker-label {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+            padding: 10px 22px;
+            font-weight: 800;
+            font-size: 14px;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 50px 0 0 50px;
+            box-shadow: 3px 0 10px rgba(0,0,0,0.1);
+        }
+        .floating-ticker {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            padding: 0 15px;
+        }
+        .ticker-text {
+            display: inline-block;
+            white-space: nowrap;
+            animation: modernScroll 22s linear infinite;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+        .ticker-text span {
+            margin-right: 50px;
+        }
+        .ticker-text span strong {
+            color: #ea580c;
+        }
+        @keyframes modernScroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .floating-ticker-wrapper:hover .ticker-text {
+            animation-play-state: paused;
+            cursor: pointer;
+        }
+        @media(max-width:600px){
+            .floating-ticker-wrapper { bottom: 15px; width: 95%; }
+            .ticker-label { padding: 8px 15px; font-size: 13px; }
+            .ticker-text { font-size: 14px; animation: modernScroll 15s linear infinite; }
+        }
     </style>
 </head>
 <body>
@@ -212,6 +277,14 @@
     </div>
     <section class="services-container">
         <div class="service-card">
+            <div class="service-icon" style="background-color: #ef4444;"><i class="fas fa-users"></i></div>
+            <h3>जातीचे घोषणापत्र</h3>
+        </div>
+        <div class="service-card">
+            <div class="service-icon" style="background-color: #6366f1;"><i class="fas fa-sitemap"></i></div>
+            <h3>वंशावळ घोषणापत्र</h3>
+        </div>
+        <div class="service-card">
             <div class="service-icon" style="background-color: #3b82f6;"><i class="fas fa-file-invoice-dollar"></i></div>
             <h3>उत्पन्न घोषणापत्र</h3>
         </div>
@@ -228,12 +301,23 @@
             <h3>राष्ट्रीयत्व घोषणापत्र</h3>
         </div>
         <div class="service-card">
-            <div class="service-icon" style="background-color: #ef4444;"><i class="fas fa-users"></i></div>
-            <h3>जातीचे घोषणापत्र</h3>
-        </div>
-        <div class="service-card">
             <div class="service-icon" style="background-color: #14b8a6;"><i class="fas fa-file-signature"></i></div>
             <h3>नॉन-क्रीमीलेअर घोषणापत्र</h3>
+        </div>
+    </section>
+
+    <!-- ----- Quick Tools (क्विक टूल्स) ----- -->
+    <div class="section-title">
+        <h2>क्विक टूल्स (Quick Tools)</h2>
+    </div>
+    <section class="services-container">
+        <div class="service-card">
+            <div class="service-icon" style="background-color: #eab308;"><i class="fas fa-file-pdf"></i></div>
+            <h3>PDF Compressor</h3>
+        </div>
+        <div class="service-card">
+            <div class="service-icon" style="background-color: #ec4899;"><i class="fas fa-image"></i></div>
+            <h3>Photo Resizer</h3>
         </div>
     </section>
 
@@ -281,7 +365,6 @@
             <div class="footer-col">
                 <h3>QuickIDPrint</h3>
                 <p>ऑनलाईन स्मार्ट आयडी आणि घोषणापत्र सेवा.<br>तुमच्या वेळेची बचत, आमची जबाबदारी.</p>
-                <!-- 🟢 नियम व अटी लिंक जोडली -->
                 <div style="margin-top: 15px;">
                     <a href="terms.html"><i class="fas fa-file-contract"></i> नियम, अटी आणि गोपनीयता धोरण</a>
                 </div>
@@ -304,6 +387,18 @@
             &copy; 2026 QuickIDPrint. सर्व हक्क राखीव. | व्हर्जन 2.0.0
         </div>
     </footer>
+
+    <!-- ----- Premium Floating Ticker ----- -->
+    <div class="floating-ticker-wrapper">
+        <div class="ticker-label"><i class="fas fa-bell"></i> नवीन</div>
+        <div class="floating-ticker">
+            <div class="ticker-text">
+                <span>🚀 <strong>नवीन अपडेट:</strong> 'वंशावळ घोषणापत्र' सेवा आता उपलब्ध!</span>
+                <span>🛠️ <strong>मोफत टूल्स:</strong> 'PDF Compressor' आणि 'Photo Resizer' नक्की वापरून पाहा.</span>
+                <span>⚡ <strong>QuickIDPrint:</strong> तुमची सर्व कामे आता अधिक वेगाने आणि सोप्या पद्धतीने.</span>
+            </div>
+        </div>
+    </div>
 
     <script>
         function toggleFAQ(element) {
