@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Photo Resizer & Optimizer Tool | QuickIDPrint</title>
+  
+  <!-- Tailwind CSS CDN for sleek, responsive styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Mukta -->
+  <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- तुमच्या पोर्टलची सुरक्षा (Auth Guard) जोडण्यासाठी -->
+  <script src="auth-guard.js"></script>
+
+  <style>
+    body {
+      font-family: 'Mukta', sans-serif;
+      background-color: #f8fafc;
+    }
+    .checkerboard-bg {
+      background-color: #ffffff;
+      background-image: linear-gradient(45deg, #f1f5f9 25%, transparent 25%), 
+                        linear-gradient(-45deg, #f1f5f9 25%, transparent 25%), 
+                        linear-gradient(45deg, transparent 75%, #f1f5f9 75%), 
+                        linear-gradient(-45deg, transparent 75%, #f1f5f9 75%);
+      background-size: 16px 16px;
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col justify-between">
+
+  <!-- ================= TOP HEADER ================= -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="home.html" class="flex items-center gap-2 text-indigo-600 hover:text-indigo-800 transition">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+          <span class="text-xs sm:text-sm font-semibold">होमवर परत जा</span>
+        </a>
+        <span class="text-slate-300">|</span>
+        <h1 class="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
+          <span>📷</span>
+          <span>फोटो रिसायझर टूल (Photo Resizer)</span>
+        </h1>
+      </div>
+
+      <!-- Auth Guard Nav Info -->
+      <div class="flex items-center gap-2 text-xs">
+        <span id="navUserName" class="font-semibold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200">Loading...</span>
+        <span id="navRemainingDays" class="font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">...</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTAINER ================= -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1">
+    
+    <!-- Guidelines Banner -->
+    <div class="bg-gradient-to-r from-indigo-50 via-purple-50 to-indigo-50 border border-indigo-100 rounded-2xl p-4 mb-6 text-xs sm:text-sm text-indigo-950 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-2xs">
+      <div>
+        <p class="font-semibold text-indigo-900">💡 सरकारी फॉर्म्स आणि आयडी कार्ड्ससाठी अचूक फोटो रिसायझिंग:</p>
+        <p class="text-indigo-700 mt-0.5">पिक्सेल (px), सेंटीमीटर (cm) किंवा इंच (inch) मध्ये फोटो रिसाईझ करा. गुणवत्तेचे नुकसान न होता थेट डाऊनलोड करा.</p>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <span class="bg-white px-2.5 py-1 rounded-lg text-xs font-semibold text-indigo-600 border border-indigo-200 shadow-2xs">100% मोफत व जलद</span>
+      </div>
+    </div>
+
+    <!-- Dual Column Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- LEFT COLUMN: CONTROLS & SETTINGS -->
+      <div class="lg:col-span-5 space-y-5">
+        
+        <!-- Step 1: Upload Card -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
+          <label class="block font-semibold text-sm text-slate-800">
+            १. फोटो निवडा (Upload Photo)
+          </label>
+          
+          <div 
+            id="dropZone" 
+            class="border-2 border-dashed border-indigo-200 hover:border-indigo-400 bg-indigo-50/40 rounded-xl p-6 text-center cursor-pointer transition flex flex-col items-center justify-center gap-2"
+            onclick="document.getElementById('photoInput').click()"
+          >
+            <svg class="w-10 h-10 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <div>
+              <p class="text-sm font-semibold text-indigo-900">फोटो निवडण्यासाठी येथे क्लिक करा</p>
+              <p class="text-xs text-slate-500 mt-0.5">किंवा फाईल ड्रॅग करून ड्रॉप करा (JPG, PNG)</p>
+            </div>
+            <input type="file" id="photoInput" accept="image/jpeg, image/png, image/webp" class="hidden" onchange="handleFileSelect(this)">
+          </div>
+
+          <!-- Original Details (Hidden initially) -->
+          <div id="origMetaBox" class="hidden text-xs bg-slate-50 p-3 rounded-xl border border-slate-200 flex justify-between text-slate-600">
+            <span>ओरिजिनल: <b id="origDims" class="text-slate-900">0 x 0 px</b></span>
+            <span>साईझ: <b id="origSize" class="text-slate-900">0 KB</b></span>
+          </div>
+        </div>
+
+        <!-- Step 2: Resize Controls -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
+          <label class="block font-semibold text-sm text-slate-800">
+            २. आकार आणि परिमाण (Size Settings)
+          </label>
+
+          <!-- Preset Templates -->
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">रेडीमेड सरकारी साईझ (Presets):</label>
+            <select id="presetSelect" onchange="applyPreset(this.value)" class="w-full text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="custom">कस्टम साईझ (स्वतः ठरवा)</option>
+              <option value="passport_cm">पासपोर्ट फोटो (3.5 x 4.5 cm)</option>
+              <option value="passport_in">पासपोर्ट फोटो (1.4 x 1.8 inch)</option>
+              <option value="stamp_size">स्टॅम्प साईझ (2.5 x 3.0 cm)</option>
+              <option value="maha_sign">स्वाक्षरी / Signature (3.5 x 1.5 cm)</option>
+              <option value="dbt_photo">महाडीबीटी / SSC बोर्ड फोटो (200 x 240 px)</option>
+              <option value="pan_photo">पॅन कार्ड फोटो (213 x 213 px)</option>
+              <option value="pan_sign">पॅन कार्ड सही (400 x 200 px)</option>
+            </select>
+          </div>
+
+          <!-- Unit Selector Tabs -->
+          <div class="flex rounded-xl bg-slate-100 p-1 border border-slate-200 text-xs font-semibold">
+            <button type="button" onclick="switchUnit('px')" id="unit-px" class="flex-1 py-1.5 rounded-lg bg-white shadow-2xs text-indigo-600 transition">पिक्सेल (px)</button>
+            <button type="button" onclick="switchUnit('cm')" id="unit-cm" class="flex-1 py-1.5 rounded-lg text-slate-600 transition">सेंटीमीटर (cm)</button>
+            <button type="button" onclick="switchUnit('inch')" id="unit-inch" class="flex-1 py-1.5 rounded-lg text-slate-600 transition">इंच (inch)</button>
+          </div>
+
+          <!-- Width & Height Inputs -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1" id="widthLabel">रुंदी (Width - px)</label>
+              <input type="number" id="inputWidth" value="350" min="1" step="any" oninput="onDimensionChange('width')" class="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1" id="heightLabel">उंची (Height - px)</label>
+              <input type="number" id="inputHeight" value="450" min="1" step="any" oninput="onDimensionChange('height')" class="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+          </div>
+
+          <!-- DPI setting for CM/Inch -->
+          <div id="dpiBox" class="hidden">
+            <div class="flex items-center justify-between text-xs text-slate-600 mb-1">
+              <span>प्रिंट DPI (क्लॅरिटी):</span>
+              <span class="font-bold text-slate-800" id="dpiDisplay">300 DPI (High Quality)</span>
+            </div>
+            <select id="dpiSelect" onchange="updateDpi(this.value)" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-slate-800 focus:outline-none">
+              <option value="300" selected>300 DPI (सरकारी डॉक्युमेंट आणि प्रिंटसाठी सर्वोत्तम)</option>
+              <option value="200">200 DPI (मध्यम)</option>
+              <option value="150">150 DPI (ऑनलाईन वेब फॉर्म)</option>
+            </select>
+          </div>
+
+          <!-- Maintain Aspect Ratio Checkbox -->
+          <label class="flex items-center gap-2 cursor-pointer pt-1">
+            <input type="checkbox" id="aspectLock" checked class="w-4 h-4 text-indigo-600 rounded accent-indigo-600">
+            <span class="text-xs text-slate-700 font-medium select-none">प्रमाण कायम ठेवा (Lock Aspect Ratio)</span>
+          </label>
+        </div>
+
+        <!-- Step 3: Quality & Format -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
+          <label class="block font-semibold text-sm text-slate-800">
+            ३. गुणवत्ता आणि फॉरमॅट (Quality & Export)
+          </label>
+
+          <!-- Format Choice -->
+          <div class="grid grid-cols-2 gap-3 text-xs font-semibold">
+            <label class="flex items-center justify-center gap-2 p-2.5 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 has-checked:border-indigo-600 has-checked:bg-indigo-50/50 has-checked:text-indigo-700">
+              <input type="radio" name="exportFormat" value="image/jpeg" checked onchange="processResizedImage()" class="accent-indigo-600">
+              <span>JPG / JPEG</span>
+            </label>
+            <label class="flex items-center justify-center gap-2 p-2.5 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 has-checked:border-indigo-600 has-checked:bg-indigo-50/50 has-checked:text-indigo-700">
+              <input type="radio" name="exportFormat" value="image/png" onchange="processResizedImage()" class="accent-indigo-600">
+              <span>PNG (पारदर्शक)</span>
+            </label>
+          </div>
+
+          <!-- Quality Slider -->
+          <div class="space-y-1">
+            <div class="flex justify-between text-xs font-medium text-slate-700">
+              <span>इमेज गुणवत्ता (Quality):</span>
+              <span id="qualityValDisplay" class="font-bold text-indigo-600 font-mono">90%</span>
+            </div>
+            <input type="range" id="qualitySlider" min="20" max="100" value="90" oninput="onQualityChange(this.value)" class="w-full accent-indigo-600 cursor-pointer">
+            <div class="flex justify-between text-2xs text-slate-400">
+              <span>कमी फाईल साईझ (KB कमी)</span>
+              <span>उच्च गुणवत्ता (High Quality)</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: PREVIEW & DOWNLOAD -->
+      <div class="lg:col-span-7 bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs space-y-5">
+        
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h2 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
+            <span>👁️</span>
+            <span>लाईव्ह प्रीव्ह्यू (Live Preview)</span>
+          </h2>
+          <span id="outputBadge" class="hidden text-2xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+            तयार आहे
+          </span>
+        </div>
+
+        <!-- Preview Stage Box -->
+        <div class="w-full min-h-[340px] max-h-[460px] rounded-2xl border border-slate-200/80 checkerboard-bg flex items-center justify-center overflow-hidden relative p-4">
+          <!-- Placeholder when empty -->
+          <div id="emptyPreviewNotice" class="text-center space-y-2 p-6">
+            <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 mx-auto flex items-center justify-center">
+              🖼️
+            </div>
+            <p class="text-xs sm:text-sm font-medium text-slate-500">डाव्या बाजूने फोटो अपलोड करा.<br>येथे रिसाईझ केलेला फोटो लगेच दिसेल.</p>
+          </div>
+
+          <!-- Preview Image Tag -->
+          <img id="previewImage" class="hidden max-h-[400px] max-w-full rounded-lg shadow-md object-contain transition-all" alt="Resized Preview">
+        </div>
+
+        <!-- Output Stats Details -->
+        <div id="outputStats" class="hidden grid grid-cols-2 sm:grid-cols-3 gap-3 text-center">
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+            <span class="text-2xs uppercase tracking-wider text-slate-500 font-semibold block">नवीन आकार (Pixels)</span>
+            <span id="statPixels" class="text-sm sm:text-base font-bold text-slate-900 font-mono">0 x 0</span>
+          </div>
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+            <span class="text-2xs uppercase tracking-wider text-slate-500 font-semibold block">नवीन फाईल साईझ</span>
+            <span id="statSize" class="text-sm sm:text-base font-bold text-indigo-600 font-mono">0 KB</span>
+          </div>
+          <div class="col-span-2 sm:col-span-1 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+            <span class="text-2xs uppercase tracking-wider text-slate-500 font-semibold block">प्रिंट परिमाण</span>
+            <span id="statPhysical" class="text-sm sm:text-base font-bold text-slate-900 font-mono">-</span>
+          </div>
+        </div>
+
+        <!-- Download Action Button -->
+        <button 
+          id="downloadBtn" 
+          disabled
+          onclick="downloadResizedImage()"
+          class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:cursor-not-allowed text-white font-semibold rounded-xl text-sm flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+          </svg>
+          <span id="downloadBtnText">रिसाईझ केलेला फोटो डाऊनलोड करा (Download)</span>
+        </button>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="border-t border-slate-200 bg-white py-4 text-center text-xs text-slate-500 mt-8">
+    <p>QuickIDPrint • शासकीय व डिजिटल सेवा पोर्टल • सुरक्षित आणि स्वतंत्र टूल</p>
+  </footer>
+
+  <!-- ================= JAVASCRIPT ENGINE ================= -->
+  <script>
+    // 🟢 AUTH GUARD & HEADER DATA LOGIC (QuickIDPrint Standard)
+    window.onload = function() {
+        const userName = sessionStorage.getItem('userFullName');
+        const remainingDays = sessionStorage.getItem('remainingDays');
+
+        if (!userName) {
+            window.location.href = "login.html";
+            return;
+        }
+
+        document.getElementById('navUserName').innerText = userName;
+
+        const daysBadge = document.getElementById('navRemainingDays');
+        if (remainingDays !== null) {
+            if (parseInt(remainingDays) >= 0) {
+                daysBadge.innerText = `${remainingDays} दिवस`;
+            } else {
+                daysBadge.innerText = `प्लॅन संपला`;
+                daysBadge.className = "font-medium text-rose-700 bg-rose-50 px-2.5 py-1 rounded-md border border-rose-200";
+            }
+        } else {
+            daysBadge.innerText = "माहिती नाही";
+        }
+    };
+
+    // Global State
+    let loadedImage = null;
+    let currentUnit = 'px'; // 'px', 'cm', 'inch'
+    let currentDpi = 300;
+    let originalAspectRatio = 1;
+    let originalFileSize = 0;
+    let originalFileName = 'photo';
+
+    // Drag and Drop support
+    const dropZone = document.getElementById('dropZone');
+    ['dragenter', 'dragover'].forEach(name => {
+      dropZone.addEventListener(name, (e) => { e.preventDefault(); dropZone.classList.add('border-indigo-500', 'bg-indigo-50'); });
+    });
+    ['dragleave', 'drop'].forEach(name => {
+      dropZone.addEventListener(name, (e) => { e.preventDefault(); dropZone.classList.remove('border-indigo-500', 'bg-indigo-50'); });
+    });
+    dropZone.addEventListener('drop', (e) => {
+      const files = e.dataTransfer.files;
+      if (files && files.length > 0) {
+        document.getElementById('photoInput').files = files;
+        handleFileSelect(document.getElementById('photoInput'));
+      }
+    });
+
+    // File Selector
+    function handleFileSelect(input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      originalFileSize = file.size;
+      originalFileName = file.name.substring(0, file.name.lastIndexOf('.')) || 'photo';
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const img = new Image();
+        img.onload = function () {
+          loadedImage = img;
+          originalAspectRatio = img.naturalWidth / img.naturalHeight;
+
+          // Show meta info
+          document.getElementById('origDims').innerText = `${img.naturalWidth} x ${img.naturalHeight} px`;
+          document.getElementById('origSize').innerText = formatBytes(originalFileSize);
+          document.getElementById('origMetaBox').classList.remove('hidden');
+
+          // Initialize input values matching image
+          if (currentUnit === 'px') {
+            document.getElementById('inputWidth').value = img.naturalWidth;
+            document.getElementById('inputHeight').value = img.naturalHeight;
+          } else if (currentUnit === 'cm') {
+            document.getElementById('inputWidth').value = (img.naturalWidth / currentDpi * 2.54).toFixed(2);
+            document.getElementById('inputHeight').value = (img.naturalHeight / currentDpi * 2.54).toFixed(2);
+          } else {
+            document.getElementById('inputWidth').value = (img.naturalWidth / currentDpi).toFixed(2);
+            document.getElementById('inputHeight').value = (img.naturalHeight / currentDpi).toFixed(2);
+          }
+
+          processResizedImage();
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Switch Unit (px, cm, inch)
+    function switchUnit(unit) {
+      currentUnit = unit;
+      ['px', 'cm', 'inch'].forEach(u => {
+        const btn = document.getElementById(`unit-${u}`);
+        if (u === unit) {
+          btn.classList.add('bg-white', 'shadow-2xs', 'text-indigo-600');
+          btn.classList.remove('text-slate-600');
+        } else {
+          btn.classList.remove('bg-white', 'shadow-2xs', 'text-indigo-600');
+          btn.classList.add('text-slate-600');
+        }
+      });
+
+      const wLabel = document.getElementById('widthLabel');
+      const hLabel = document.getElementById('heightLabel');
+      const dpiBox = document.getElementById('dpiBox');
+
+      if (unit === 'px') {
+        wLabel.innerText = 'रुंदी (Width - px)';
+        hLabel.innerText = 'उंची (Height - px)';
+        dpiBox.classList.add('hidden');
+        if (loadedImage) {
+          document.getElementById('inputWidth').value = Math.round(getEffectivePxWidth());
+          document.getElementById('inputHeight').value = Math.round(getEffectivePxHeight());
+        }
+      } else if (unit === 'cm') {
+        wLabel.innerText = 'रुंदी (Width - cm)';
+        hLabel.innerText = 'उंची (Height - cm)';
+        dpiBox.classList.remove('hidden');
+        if (loadedImage) {
+          const pxW = getEffectivePxWidth();
+          document.getElementById('inputWidth').value = ((pxW / currentDpi) * 2.54).toFixed(2);
+          document.getElementById('inputHeight').value = (((pxW / originalAspectRatio) / currentDpi) * 2.54).toFixed(2);
+        }
+      } else {
+        wLabel.innerText = 'रुंदी (Width - inch)';
+        hLabel.innerText = 'उंची (Height - inch)';
+        dpiBox.classList.remove('hidden');
+        if (loadedImage) {
+          const pxW = getEffectivePxWidth();
+          document.getElementById('inputWidth').value = (pxW / currentDpi).toFixed(2);
+          document.getElementById('inputHeight').value = ((pxW / originalAspectRatio) / currentDpi).toFixed(2);
+        }
+      }
+
+      processResizedImage();
+    }
+
+    // Aspect Ratio lock calculation
+    function onDimensionChange(changedAxis) {
+      if (!document.getElementById('aspectLock').checked || !originalAspectRatio) {
+        processResizedImage();
+        return;
+      }
+
+      const wInput = document.getElementById('inputWidth');
+      const hInput = document.getElementById('inputHeight');
+
+      if (changedAxis === 'width') {
+        const val = parseFloat(wInput.value) || 0;
+        hInput.value = currentUnit === 'px' ? Math.round(val / originalAspectRatio) : (val / originalAspectRatio).toFixed(2);
+      } else {
+        const val = parseFloat(hInput.value) || 0;
+        wInput.value = currentUnit === 'px' ? Math.round(val * originalAspectRatio) : (val * originalAspectRatio).toFixed(2);
+      }
+
+      processResizedImage();
+    }
+
+    // DPI selector update
+    function updateDpi(val) {
+      currentDpi = parseInt(val);
+      document.getElementById('dpiDisplay').innerText = `${currentDpi} DPI`;
+      processResizedImage();
+    }
+
+    // Apply Presets
+    function applyPreset(presetKey) {
+      if (presetKey === 'custom') return;
+
+      document.getElementById('aspectLock').checked = false; // Presets have specific fixed ratios
+
+      if (presetKey === 'passport_cm') {
+        switchUnit('cm');
+        document.getElementById('inputWidth').value = 3.5;
+        document.getElementById('inputHeight').value = 4.5;
+      } else if (presetKey === 'passport_in') {
+        switchUnit('inch');
+        document.getElementById('inputWidth').value = 1.4;
+        document.getElementById('inputHeight').value = 1.8;
+      } else if (presetKey === 'stamp_size') {
+        switchUnit('cm');
+        document.getElementById('inputWidth').value = 2.5;
+        document.getElementById('inputHeight').value = 3.0;
+      } else if (presetKey === 'maha_sign') {
+        switchUnit('cm');
+        document.getElementById('inputWidth').value = 3.5;
+        document.getElementById('inputHeight').value = 1.5;
+      } else if (presetKey === 'dbt_photo') {
+        switchUnit('px');
+        document.getElementById('inputWidth').value = 200;
+        document.getElementById('inputHeight').value = 240;
+      } else if (presetKey === 'pan_photo') {
+        switchUnit('px');
+        document.getElementById('inputWidth').value = 213;
+        document.getElementById('inputHeight').value = 213;
+      } else if (presetKey === 'pan_sign') {
+        switchUnit('px');
+        document.getElementById('inputWidth').value = 400;
+        document.getElementById('inputHeight').value = 200;
+      }
+
+      processResizedImage();
+    }
+
+    function onQualityChange(val) {
+      document.getElementById('qualityValDisplay').innerText = `${val}%`;
+      processResizedImage();
+    }
+
+    // Calculate effective pixel dimensions
+    function getEffectivePxWidth() {
+      const val = parseFloat(document.getElementById('inputWidth').value) || 100;
+      if (currentUnit === 'px') return val;
+      if (currentUnit === 'cm') return (val / 2.54) * currentDpi;
+      if (currentUnit === 'inch') return val * currentDpi;
+      return val;
+    }
+
+    function getEffectivePxHeight() {
+      const val = parseFloat(document.getElementById('inputHeight').value) || 100;
+      if (currentUnit === 'px') return val;
+      if (currentUnit === 'cm') return (val / 2.54) * currentDpi;
+      if (currentUnit === 'inch') return val * currentDpi;
+      return val;
+    }
+
+    // Main Canvas Processor
+    function processResizedImage() {
+      if (!loadedImage) return;
+
+      const targetPxW = Math.max(1, Math.round(getEffectivePxWidth()));
+      const targetPxH = Math.max(1, Math.round(getEffectivePxHeight()));
+
+      const canvas = document.createElement('canvas');
+      canvas.width = targetPxW;
+      canvas.height = targetPxH;
+      const ctx = canvas.getContext('2d');
+
+      // High quality smoothing settings
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+
+      // Draw resized image
+      ctx.drawImage(loadedImage, 0, 0, targetPxW, targetPxH);
+
+      // Export format & quality
+      const format = document.querySelector('input[name="exportFormat"]:checked').value;
+      const quality = parseInt(document.getElementById('qualitySlider').value) / 100;
+
+      const dataUrl = canvas.toDataURL(format, quality);
+
+      // Render to preview
+      const previewImg = document.getElementById('previewImage');
+      previewImg.src = dataUrl;
+      previewImg.classList.remove('hidden');
+      document.getElementById('emptyPreviewNotice').classList.add('hidden');
+      document.getElementById('outputBadge').classList.remove('hidden');
+      document.getElementById('outputStats').classList.remove('hidden');
+
+      // Enable Download button
+      const downloadBtn = document.getElementById('downloadBtn');
+      downloadBtn.disabled = false;
+
+      // Calculate approximate resulting base64 file size
+      const stringLength = dataUrl.length - 'data:image/png;base64,'.length;
+      const approxBytes = stringLength * 0.75;
+
+      // Update statistics
+      document.getElementById('statPixels').innerText = `${targetPxW} x ${targetPxH} px`;
+      document.getElementById('statSize').innerText = formatBytes(approxBytes);
+      
+      const cmW = ((targetPxW / currentDpi) * 2.54).toFixed(1);
+      const cmH = ((targetPxH / currentDpi) * 2.54).toFixed(1);
+      document.getElementById('statPhysical').innerText = `${cmW} x ${cmH} cm`;
+    }
+
+    // Download final image
+    function downloadResizedImage() {
+      const previewImg = document.getElementById('previewImage');
+      if (!previewImg || !previewImg.src) return;
+
+      const format = document.querySelector('input[name="exportFormat"]:checked').value;
+      const ext = format === 'image/png' ? 'png' : 'jpg';
+      const filename = `${originalFileName}_resized_${document.getElementById('inputWidth').value}x${document.getElementById('inputHeight').value}.${ext}`;
+
+      const a = document.createElement('a');
+      a.href = previewImg.src;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    // Utility: Format bytes into readable KB/MB
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 KB';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+  </script>
+
+</body>
+</html>
