@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>वंशावळ स्वयंघोषणा शपथपत्र - जनरेटर</title>
+    
+    <!-- PDF Download Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #e9ecef;
+            margin: 0; padding: 20px; color: #333;
+        }
+
+        /* Layout & Cards */
+        .container { max-width: 1050px; margin: 0 auto; }
+        h2 { text-align: center; color: #2c3e50; margin-bottom: 20px; }
+        
+        .card {
+            background: #fff; padding: 20px; border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px;
+            border-top: 4px solid #5D9CEC;
+        }
+        .card-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #5D9CEC; }
+
+        /* Form Grid */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #555; }
+        .form-group input, .form-group select {
+            padding: 9px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: #5D9CEC; outline: none; }
+
+        /* Tree Control */
+        .tree-control { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px solid #ddd; }
+        .tree-control select, .tree-control input { padding: 8px; border: 1px solid #aaa; border-radius: 4px; font-size: 13px; }
+        .btn { padding: 9px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.2s; }
+        .btn-add { background: #28a745; color: white; } .btn-add:hover { background: #218838; }
+        .btn-preview { background: #6f42c1; color: white; width: 100%; font-size: 16px; padding: 12px; margin-top: 10px; } .btn-preview:hover { background: #5a32a3; }
+        
+        /* Tree Live Build Area */
+        .live-tree-area { overflow-x: auto; padding: 20px; background: #fff; min-height: 150px; display: flex; justify-content: center; }
+
+        /* --- TREE CSS --- */
+        .tree ul { padding-top: 14px; position: relative; display: flex; justify-content: center; padding-left: 0; margin: 0; }
+        .tree li { text-align: center; list-style-type: none; position: relative; padding: 14px 6px 0 6px; }
+        .tree li::before, .tree li::after { content: ''; position: absolute; top: 0; right: 50%; border-top: 1.5px solid #000; width: 50%; height: 14px; }
+        .tree li::after { right: auto; left: 50%; border-left: 1.5px solid #000; }
+        .tree li:only-child::after, .tree li:only-child::before { display: none; }
+        .tree li:only-child { padding-top: 0; }
+        .tree li:first-child::before, .tree li:last-child::after { border: 0 none; }
+        .tree li:last-child::before { border-right: 1.5px solid #000; }
+        .tree ul ul::before { content: ''; position: absolute; top: 0; left: 50%; border-left: 1.5px solid #000; width: 0; height: 14px; }
+
+        .compact-node {
+            display: inline-flex; flex-direction: column; align-items: center; white-space: nowrap; padding: 4px 6px;
+            position: relative; border-radius: 4px; transition: background 0.2s; border: 1px solid transparent;
+        }
+        .compact-node:hover { background-color: #f0f7ff; border-color: #cce; }
+        .r-title { font-size: 13px; font-weight: bold; color: #000; line-height: 1.2; }
+        .r-name { font-size: 12px; color: #222; margin-top: 2px; line-height: 1.2; }
+        .r-doc { font-size: 10.5px; color: #333; margin-top: 1px; line-height: 1.1; }
+        
+        .node-actions { position: absolute; top: -10px; right: -10px; display: none; gap: 2px; z-index: 10; }
+        .compact-node:hover .node-actions { display: flex; }
+        .act-btn { border-radius: 50%; width: 16px; height: 16px; font-size: 10px; cursor: pointer; border: none; color: #fff; display: flex; align-items: center; justify-content: center; }
+        .act-edit { background: #ff9800; } .act-del { background: #e74c3c; }
+
+        /* Modal (Dialogue Box) */
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+            overflow: auto; background-color: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background-color: #525659; margin: 2% auto; padding: 20px; border-radius: 8px; width: 95%; max-width: 900px;
+        }
+        .modal-actions { display: flex; justify-content: center; gap: 15px; margin-top: 15px; }
+        .btn-cancel { background: #e74c3c; color: white; padding: 10px 20px; font-size: 15px; } .btn-cancel:hover { background: #c0392b; }
+        .btn-print { background: #007bff; color: white; padding: 10px 20px; font-size: 15px; } .btn-print:hover { background: #0056b3; }
+        .btn-download { background: #28a745; color: white; padding: 10px 20px; font-size: 15px; } .btn-download:hover { background: #218838; }
+
+        /* A4 Document Preview inside Modal */
+        #a4-document {
+            background: #fff; width: 210mm; min-height: 297mm; margin: 0 auto; padding: 20mm;
+            box-sizing: border-box; box-shadow: 0 5px 15px rgba(0,0,0,0.3); text-align: left;
+            position: relative;
+        }
+        .doc-title { text-align: center; font-size: 20px; font-weight: bold; margin-bottom: 25px; text-decoration: underline; }
+        .doc-text { font-size: 16px; line-height: 2.2; margin-bottom: 15px; text-align: justify; }
+        
+        #docTreeWrapper {
+            display: flex; justify-content: center; margin-bottom: 20px; margin-top: 20px;
+        }
+
+        .doc-footer { 
+            display: flex; justify-content: space-between; 
+            margin-top: 80px; font-size: 16px; line-height: 1.8; 
+        }
+        
+        .bold-val { font-weight: bold; padding: 0 5px; }
+
+        /* ================= PRINT SPECIFIC CSS ================= */
+        @page { size: A4 portrait; margin: 10mm; }
+        @media print {
+            /* Hide everything outside the document */
+            body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
+            .container, .modal-actions, .node-actions, .print-hide { display: none !important; }
+            
+            /* Reset Modal */
+            .modal { position: static; display: block; background: transparent !important; padding: 0; margin: 0; }
+            .modal-content { background: transparent !important; padding: 0; margin: 0; border: none; width: 100%; max-width: none; }
+            
+            /* Document stretches naturally */
+            #a4-document { 
+                width: 100% !important; height: auto !important; min-height: 100% !important; 
+                margin: 0 !important; padding: 10mm !important; box-shadow: none !important; border: none !important; 
+            }
+            .doc-footer { margin-top: 60px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>वंशावळ व शपथपत्र जनरेटर</h2>
+
+    <!-- १. शपथपत्राची माहिती -->
+    <div class="card">
+        <div class="card-title">१. शपथपत्राचा मजकूर (डिटेल्स भरा)</div>
+        <div class="form-grid">
+            <div class="form-group"><label>अर्जदाराचे नाव</label><input type="text" id="app_name" placeholder="उदा. रमेश आनंदराव पाटील"></div>
+            <div class="form-group"><label>रहिवासी (गाव/शहर)</label><input type="text" id="app_village" placeholder="उदा. हदगाव"></div>
+            <div class="form-group"><label>तालुका</label><input type="text" id="app_taluka" value="हदगाव"></div>
+            <div class="form-group"><label>जिल्हा</label><input type="text" id="app_district" value="नांदेड"></div>
+            <div class="form-group"><label>अर्जदाराची जात</label><input type="text" id="app_caste" placeholder="उदा. मराठा"></div>
+            
+            <div class="form-group">
+                <label>प्रमाणपत्र कोणाचे काढायचे आहे?</label>
+                <select id="relation_dropdown">
+                    <option value="माझ्या">माझ्या (स्वतःच्या)</option>
+                    <option value="माझ्या मुलाच्या">माझ्या मुलाच्या</option>
+                    <option value="माझ्या मुलीच्या">माझ्या मुलीच्या</option>
+                </select>
+            </div>
+            
+            <div class="form-group"><label>लाभार्थ्याचे नाव</label><input type="text" id="ben_name" placeholder="उदा. सचिन रमेश पाटील"></div>
+            
+            <div class="form-group">
+                <label>प्रमाणपत्राचे कारण</label>
+                <select id="cert_purpose">
+                    <option value="शासकीय कामाकरीता">शासकीय कामाकरीता</option>
+                    <option value="शैक्षणिक कामाकरीता">शैक्षणिक कामाकरीता</option>
+                </select>
+            </div>
+
+            <div class="form-group"><label>उपविभागीय कार्यालय (ठिकाण)</label><input type="text" id="office_loc" placeholder="उदा. हदगाव"></div>
+            <div class="form-group"><label>लाभार्थ्याची जात</label><input type="text" id="ben_caste" placeholder="उदा. मराठा"></div>
+            <div class="form-group"><label>स्थळ (ठिकाण)</label><input type="text" id="sign_place" value="हदगाव"></div>
+            <div class="form-group"><label>दिनांक</label><input type="date" id="sign_date"></div>
+        </div>
+    </div>
+
+    <!-- २. वंशावळ तयार करणे -->
+    <div class="card">
+        <div class="card-title">२. वंशावळ तयार करा</div>
+        
+        <div class="tree-control">
+            <select id="relSelect" onchange="onRelationChange()">
+                <optgroup label="अर्जदार व लाभार्थी">
+                    <option value="labharthi_arjdhar">लाभार्थी (स्वतः अर्जदार)</option>
+                    <option value="labharthi">फक्त लाभार्थी</option>
+                    <option value="aai_arjdhar">आई (अर्जदार)</option>
+                    <option value="vadil_arjdhar">वडील (अर्जदार)</option>
+                </optgroup>
+                <optgroup label="आई - वडील (फक्त नावे)">
+                    <option value="aai">आई</option><option value="vadil">वडील</option>
+                </optgroup>
+                <optgroup label="भावंडे व त्यांची मुले">
+                    <option value="sakkhaBhau">सख्खा भाऊ</option><option value="sakkhiBahin">सख्खी बहीण</option>
+                    <option value="putanya">पुतण्या</option><option value="putani">पुतणी</option>
+                </optgroup>
+                <optgroup label="काका, आत्या व चुलत भावंडे">
+                    <option value="kaka">सख्खा काका</option><option value="aatya">आत्या</option>
+                    <option value="chulatBhau">चुलत भाऊ</option><option value="chulatBahin">चुलत बहीण</option>
+                </optgroup>
+                <optgroup label="आजोबांची पिढी व त्यांची शाखा">
+                    <option value="ajoba">आजोबा</option><option value="chulatAjoba">चुलत आजोबा</option>
+                    <option value="chulatChulatKaka">चुलत चुलत काका</option><option value="chulatChulatBhau">चुलत चुलत भाऊ</option>
+                </optgroup>
+                <optgroup label="पंजोबा व खापरपंजोबा">
+                    <option value="panjoba">पंजोबा</option><option value="chulatPanjoba">चुलत पंजोबा</option>
+                    <option value="chulatPanjobaMulga">चुलत आजोबा (चुलत पंजोबांचा मुलगा)</option><option value="khaparPanjoba">खापरपंजोबा</option>
+                </optgroup>
+            </select>
+            <select id="parentSelect" style="display: none; border-color: #007bff; font-weight: bold;"></select>
+            <input type="text" id="personName" placeholder="व्यक्तीचे नाव">
+            <input type="text" id="personDoc" placeholder="डॉक्युमेंट">
+            <button class="btn btn-add" id="submitBtn" onclick="handleAddOrUpdate()">+ जोडा</button>
+            <button class="btn btn-cancel" id="cancelBtn" onclick="cancelEdit()" style="display:none; background:#6c757d;">रद्द करा</button>
+        </div>
+
+        <div class="live-tree-area">
+            <div class="tree" id="builderTreeRoot"></div>
+        </div>
+    </div>
+
+    <!-- ३. प्रीव्ह्यू बटन -->
+    <button class="btn btn-preview" onclick="openPreviewModal()">👁️ फॉर्म पूर्ण झाला - प्रीव्ह्यू पहा</button>
+</div>
+
+<!-- ================= PREVIEW MODAL (Dialogue Box) ================= -->
+<div id="previewModal" class="modal">
+    <div class="modal-content">
+        
+        <!-- A4 Page Container -->
+        <div id="a4-document">
+            <div class="doc-title">वंशावळ स्वयंघोषणा शपथपत्र</div>
+            
+            <div class="doc-text">
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; शपथपत्र लिहून देणार मी <span class="bold-val" id="out_appName">___________</span>, रा. <span class="bold-val" id="out_village">_______</span>, ता. <span class="bold-val" id="out_taluka">_______</span>, जि. <span class="bold-val" id="out_district">_______</span> येथील रहिवासी असून मी जातीने <span class="bold-val" id="out_appCaste">________</span> आहे.
+            </div>
+            
+            <div class="doc-text">
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; मला <span class="bold-val" id="out_relation">माझ्या</span> नावाने <span class="bold-val" id="out_benName">___________</span> या नावे उपविभागीय कार्यालय <span class="bold-val" id="out_office">_______</span> येथून <span class="bold-val" id="out_benCaste">________</span> जातीच्या जात प्रमाणपत्राची संचिका दाखल केली आहे व जात प्रमाणपत्राची <span class="bold-val" id="out_purpose">शासकीय कामाकरीता</span> अत्यंत आवश्यकता आहे. मी माझ्या कुटुंबाची वंशावळ पुढील प्रमाणे सादर करीत आहे.
+            </div>
+            
+            <!-- Tree inside Document -->
+            <div id="docTreeWrapper">
+                <div class="tree" id="docTreeRoot"></div>
+            </div>
+
+            <div class="doc-text">
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; वरील लिहून दिलेली सर्व वंशावळ स्वयंघोषणापत्र हे सत्य असून यात काही खोटे वा गैर आढळून आल्यास त्यास मी स्वतः जबाबदार राहील.
+            </div>
+            
+            <div class="doc-text">
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; तरी मा. साहेबांनी <span class="bold-val" id="out_benCaste2">________</span> जातीचे प्रमाणपत्र देऊन उपकृत करावे ही नम्र विनंती.
+            </div>
+
+            <!-- Footer Section -->
+            <div class="doc-footer">
+                <div class="footer-left">
+                    <b>स्थळ :</b> <span class="bold-val" id="out_place">________</span><br>
+                    <b>दिनांक :</b> <span class="bold-val" id="out_date">____/____/202__</span>
+                </div>
+                <div class="footer-right">
+                    <b>स्वयंघोषणा शपथपत्र लिहून देणार</b><br><br><br>
+                    <span class="bold-val" id="out_signName">__________________</span><br>
+                    रा. <span class="bold-val" id="out_signVillage">____</span>, ता. <span class="bold-val" id="out_signTaluka">____</span>, <br>जि. <span class="bold-val" id="out_signDistrict">____</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="modal-actions print-hide">
+            <button class="btn btn-cancel" onclick="closePreviewModal()">❌ रद्द करा (Edit)</button>
+            <button class="btn btn-print" onclick="window.print()">🖨️ प्रिंट काढा</button>
+            <button class="btn btn-download" onclick="downloadPDF()">📄 PDF सेव्ह करा</button>
+        </div>
+    </div>
+</div>
+
+<!-- Logic Script -->
+<script>
+    window.onload = function() {
+        let today = new Date();
+        let dd = String(today.getDate()).padStart(2, '0');
+        let mm = String(today.getMonth() + 1).padStart(2, '0');
+        let yyyy = today.getFullYear();
+        document.getElementById('sign_date').value = yyyy + '-' + mm + '-' + dd;
+        drawBuilderTree();
+    };
+
+    /* ---------------- MODAL & TEXT LOGIC ---------------- */
+    function openPreviewModal() {
+        document.getElementById('out_appName').innerText = document.getElementById('app_name').value || "___________";
+        document.getElementById('out_signName').innerText = document.getElementById('app_name').value || "___________";
+        
+        document.getElementById('out_village').innerText = document.getElementById('app_village').value || "_______";
+        document.getElementById('out_signVillage').innerText = document.getElementById('app_village').value || "_______";
+        
+        document.getElementById('out_taluka').innerText = document.getElementById('app_taluka').value || "_______";
+        document.getElementById('out_signTaluka').innerText = document.getElementById('app_taluka').value || "_______";
+        
+        document.getElementById('out_district').innerText = document.getElementById('app_district').value || "_______";
+        document.getElementById('out_signDistrict').innerText = document.getElementById('app_district').value || "_______";
+        
+        document.getElementById('out_appCaste').innerText = document.getElementById('app_caste').value || "________";
+        document.getElementById('out_relation').innerText = document.getElementById('relation_dropdown').value;
+        document.getElementById('out_benName').innerText = document.getElementById('ben_name').value || "___________";
+        
+        document.getElementById('out_purpose').innerText = document.getElementById('cert_purpose').value;
+        document.getElementById('out_office').innerText = document.getElementById('office_loc').value || "_______";
+        
+        let benCaste = document.getElementById('ben_caste').value || "________";
+        document.getElementById('out_benCaste').innerText = benCaste;
+        document.getElementById('out_benCaste2').innerText = benCaste;
+        
+        document.getElementById('out_place').innerText = document.getElementById('sign_place').value || "________";
+        
+        let dateVal = document.getElementById('sign_date').value;
+        if(dateVal) {
+            let d = new Date(dateVal);
+            document.getElementById('out_date').innerText = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth()+1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+        } else {
+            document.getElementById('out_date').innerText = "____/____/202__";
+        }
+
+        document.getElementById('docTreeRoot').innerHTML = document.getElementById('builderTreeRoot').innerHTML;
+        document.getElementById('previewModal').style.display = 'block';
+
+        // Zoom logic ONLY if the tree is horizontally too wide
+        setTimeout(() => {
+            const treeWrap = document.getElementById('docTreeWrapper');
+            treeWrap.style.zoom = '1';
+            let actualTreeWidth = document.getElementById('docTreeRoot').scrollWidth;
+            let maxAllowedWidth = 710; 
+            
+            if(actualTreeWidth > maxAllowedWidth) {
+                treeWrap.style.zoom = (maxAllowedWidth / actualTreeWidth).toFixed(3);
+            }
+        }, 100);
+    }
+
+    function closePreviewModal() { document.getElementById('previewModal').style.display = 'none'; }
+    
+    function downloadPDF() {
+        alert("Print window उघडल्यानंतर 'Destination' मध्ये 'Save as PDF' पर्याय निवडून फाईल सेव्ह करा.");
+        window.print();
+    }
+
+    /* ---------------- TREE LOGIC ---------------- */
+    let nextId = 1; let editingTarget = null;
+    const treeData = {
+        id: 'khaparPanjoba', role: 'खापरपंजोबा', name: '', doc: '', active: false,
+        children: [
+            { id: 'chulatPanjobaBranch', virtual: true, role: 'चुलत पंजोबा शाखा', members: [], children: [] },
+            { id: 'panjoba', role: 'पंजोबा', name: '', doc: '', active: false,
+                children: [
+                    { id: 'chulatAjobaBranch', virtual: true, role: 'चुलत आजोबा शाखा', members: [], children: [] },
+                    { id: 'ajoba', role: 'आजोबा', name: '', doc: '', active: false,
+                        children: [
+                            { id: 'vadil', role: 'वडील', name: '', doc: '', active: false, aai: { role: 'आई', name: '', doc: '', active: false }, 
+                                children: [
+                                    { id: 'primaryApplicant', role: 'लाभार्थी', name: '', doc: '', active: true, children: [] },
+                                    { id: 'siblingsBranch', virtual: true, role: 'भावंडे शाखा', members: [], children: [] }
+                                ]
+                            },
+                            { id: 'kakaBranch', virtual: true, role: 'काका शाखा', members: [], children: [] },
+                            { id: 'aatyaBranch', virtual: true, role: 'आत्या शाखा', members: [], children: [] }
+                        ]
+                    }
+                ]
+            }
+        ]
+    };
+
+    const vadilNode = () => treeData.children[1].children[1].children[0];
+    const ajobaNode = () => treeData.children[1].children[1];
+    const panjobaNode = () => treeData.children[1];
+
+    function onRelationChange() {
+        const rel = document.getElementById('relSelect').value; const parentSelect = document.getElementById('parentSelect');
+        parentSelect.innerHTML = ''; parentSelect.style.display = 'none';
+        if (rel === 'chulatBhau' || rel === 'chulatBahin') {
+            const kakas = ajobaNode().children[1].members;
+            if (kakas.length > 1) { parentSelect.style.display = 'inline-block'; kakas.forEach((k, idx) => { parentSelect.innerHTML += `<option value="${k.uid}">कोणाचा मुलगा: ${k.name || 'काका ' + (idx + 1)}</option>`; }); }
+        } else if (rel === 'putanya' || rel === 'putani') {
+            const brothers = vadilNode().children[1].members.filter(m => m.role === 'सख्खा भाऊ');
+            if (brothers.length > 0) { parentSelect.style.display = 'inline-block'; brothers.forEach((b, idx) => { parentSelect.innerHTML += `<option value="${b.uid}">कोणाचा: ${b.name || 'भाऊ ' + (idx + 1)}</option>`; }); }
+        } else if (rel === 'chulatChulatKaka') {
+            const cas = panjobaNode().children[0].members;
+            if (cas.length > 1) { parentSelect.style.display = 'inline-block'; cas.forEach((ca, idx) => { parentSelect.innerHTML += `<option value="${ca.uid}">कोणत्या चुलत आजोबांचा: ${ca.name || 'चुलत आजोबा ' + (idx + 1)}</option>`; }); }
+        } else if (rel === 'chulatPanjobaMulga') {
+            const cps = treeData.children[0].members;
+            if (cps.length > 1) { parentSelect.style.display = 'inline-block'; cps.forEach((cp, idx) => { parentSelect.innerHTML += `<option value="${cp.uid}">कोणत्या चुलत पंजोबांचा: ${cp.name || 'चुलत पंजोबा ' + (idx + 1)}</option>`; }); }
+        }
+    }
+
+    function hasActiveDescendants(node) {
+        if (node.virtual) { if (node.members && node.members.length > 0) return true; return (node.children || []).some(hasActiveDescendants); }
+        if (node.id === 'vadil' && node.aai && node.aai.active) return true; if (node.active) return true;
+        return (node.children || []).some(hasActiveDescendants);
+    }
+    function findEffectiveRoot(node) {
+        if (!node.virtual && (node.active || (node.id === 'vadil' && node.aai && node.aai.active))) return node;
+        const activeBranches = (node.children || []).filter(hasActiveDescendants);
+        if (!node.virtual && !node.active && activeBranches.length === 1) { return findEffectiveRoot(activeBranches[0]); } return node;
+    }
+
+    function renderNode(node) {
+        if (node.virtual) {
+            let listItems = '';
+            (node.members || []).forEach(item => {
+                const docM = item.doc ? `<div class="r-doc">(${item.doc})</div>` : '';
+                listItems += `<li><div class="compact-node"><div class="node-actions print-hide"><button class="act-btn act-edit" onclick="startEditDynamic('${item.uid}')">✎</button><button class="act-btn act-del" onclick="deleteDynamicMember('${item.uid}')">×</button></div><div class="r-title">${item.role}</div><div class="r-name">${item.name}</div>${docM}</div>${renderSubChildren(item.children)}</li>`;
+            }); return listItems;
+        }
+        const visibleChildren = (node.children || []).filter(hasActiveDescendants); let nodeContent = '';
+
+        if (node.id === 'vadil') {
+            let vBox = ''; if (node.active) {
+                const docM = node.doc ? `<div class="r-doc">(${node.doc})</div>` : '';
+                vBox = `<div class="compact-node"><div class="node-actions print-hide"><button class="act-btn act-edit" onclick="startEditFixed('vadil')">✎</button><button class="act-btn act-del" onclick="clearFixedNode('vadil')">×</button></div><div class="r-title">${node.role}</div><div class="r-name">${node.name}</div>${docM}</div>`;
+            }
+            let aBox = '', invisibleABox = ''; if (node.aai && node.aai.active) {
+                const docM = node.aai.doc ? `<div class="r-doc">(${node.aai.doc})</div>` : '';
+                aBox = `<div class="compact-node"><div class="node-actions print-hide"><button class="act-btn act-edit" onclick="startEditFixed('aai')">✎</button><button class="act-btn act-del" onclick="clearFixedNode('aai')">×</button></div><div class="r-title">${node.aai.role}</div><div class="r-name">${node.aai.name}</div>${docM}</div>`;
+                invisibleABox = `<div class="compact-node"><div class="r-title">${node.aai.role}</div><div class="r-name">${node.aai.name}</div>${docM}</div>`;
+            }
+            if (vBox && aBox) { nodeContent = `<div style="display:inline-flex; align-items:center;"><div style="display:inline-flex; align-items:center;">${aBox}<div style="font-size: 11px; font-weight: bold; margin: 0 4px; color: #333;">--पत्नी--</div></div>${vBox}<div style="display:inline-flex; align-items:center; visibility:hidden; pointer-events:none;"><div style="font-size: 11px; font-weight: bold; margin: 0 4px;">--पत्नी--</div>${invisibleABox}</div></div>`; } 
+            else if (vBox) { nodeContent = vBox; } else if (aBox) { nodeContent = aBox; } else { nodeContent = `<div class="compact-node"><div class="r-title" style="color: #777;">वडील / आई</div></div>`; }
+        } else {
+            if (node.active) {
+                const docM = node.doc ? `<div class="r-doc">(${node.doc})</div>` : '';
+                const delM = (node.id !== 'primaryApplicant') ? `<button class="act-btn act-del" onclick="clearFixedNode('${node.id}')">×</button>` : '';
+                nodeContent = `<div class="compact-node"><div class="node-actions print-hide"><button class="act-btn act-edit" onclick="startEditFixed('${node.id}')">✎</button>${delM}</div><div class="r-title">${node.role}</div><div class="r-name">${node.name}</div>${docM}</div>`;
+            } else { nodeContent = `<div class="compact-node"><div class="r-title" style="color: #777;">${node.role}</div></div>`; }
+        }
+        let subTreeMarkup = ''; if (visibleChildren.length > 0) { subTreeMarkup = `<ul>${visibleChildren.map(renderNode).join('')}</ul>`; }
+        return `<li>${nodeContent}${subTreeMarkup}</li>`;
+    }
+    function renderSubChildren(children) { if (!children || children.length === 0) return ''; const active = children.filter(hasActiveDescendants); if (active.length === 0) return ''; return `<ul>${active.map(renderNode).join('')}</ul>`; }
+
+    function drawBuilderTree() {
+        const root = findEffectiveRoot(treeData);
+        document.getElementById('builderTreeRoot').innerHTML = `<ul>${renderNode(root)}</ul>`;
+    }
+
+    function handleAddOrUpdate() {
+        const name = document.getElementById('personName').value.trim(); const doc = document.getElementById('personDoc').value.trim(); const rel = document.getElementById('relSelect').value;
+        if (!name) { alert('कृपया व्यक्तीचे नाव टाका.'); return; }
+        if (editingTarget) {
+            if (editingTarget.type === 'aai') { vadilNode().aai.name = name; vadilNode().aai.doc = doc; } 
+            else if (editingTarget.type === 'fixed') { const node = findFixedNodeById(treeData, editingTarget.id); if (node) { node.name = name; node.doc = doc; } } 
+            else if (editingTarget.type === 'dynamic') { const item = findDynamicItemByUid(treeData, editingTarget.uid); if (item) { item.name = name; item.doc = doc; } }
+            cancelEdit(); drawBuilderTree(); return;
+        }
+
+        const parentId = document.getElementById('parentSelect').value; const uid = 'entry_' + (nextId++); const pApplicant = vadilNode().children[0]; const vBranch = vadilNode();
+        if (rel === 'labharthi_arjdhar') { pApplicant.role = 'लाभार्थी (अर्जदार)'; pApplicant.name = name; pApplicant.doc = doc; } 
+        else if (rel === 'labharthi') { pApplicant.role = 'लाभार्थी'; pApplicant.name = name; pApplicant.doc = doc; } 
+        else if (rel === 'aai_arjdhar') { vBranch.aai.role = 'आई (अर्जदार)'; vBranch.aai.name = name; vBranch.aai.doc = doc; vBranch.aai.active = true; } 
+        else if (rel === 'vadil_arjdhar') { vBranch.role = 'वडील (अर्जदार)'; vBranch.name = name; vBranch.doc = doc; vBranch.active = true; } 
+        else if (rel === 'aai') { vBranch.aai.role = 'आई'; vBranch.aai.name = name; vBranch.aai.doc = doc; vBranch.aai.active = true; } 
+        else if (rel === 'vadil') { vBranch.role = 'वडील'; vBranch.name = name; vBranch.doc = doc; vBranch.active = true; } 
+        else if (rel === 'ajoba') { ajobaNode().name = name; ajobaNode().doc = doc; ajobaNode().active = true; } 
+        else if (rel === 'panjoba') { panjobaNode().name = name; panjobaNode().doc = doc; panjobaNode().active = true; } 
+        else if (rel === 'khaparPanjoba') { treeData.name = name; treeData.doc = doc; treeData.active = true; } 
+        else if (rel === 'sakkhaBhau' || rel === 'sakkhiBahin') { vBranch.children[1].members.push({ uid, role: rel === 'sakkhaBhau' ? 'सख्खा भाऊ' : 'सख्खी बहीण', name, doc, children: [{ id: 'nephew_' + uid, virtual: true, members: [] }] }); } 
+        else if (rel === 'putanya' || rel === 'putani') {
+            let brothers = vBranch.children[1].members.filter(m => m.role === 'सख्खा भाऊ');
+            if (brothers.length === 0) { const bUid = 'entry_' + (nextId++); const newB = { uid: bUid, role: 'सख्खा भाऊ', name: '', doc: '', children: [{ id: 'nephew_' + bUid, virtual: true, members: [] }] }; vBranch.children[1].members.push(newB); brothers = [newB]; }
+            const targetBrother = parentId ? (brothers.find(b => b.uid === parentId) || brothers[0]) : brothers[brothers.length - 1];
+            targetBrother.children[0].members.push({ uid, role: rel === 'putanya' ? 'पुतण्या' : 'पुतणी', name, doc });
+        } else if (rel === 'kaka') { ajobaNode().children[1].members.push({ uid, role: 'सख्खा काका', name, doc, children: [{ id: 'chulatSiblings_' + uid, virtual: true, members: [] }] }); } 
+        else if (rel === 'aatya') { ajobaNode().children[2].members.push({ uid, role: 'आत्या', name, doc, children: [] }); } 
+        else if (rel === 'chulatBhau' || rel === 'chulatBahin') {
+            let kakas = ajobaNode().children[1].members;
+            if (kakas.length === 0) { const kUid = 'entry_' + (nextId++); kakas.push({ uid: kUid, role: 'सख्खा काका', name: '', doc: '', children: [{ id: 'chulatSiblings_' + kUid, virtual: true, members: [] }] }); }
+            const targetKaka = parentId ? (kakas.find(k => k.uid === parentId) || kakas[0]) : kakas[kakas.length - 1]; targetKaka.children[0].members.push({ uid, role: rel === 'chulatBhau' ? 'चुलत भाऊ' : 'चुलत बहीण', name, doc });
+        } else if (rel === 'chulatAjoba') { panjobaNode().children[0].members.push({ uid, role: 'चुलत आजोबा', name, doc, children: [{ id: 'chulatKakaBranch_' + uid, virtual: true, members: [] }] }); } 
+        else if (rel === 'chulatChulatKaka') {
+            let cas = panjobaNode().children[0].members;
+            if (cas.length === 0) { const caUid = 'entry_' + (nextId++); cas.push({ uid: caUid, role: 'चुलत आजोबा', name: '', doc: '', children: [{ id: 'chulatKakaBranch_' + caUid, virtual: true, members: [] }] }); }
+            const targetCA = parentId ? (cas.find(c => c.uid === parentId) || cas[0]) : cas[cas.length - 1]; targetCA.children[0].members.push({ uid, role: 'चुलत चुलत काका', name, doc, children: [{ id: 'chulatChulatBranch_' + uid, virtual: true, members: [] }] });
+        } else if (rel === 'chulatChulatBhau') {
+            let cas = panjobaNode().children[0].members;
+            if (cas.length === 0) { const caUid = 'entry_' + (nextId++); cas.push({ uid: caUid, role: 'चुलत आजोबा', name: '', doc: '', children: [{ id: 'chulatKakaBranch_' + caUid, virtual: true, members: [] }] }); }
+            const targetCA = cas[cas.length - 1]; let ckList = targetCA.children[0].members;
+            if (ckList.length === 0) { const ckUid = 'entry_' + (nextId++); ckList.push({ uid: ckUid, role: 'चुलत चुलत काका', name: '', doc: '', children: [{ id: 'chulatChulatBranch_' + ckUid, virtual: true, members: [] }] }); }
+            ckList[ckList.length - 1].children[0].members.push({ uid, role: 'चुलत चुलत भाऊ', name, doc });
+        } else if (rel === 'chulatPanjoba') { treeData.children[0].members.push({ uid, role: 'चुलत पंजोबा', name, doc, children: [{ id: 'chulatPanjChild_' + uid, virtual: true, members: [] }] }); } 
+        else if (rel === 'chulatPanjobaMulga') {
+            let cps = treeData.children[0].members;
+            if (cps.length === 0) { const cpUid = 'entry_' + (nextId++); cps.push({ uid: cpUid, role: 'चुलत पंजोबा', name: '', doc: '', children: [{ id: 'chulatPanjChild_' + cpUid, virtual: true, members: [] }] }); }
+            const targetCP = parentId ? (cps.find(c => c.uid === parentId) || cps[0]) : cps[cps.length - 1]; targetCP.children[0].members.push({ uid, role: 'चुलत आजोबा', name, doc, children: [] });
+        }
+        drawBuilderTree(); document.getElementById('personName').value = ''; document.getElementById('personDoc').value = ''; onRelationChange();
+    }
+
+    function startEditFixed(id) {
+        editingTarget = (id === 'aai') ? { type: 'aai' } : { type: 'fixed', id: id }; let valName = '', valDoc = '';
+        if (id === 'aai') { valName = vadilNode().aai.name; valDoc = vadilNode().aai.doc; } else { const node = findFixedNodeById(treeData, id); if (node) { valName = node.name; valDoc = node.doc; } }
+        document.getElementById('personName').value = valName || ''; document.getElementById('personDoc').value = valDoc || '';
+        document.getElementById('submitBtn').innerText = 'बदल सेव्ह करा'; document.getElementById('submitBtn').style.background = '#ff9800'; document.getElementById('cancelBtn').style.display = 'inline-block';
+    }
+    function startEditDynamic(uid) {
+        const item = findDynamicItemByUid(treeData, uid); if (!item) return; editingTarget = { type: 'dynamic', uid: uid };
+        document.getElementById('personName').value = item.name || ''; document.getElementById('personDoc').value = item.doc || '';
+        document.getElementById('submitBtn').innerText = 'बदल सेव्ह करा'; document.getElementById('submitBtn').style.background = '#ff9800'; document.getElementById('cancelBtn').style.display = 'inline-block';
+    }
+    function cancelEdit() {
+        editingTarget = null; document.getElementById('personName').value = ''; document.getElementById('personDoc').value = '';
+        document.getElementById('submitBtn').innerText = '+ जोडा'; document.getElementById('submitBtn').style.background = '#28a745'; document.getElementById('cancelBtn').style.display = 'none';
+    }
+    function findFixedNodeById(node, id) { if (node.id === id) return node; if (node.children) { for (let c of node.children) { const found = findFixedNodeById(c, id); if (found) return found; } } return null; }
+    function findDynamicItemByUid(node, uid) {
+        if (node.virtual && node.members) { for (let m of node.members) { if (m.uid === uid) return m; if (m.children) { for (let c of m.children) { const f = findDynamicItemByUid(c, uid); if (f) return f; } } } }
+        if (node.children) { for (let c of node.children) { const f = findDynamicItemByUid(c, uid); if (f) return f; } } return null;
+    }
+    function clearFixedNode(nodeId) {
+        if (nodeId === 'aai') { vadilNode().aai.name = ''; vadilNode().aai.doc = ''; vadilNode().aai.active = false; } else { const node = findFixedNodeById(treeData, nodeId); if (node) { node.name = ''; node.doc = ''; node.active = false; } } drawBuilderTree();
+    }
+    function deleteDynamicMember(uid) {
+        function removeFromList(list) {
+            for (let i = 0; i < list.length; i++) { if (list[i].uid === uid) { list.splice(i, 1); return true; } if (list[i].children) { for (let c of list[i].children) { if (c.members && removeFromList(c.members)) return true; } } } return false;
+        }
+        removeFromList(vadilNode().children[1].members); removeFromList(ajobaNode().children[1].members); removeFromList(ajobaNode().children[2].members); removeFromList(panjobaNode().children[0].members); removeFromList(treeData.children[0].members); drawBuilderTree(); onRelationChange();
+    }
+</script>
+</body>
+</html>
