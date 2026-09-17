@@ -17,6 +17,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <!-- पोर्टल सुरक्षा (Auth Guard) -->
+  <script src="config.js"></script>
   <script src="auth-guard.js"></script>
 
   <style>
@@ -614,12 +615,13 @@
       return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
-    // 🟢 Silent Background Logging (Updated for QuickIDPrint Session)
+    // 🟢 Silent Background Logging (Updated with no-cors fix)
     function logUsage(remark) {
       const user = sessionStorage.getItem('userFullName') || "User";
       if (typeof SCRIPT_URL !== "undefined" && SCRIPT_URL) {
         fetch(SCRIPT_URL, {
           method: "POST",
+          mode: "no-cors",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: new URLSearchParams({
             action: "submitForm",
@@ -627,7 +629,8 @@
             ghoshnaType: "PDF Compressor",
             remark: remark
           })
-        }).catch(e => console.log(e));
+        }).then(() => console.log("Log request sent."))
+          .catch(e => console.log("Log error:", e));
       }
     }
   </script>
