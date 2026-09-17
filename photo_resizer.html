@@ -527,6 +527,7 @@
       document.getElementById('statPhysical').innerText = `${cmW} x ${cmH} cm`;
     }
 
+    // 🟢 Download AND Send Service Log (FormData Method)
     function downloadResizedImage() {
       const previewImg = document.getElementById('previewImage');
       if (!previewImg || !previewImg.src) return;
@@ -535,6 +536,7 @@
       const ext = format === 'image/png' ? 'png' : 'jpg';
       const filename = `${originalFileName}_resized_${document.getElementById('inputWidth').value}x${document.getElementById('inputHeight').value}.${ext}`;
 
+      // 1. Download Action
       const a = document.createElement('a');
       a.href = previewImg.src;
       a.download = filename;
@@ -542,8 +544,25 @@
       a.click();
       document.body.removeChild(a);
 
-      // 🟢 Silent service log
-      logUsage("Photo Resized: " + format);
+      // 2. Logging Action via FormData (Like utpanna.html)
+      const username = sessionStorage.getItem('username') || sessionStorage.getItem('userFullName') || 'User';
+      
+      const formData = new FormData();
+      formData.append('action', 'submitForm'); 
+      formData.append('username', username);
+      formData.append('ghoshnaType', 'Photo Resizer'); 
+      formData.append('applicantName', 'Photo Resize Processed'); 
+      formData.append('remark', 'Format: ' + format); // Additional details
+
+      if (typeof CONFIG !== "undefined" && CONFIG.SCRIPT_URL) {
+          fetch(CONFIG.SCRIPT_URL, { 
+              method: 'POST', 
+              body: formData 
+          })
+          .then(res => res.json())
+          .then(data => console.log("Log Success:", data))
+          .catch(err => console.log("Log Error:", err));
+      }
     }
 
     function formatBytes(bytes) {
@@ -552,25 +571,6 @@
       const sizes = ['Bytes', 'KB', 'MB'];
       const i = Math.floor(Math.log(bytes) / Math.log(k));
       return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
-    }
-
-    // 🟢 Silent Background Logging Function (with no-cors)
-    function logUsage(remark) {
-      const user = sessionStorage.getItem('userFullName') || sessionStorage.getItem('userName') || "User";
-      if (typeof SCRIPT_URL !== "undefined" && SCRIPT_URL) {
-        fetch(SCRIPT_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({
-            action: "submitForm",
-            username: user,
-            ghoshnaType: "Photo Resizer",
-            remark: remark
-          })
-        }).then(() => console.log("Log request sent."))
-          .catch(e => console.log("Log error:", e));
-      }
     }
   </script>
 
