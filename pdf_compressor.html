@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart PDF Compressor Tool | QuickIDPrint</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Mukta -->
+  <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- PDF.js CDN for Client-Side Rendering -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <!-- jsPDF CDN for Clean Compressed PDF Rebuilding -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- पोर्टल सुरक्षा (Auth Guard) -->
+  <script src="auth-guard.js"></script>
+
+  <style>
+    body {
+      font-family: 'Mukta', sans-serif;
+      background-color: #f8fafc;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    @keyframes pulseRing {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.05); opacity: 0.4; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .pulse-animation {
+      animation: pulseRing 2s infinite ease-in-out;
+    }
+    @keyframes gearRotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .gear-spin {
+      animation: gearRotate 3s linear infinite;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between text-slate-800">
+
+  <!-- ================= TOP HEADER NAVBAR ================= -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="home.html" class="flex items-center gap-2 text-indigo-600 hover:text-indigo-800 font-semibold text-xs sm:text-sm transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+          <span>पोर्टल होम</span>
+        </a>
+        <span class="text-slate-300">|</span>
+        <h1 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
+          <span>📑</span>
+          <span>स्मार्ट PDF कॉम्प्रेशर टूल</span>
+        </h1>
+      </div>
+
+      <div class="flex items-center gap-2 text-xs">
+        <span id="navUserName" class="font-semibold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">Loading...</span>
+        <span id="navRemainingDays" class="font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">...</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTAINER ================= -->
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 py-6 w-full flex-1 space-y-6">
+
+    <!-- Information Alert Banner -->
+    <div class="bg-gradient-to-r from-indigo-50 via-blue-50 to-indigo-50 border border-indigo-100 rounded-2xl p-4 text-xs sm:text-sm text-indigo-950 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
+      <div>
+        <p class="font-bold text-indigo-900">💡 100% सुरक्षित आणि ऑफलाइन ब्राऊझर कॉम्प्रेशन:</p>
+        <p class="text-indigo-700 mt-0.5">तुमची PDF कोणत्याही सर्व्हरवर जात नाही. थेट कॉम्प्युटर/मोबाईलवर कॉम्प्रेशन होऊन क्लिअर टेक्स्ट व इमेजेस कायम राहतात.</p>
+      </div>
+      <span class="px-2.5 py-1 rounded-lg bg-white border border-indigo-200 text-indigo-700 text-xs font-semibold shadow-2xs shrink-0">
+        सरकारी फॉर्म्ससाठी अनुकूल
+      </span>
+    </div>
+
+    <!-- ================= 1. PDF UPLOAD CARD ================= -->
+    <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
+      <div class="flex items-center justify-between">
+        <label class="font-bold text-sm sm:text-base text-slate-900 flex items-center gap-2">
+          <span class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs">१</span>
+          <span>PDF फाईल निवडा (Upload PDF)</span>
+        </label>
+        <button 
+          type="button" 
+          onclick="resetAllTool()" 
+          id="resetBtn"
+          class="text-xs text-rose-600 hover:text-rose-800 font-semibold hidden flex items-center gap-1 transition"
+        >
+          <span>↺</span>
+          <span>नवीन फाईल निवडा (Reset)</span>
+        </button>
+      </div>
+
+      <!-- Drag & Drop Zone -->
+      <div 
+        id="dropZone" 
+        class="border-2 border-dashed border-indigo-200 hover:border-indigo-400 bg-indigo-50/40 rounded-2xl p-8 text-center cursor-pointer transition flex flex-col items-center justify-center gap-2.5"
+        onclick="document.getElementById('pdfFileInput').click()"
+      >
+        <div class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl">
+          📑
+        </div>
+        <div>
+          <p class="text-sm sm:text-base font-bold text-indigo-950">PDF निवडण्यासाठी येथे क्लिक करा</p>
+          <p class="text-xs text-slate-400 mt-0.5">किंवा फाईल ड्रॅग करून ड्रॉप करा (.pdf)</p>
+        </div>
+        <input type="file" id="pdfFileInput" accept="application/pdf" class="hidden" onchange="handleFileSelection(this)">
+      </div>
+
+      <!-- 🟢 Upload Progress Bar (Visible while loading PDF) -->
+      <div id="uploadProgressSection" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2">
+        <div class="flex justify-between items-center text-xs">
+          <span class="font-bold text-indigo-900 flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-indigo-600 animate-ping"></span>
+            <span>PDF फाईल अपलोड आणि लोड होत आहे...</span>
+          </span>
+          <span id="uploadPercentText" class="font-mono font-bold text-indigo-600">0%</span>
+        </div>
+        <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+          <div id="uploadProgressBar" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-150" style="width: 0%"></div>
+        </div>
+        <p class="text-2xs text-slate-400">मोठी फाईल असल्यास पानांची मांडणी तयार होत आहे, कृपया थांबा...</p>
+      </div>
+
+      <!-- Loaded PDF File Details Box -->
+      <div id="fileDetailBox" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div>
+          <span class="text-slate-400 font-medium block text-2xs uppercase">फाईल नाव</span>
+          <span id="detailFileName" class="font-bold text-slate-800 truncate block mt-0.5">-</span>
+        </div>
+        <div>
+          <span class="text-slate-400 font-medium block text-2xs uppercase">ओरिजिनल फाईल साईझ</span>
+          <span id="detailOrigSize" class="font-bold text-rose-600 font-mono block mt-0.5">0 KB</span>
+        </div>
+        <div>
+          <span class="text-slate-400 font-medium block text-2xs uppercase">एकूण पाने (Pages)</span>
+          <span id="detailTotalPages" class="font-bold text-slate-800 font-mono block mt-0.5">0 Pages</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= 2. LIVE PDF PREVIEW (Right Below Upload) ================= -->
+    <div id="previewCard" class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4 hidden transition-all">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <label class="font-bold text-sm sm:text-base text-slate-900 flex items-center gap-2">
+          <span class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs">२</span>
+          <span>PDF पानांचे प्रीव्ह्यू (Live PDF Preview)</span>
+        </label>
+        <span id="previewPageBadge" class="text-2xs font-semibold px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 font-mono">
+          0 पाने
+        </span>
+      </div>
+
+      <!-- Pages Scroll Viewport -->
+      <div class="w-full max-h-[460px] overflow-y-auto bg-slate-100 p-4 rounded-2xl border border-slate-200 custom-scrollbar flex flex-col items-center gap-4">
+        <div id="pagesListContainer" class="w-full flex flex-col items-center gap-4">
+          <!-- Rendered Canvases will be placed here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= 3. COMPRESSION LEVEL OPTIONS ================= -->
+    <div id="compressionSettingsCard" class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4 hidden transition-all">
+      <label class="block font-bold text-sm sm:text-base text-slate-900 flex items-center gap-2">
+        <span class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs">३</span>
+        <span>कॉम्प्रेशन लेव्हल निवडा (Compression Level)</span>
+      </label>
+
+      <!-- 3 Radio Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <!-- Low -->
+        <label class="flex flex-col justify-between p-3.5 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 has-checked:border-indigo-600 has-checked:bg-indigo-50/50 transition">
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <input type="radio" name="compressionOption" value="low" class="accent-indigo-600">
+              <span class="text-2xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">High Quality</span>
+            </div>
+            <span class="font-bold text-xs text-slate-900 block">Low Compression</span>
+            <p class="text-slate-500 text-2xs mt-1">उत्तम क्लॅरिटी आणि शार्प मजकूर. साईझ साधारण ३०-४०% कमी होते.</p>
+          </div>
+        </label>
+
+        <!-- Medium (Default) -->
+        <label class="flex flex-col justify-between p-3.5 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 has-checked:border-indigo-600 has-checked:bg-indigo-50/50 transition shadow-2xs">
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <input type="radio" name="compressionOption" value="medium" checked class="accent-indigo-600">
+              <span class="text-2xs font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">शिफारस केलेले ⭐</span>
+            </div>
+            <span class="font-bold text-xs text-slate-900 block">Medium Compression</span>
+            <p class="text-slate-500 text-2xs mt-1">सरकारी आणि ऑनलाईन फॉर्म्ससाठी सर्वोत्तम. साईझ ५०-७०% कमी होते.</p>
+          </div>
+        </label>
+
+        <!-- High -->
+        <label class="flex flex-col justify-between p-3.5 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 has-checked:border-indigo-600 has-checked:bg-indigo-50/50 transition">
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <input type="radio" name="compressionOption" value="high" class="accent-indigo-600">
+              <span class="text-2xs font-bold px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">कमाल बचत</span>
+            </div>
+            <span class="font-bold text-xs text-slate-900 block">High Compression</span>
+            <p class="text-slate-500 text-2xs mt-1">१०० KB पेक्षा कमी मर्यादा असणाऱ्या वेबसाईट फॉर्म्ससाठी सर्वोत्तम पर्याय.</p>
+          </div>
+        </label>
+      </div>
+
+      <!-- Compress Button -->
+      <button 
+        type="button" 
+        id="compressActionBtn" 
+        onclick="runPdfCompression()"
+        class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2 shadow-xs transition active:scale-98 cursor-pointer"
+      >
+        <span>⚡</span>
+        <span>PDF कॉम्प्रेशन सुरू करा (Compress Now)</span>
+      </button>
+    </div>
+
+    <!-- ================= 4. RESULTS & DOWNLOAD ================= -->
+    <div id="resultsCard" class="bg-white border-2 border-emerald-500 rounded-2xl p-5 sm:p-6 shadow-md space-y-4 hidden transition-all">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+        <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
+          <span>🎉</span>
+          <span>कॉम्प्रेशन निकाल (Results)</span>
+        </h3>
+        <span id="savingBadge" class="text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+          -0% बचत
+        </span>
+      </div>
+
+      <!-- Size Stats Comparison -->
+      <div class="grid grid-cols-2 gap-3 text-center">
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <span class="text-2xs text-slate-400 uppercase font-bold block mb-1">पूर्वीचा आकार (Before)</span>
+          <span id="statBeforeSize" class="text-base sm:text-lg font-bold text-slate-800 font-mono">0 KB</span>
+        </div>
+        <div class="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200">
+          <span class="text-2xs text-emerald-700 uppercase font-bold block mb-1">नवीन आकार (After Compressed)</span>
+          <span id="statAfterSize" class="text-base sm:text-lg font-bold text-emerald-800 font-mono">0 KB</span>
+        </div>
+      </div>
+
+      <!-- Download Button -->
+      <button 
+        type="button" 
+        id="downloadBtn" 
+        onclick="downloadFinalCompressedPdf()"
+        class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm sm:text-base flex items-center justify-center gap-2 shadow-sm transition active:scale-98 cursor-pointer"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+        </svg>
+        <span>कॉम्प्रेस केलेली PDF डाउनलोड करा (Download File)</span>
+      </button>
+    </div>
+
+  </main>
+
+  <!-- ================= 🌟 FULL-SCREEN COMPRESSION ANIMATION OVERLAY ================= -->
+  <div id="compressionModal" class="fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl border border-slate-200 text-center space-y-4 relative overflow-hidden">
+      
+      <!-- Animated Gear / Document Icon -->
+      <div class="relative w-20 h-20 mx-auto flex items-center justify-center">
+        <div class="absolute inset-0 rounded-full bg-indigo-100 pulse-animation"></div>
+        <div class="w-16 h-16 rounded-full bg-indigo-600 text-white flex items-center justify-center text-3xl shadow-md z-10 gear-spin">
+         ⚙️
+        </div>
+      </div>
+
+      <div>
+        <h4 class="text-base font-bold text-slate-900">तुमच्या PDF वर काम सुरू आहे...</h4>
+        <p id="animSubText" class="text-xs text-slate-500 mt-1">पाने ऑप्टिमाइझ केली जात आहेत, कृपया थांबा.</p>
+      </div>
+
+      <!-- Processing Progress Bar -->
+      <div class="space-y-1 text-left">
+        <div class="flex justify-between text-2xs font-bold text-indigo-900">
+          <span id="animPageStatus">पान १ प्रक्रिया होत आहे...</span>
+          <span id="animPercentText">0%</span>
+        </div>
+        <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+          <div id="animProgressBar" class="bg-indigo-600 h-2.5 rounded-full transition-all duration-200" style="width: 0%"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+    <p>QuickIDPrint • Smart PDF Compressor Tool • सुरक्षित आणि स्वतंत्र सेवा</p>
+  </footer>
+
+  <!-- ================= JAVASCRIPT ENGINE ================= -->
+  <script>
+    // 🟢 AUTH GUARD & HEADER DATA LOGIC (QuickIDPrint Standard)
+    window.onload = function() {
+        const userName = sessionStorage.getItem('userFullName');
+        const remainingDays = sessionStorage.getItem('remainingDays');
+
+        // जर युजरनेम नसेल, तर थेट लॉगिन पेजवर पाठवा
+        if (!userName) {
+            window.location.href = "login.html";
+            return;
+        }
+
+        // युझरचे नाव अपडेट करा
+        document.getElementById('navUserName').innerText = userName;
+
+        // उरलेले दिवस (Token Expiry) अपडेट करा
+        const daysBadge = document.getElementById('navRemainingDays');
+        if (remainingDays !== null) {
+            if (parseInt(remainingDays) >= 0) {
+                daysBadge.innerText = `${remainingDays} दिवस`;
+            } else {
+                daysBadge.innerText = `प्लॅन संपला`;
+                daysBadge.className = "font-semibold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200";
+            }
+        } else {
+            daysBadge.innerText = "माहिती नाही";
+        }
+    };
+
+    // PDF.js Worker Configuration
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+    // State Variables
+    let currentPdfDoc = null;
+    let originalPdfFile = null;
+    let originalPdfBytes = 0;
+    let originalPdfName = 'document';
+    let finalCompressedPdfBlob = null;
+
+    // Drag & Drop Listeners
+    const dropZone = document.getElementById('dropZone');
+    ['dragenter', 'dragover'].forEach(n => {
+      dropZone.addEventListener(n, (e) => { e.preventDefault(); dropZone.classList.add('border-indigo-500', 'bg-indigo-50'); });
+    });
+    ['dragleave', 'drop'].forEach(n => {
+      dropZone.addEventListener(n, (e) => { e.preventDefault(); dropZone.classList.remove('border-indigo-500', 'bg-indigo-50'); });
+    });
+    dropZone.addEventListener('drop', (e) => {
+      const files = e.dataTransfer.files;
+      if (files && files.length > 0 && files[0].type === 'application/pdf') {
+        document.getElementById('pdfFileInput').files = files;
+        handleFileSelection(document.getElementById('pdfFileInput'));
+      }
+    });
+
+    // 1. Handle File Selection with Progress Bar
+    async function handleFileSelection(input) {
+      const file = input.files[0];
+      if (!file || file.type !== 'application/pdf') {
+        alert("कृपया वैध PDF फाईल निवडा!");
+        return;
+      }
+
+      originalPdfFile = file;
+      originalPdfBytes = file.size;
+      originalPdfName = file.name.replace(/\.[^/.]+$/, "") || 'document';
+
+      // Hide results if re-uploading
+      document.getElementById('resultsCard').classList.add('hidden');
+      document.getElementById('resetBtn').classList.remove('hidden');
+
+      // Show Upload Progress Bar
+      const uploadSection = document.getElementById('uploadProgressSection');
+      const uploadBar = document.getElementById('uploadProgressBar');
+      const uploadText = document.getElementById('uploadPercentText');
+
+      uploadSection.classList.remove('hidden');
+      uploadBar.style.width = '10%';
+      uploadText.innerText = '10%';
+
+      // Simulate smooth upload & loading progress
+      let p = 15;
+      const progressTimer = setInterval(() => {
+        p += Math.floor(Math.random() * 20) + 10;
+        if (p > 90) p = 90;
+        uploadBar.style.width = `${p}%`;
+        uploadText.innerText = `${p}%`;
+      }, 100);
+
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        currentPdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+        clearInterval(progressTimer);
+        uploadBar.style.width = '100%';
+        uploadText.innerText = '100%';
+
+        setTimeout(async () => {
+          uploadSection.classList.add('hidden');
+
+          // Populate File Detail Box
+          document.getElementById('detailFileName').innerText = file.name;
+          document.getElementById('detailOrigSize').innerText = formatBytes(originalPdfBytes);
+          document.getElementById('detailTotalPages').innerText = `${currentPdfDoc.numPages} Pages`;
+          document.getElementById('fileDetailBox').classList.remove('hidden');
+
+          // Render Preview Cards right below
+          await renderPagesPreview();
+
+          // Show Preview Card & Compression Settings
+          document.getElementById('previewCard').classList.remove('hidden');
+          document.getElementById('compressionSettingsCard').classList.remove('hidden');
+
+          // Smooth scroll to preview
+          document.getElementById('previewCard').scrollIntoView({ behavior: 'smooth' });
+        }, 300);
+
+      } catch (err) {
+        clearInterval(progressTimer);
+        uploadSection.classList.add('hidden');
+        console.error(err);
+        alert("PDF वाचताना अडचण आली. फाईल पासवर्डने लॉक केलेली नाही ना ते तपासा.");
+      }
+    }
+
+    // 2. Render Preview Pages
+    async function renderPagesPreview() {
+      const container = document.getElementById('pagesListContainer');
+      container.innerHTML = '';
+      document.getElementById('previewPageBadge').innerText = `${currentPdfDoc.numPages} पाने`;
+
+      for (let pageNum = 1; pageNum <= currentPdfDoc.numPages; pageNum++) {
+        const page = await currentPdfDoc.getPage(pageNum);
+        const viewport = page.getViewport({ scale: 1.1 });
+
+        const card = document.createElement('div');
+        card.className = 'bg-white p-3 rounded-xl border border-slate-300 shadow-sm flex flex-col items-center gap-1.5 w-full max-w-[440px]';
+
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        canvas.className = 'w-full h-auto rounded border border-slate-100 shadow-2xs';
+        const ctx = canvas.getContext('2d');
+
+        await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+        const label = document.createElement('span');
+        label.className = 'text-3xs font-semibold text-slate-500';
+        label.innerText = `पान क्रमांक ${pageNum} / ${currentPdfDoc.numPages}`;
+
+        card.appendChild(canvas);
+        card.appendChild(label);
+        container.appendChild(card);
+      }
+    }
+
+    // 3. Run Compression with Animation Modal
+    async function runPdfCompression() {
+      if (!currentPdfDoc) return;
+
+      const level = document.querySelector('input[name="compressionOption"]:checked').value;
+      const modal = document.getElementById('compressionModal');
+      const animBar = document.getElementById('animProgressBar');
+      const animPercent = document.getElementById('animPercentText');
+      const animStatus = document.getElementById('animPageStatus');
+
+      modal.classList.remove('hidden');
+      animBar.style.width = '0%';
+      animPercent.innerText = '0%';
+
+      // Scale & JPEG quality based on level
+      let scale = 1.25;
+      let jpegQuality = 0.65;
+
+      if (level === 'low') {
+        scale = 1.5;
+        jpegQuality = 0.85;
+      } else if (level === 'medium') {
+        scale = 1.2;
+        jpegQuality = 0.65;
+      } else if (level === 'high') {
+        scale = 0.95;
+        jpegQuality = 0.42;
+      }
+
+      const { jsPDF } = window.jspdf;
+      let newPdf = null;
+      const total = currentPdfDoc.numPages;
+
+      for (let i = 1; i <= total; i++) {
+        // Update Live Animation Progress
+        const pct = Math.round(((i - 1) / total) * 100);
+        animBar.style.width = `${pct}%`;
+        animPercent.innerText = `${pct}%`;
+        animStatus.innerText = `पान ${i} पैकी ${total} प्रोसेस होत आहे...`;
+
+        const page = await currentPdfDoc.getPage(i);
+        const viewport = page.getViewport({ scale: scale });
+
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d', { alpha: false });
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+        const imgDataUrl = canvas.toDataURL('image/jpeg', jpegQuality);
+
+        const pdfPageW = page.view[2] - page.view[0];
+        const pdfPageH = page.view[3] - page.view[1];
+        const orient = pdfPageW > pdfPageH ? 'l' : 'p';
+
+        if (i === 1) {
+          newPdf = new jsPDF({
+            orientation: orient,
+            unit: 'pt',
+            format: [pdfPageW, pdfPageH],
+            compress: true
+          });
+          newPdf.addImage(imgDataUrl, 'JPEG', 0, 0, pdfPageW, pdfPageH, undefined, 'FAST');
+        } else {
+          newPdf.addPage([pdfPageW, pdfPageH], orient);
+          newPdf.addImage(imgDataUrl, 'JPEG', 0, 0, pdfPageW, pdfPageH, undefined, 'FAST');
+        }
+
+        // Small delay to allow browser UI repaint
+        await new Promise(r => setTimeout(r, 40));
+      }
+
+      animBar.style.width = '100%';
+      animPercent.innerText = '100%';
+      animStatus.innerText = '✓ पूर्ण झाले!';
+
+      setTimeout(() => {
+        modal.classList.add('hidden');
+
+        // Output Blob
+        finalCompressedPdfBlob = newPdf.output('blob');
+        const compressedBytes = finalCompressedPdfBlob.size;
+
+        // Calculate Savings
+        const savedBytes = Math.max(0, originalPdfBytes - compressedBytes);
+        const savedPercent = Math.round((savedBytes / originalPdfBytes) * 100);
+
+        // Populate Results
+        document.getElementById('statBeforeSize').innerText = formatBytes(originalPdfBytes);
+        document.getElementById('statAfterSize').innerText = formatBytes(compressedBytes);
+        document.getElementById('savingBadge').innerText = `-${savedPercent}% बचत झाली!`;
+
+        const resultsCard = document.getElementById('resultsCard');
+        resultsCard.classList.remove('hidden');
+        resultsCard.scrollIntoView({ behavior: 'smooth' });
+      }, 400);
+    }
+
+    // 4. Download Final PDF
+    function downloadFinalCompressedPdf() {
+      if (!finalCompressedPdfBlob) return;
+
+      const level = document.querySelector('input[name="compressionOption"]:checked').value;
+      const downloadFileName = `${originalPdfName}_compressed_${level}.pdf`;
+
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(finalCompressedPdfBlob);
+      link.download = downloadFileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Silent service log
+      logUsage("PDF Compressed: " + level);
+    }
+
+    // 5. Reset All Tool
+    function resetAllTool() {
+      currentPdfDoc = null;
+      originalPdfFile = null;
+      originalPdfBytes = 0;
+      finalCompressedPdfBlob = null;
+
+      document.getElementById('pdfFileInput').value = '';
+      document.getElementById('fileDetailBox').classList.add('hidden');
+      document.getElementById('previewCard').classList.add('hidden');
+      document.getElementById('compressionSettingsCard').classList.add('hidden');
+      document.getElementById('resultsCard').classList.add('hidden');
+      document.getElementById('resetBtn').classList.add('hidden');
+      document.getElementById('pagesListContainer').innerHTML = '';
+    }
+
+    // Utility: Format Bytes
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 KB';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // 🟢 Silent Background Logging (Updated for QuickIDPrint Session)
+    function logUsage(remark) {
+      const user = sessionStorage.getItem('userFullName') || "User";
+      if (typeof SCRIPT_URL !== "undefined" && SCRIPT_URL) {
+        fetch(SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({
+            action: "submitForm",
+            username: user,
+            ghoshnaType: "PDF Compressor",
+            remark: remark
+          })
+        }).catch(e => console.log(e));
+      }
+    }
+  </script>
+
+</body>
+</html>
